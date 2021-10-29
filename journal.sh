@@ -9,12 +9,12 @@ DATA_DIR="/tmp"
 for i in "$@"; do
     case $i in
         --help)
-cat <<-EOF
-Usage: journal [JOURNAL_NAME]
-A handy script to write journals.
-    ls		displays journals stored in JOURNAL_DATA_DIR 
-    --help	displays this help and exit
-EOF
+			cat <<-EOF
+			Usage: journal [JOURNAL_NAME]
+			A handy script to write journals.
+			    ls		displays journals stored in JOURNAL_DATA_DIR 
+			    --help	displays this help and exit
+			EOF
             exit 0
             ;;
         ls)

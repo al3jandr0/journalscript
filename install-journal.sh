@@ -1,13 +1,12 @@
 #/usr/bin/env bash
+# Handy installation script.  Run on repo's root directoty
+# Copies journal executable script to a directory available in PATH
+# Copies bash autocompelte scripts to a location bash can find it
+#
+install -T -m 755 ./journal.sh $HOME/.local/bin/journal
+# Or if you dont have a ~/.local directory
+# sudo install -T -m 755 ./journal.sh /usr/local/bin/journal
 
-# options: interactive, dry-run, help
-
-#Download journalscript.sh to .local/bin with the name journal and set exec permissions
-
-# Inform user of new file (full path)
-
-#Download journalscript-completion.sh script into .loca.share/bash-completion/completions
-
-# Inform user id dir doesnt exist and about its creatoion
-
-# Inform user about the adding of the complition script (tile name to full-0path)
+install -DT -m 755 journal.bash $HOME/.local/share/bash-completion/completions/journal
+# Or if you dont have a ~/.local directory
+# sudo install -T -m 755 journal.bash /etc/bash/bash-completion.d/journal
