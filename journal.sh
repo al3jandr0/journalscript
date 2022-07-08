@@ -1,8 +1,10 @@
 #!/bin/bash
 FILE_TYPE="md"
 EDITOR="nvim"
-#DATA_DIR="$HOME/repos/journal"
-DATA_DIR="/tmp"
+DATA_DIR="$HOME/repos/journal"
+#DATA_DIR="/tmp"
+SUB_COMAND_EDIT="edit"
+SUB_COMMAND_CREATE="create"
 
 # read journal-name
 
@@ -23,7 +25,7 @@ for i in "$@"; do
         *)
             COMMAND="create-edit"
             JOURNAL="$i"
-            echo "journal name passed $i"
+            #echo "journal name passed $i"
             ;;
     esac
     shift
@@ -48,6 +50,16 @@ Are you looking forward anything in particular ?" > $filename
     esac
 }
 
+backup_file() {
+    local commit_msg=""
+    if [ "$2" = "$SUB_COMMAND_CREATE" ]; then
+        commit_msg="Adds entry"
+    else
+        commit_msg="Edits entry"
+    fi
+    git add "$1" && git commit -m "$commit_msg" && git push
+}
+
 today=$(date +%Y-%m-%d)
 filename="$DATA_DIR/$JOURNAL/$today.$FILE_TYPE"
 
@@ -62,10 +74,12 @@ case $COMMAND in
             echo "Failed to create journal entry. Journal $JOURNAL does not exists in $DATA_DIR" 1>&2
             exit 1
         fi
+        SUB_COMMAND="$SUB_COMMAND_EDIT"
         if ! test -f $filename; then
+            SUB_COMMAND="$SUB_COMMAND_CREATE"
             write_template "$JOURNAL" "$filename"
         fi
-        $EDITOR $filename
+        $EDITOR $filename && backup_file "$filename" "$SUB_COMMAND"
         exit 0
         ;;
 esac
