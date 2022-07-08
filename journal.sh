@@ -34,7 +34,6 @@ done
 write_template() {
     local journalname="$1"
     local filename="$2"
-    echo "writing to $filename"
     case $journalname in
         life)
 echo "`date`
@@ -57,7 +56,16 @@ backup_file() {
     else
         commit_msg="Edits entry"
     fi
-    git add "$1" && git commit -m "$commit_msg" && git push
+    git -C "$DATA_DIR" add "$1" && git -C "$DATA_DIR" commit -m "$commit_msg" && git -C "$DATA_DIR" push
+}
+
+open_files() {
+    local files=("$@")
+    if [ "$EDITOR" = "nvim" ]; then
+        nvim -o "${files[@]}"
+    else
+        $EDITOR "${file[0]}"
+    fi
 }
 
 today=$(date +%Y-%m-%d)
@@ -65,7 +73,7 @@ filename="$DATA_DIR/$JOURNAL/$today.$FILE_TYPE"
 
 case $COMMAND in
     ls)
-        # todo: filter ignored files
+        # TODO: filter ignored files
         ls "$DATA_DIR"
         exit 0
         ;;
@@ -79,7 +87,8 @@ case $COMMAND in
             SUB_COMMAND="$SUB_COMMAND_CREATE"
             write_template "$JOURNAL" "$filename"
         fi
-        $EDITOR $filename && backup_file "$filename" "$SUB_COMMAND"
+        readarray -t filesToOpen < <(ls -tA $DATA_DIR/$JOURNAL/* | head -n2) # 2 most recent files
+        open_files "${filesToOpen[@]}" && backup_file "$filename" "$SUB_COMMAND"
         exit 0
         ;;
 esac
