@@ -3,6 +3,7 @@ FILE_TYPE="md"
 EDITOR="nvim"
 DATA_DIR="$HOME/repos/journal"
 #DATA_DIR="/tmp"
+TEMPLATE_DIR="$DATA_DIR/.journalscrript/templates"
 SUB_COMAND_EDIT="edit"
 SUB_COMMAND_CREATE="create"
 
@@ -32,22 +33,17 @@ for i in "$@"; do
 done
 
 write_template() {
-    local journalname="$1"
-    local filename="$2"
-    case $journalname in
-        life)
-echo "`date`
+    local journalName="$1"
+    local journalEntryFile="$2"
+    local template="$TEMPLATE_DIR/$journalName"
 
-What are you grateful for
-
-How do you feel well/bad/neutral ?
-
-Do you wish to accomplish anything today ?
-
-Are you looking forward anything in particular ?" > $filename 
-        ;;
-    esac
-}
+    if test -f "$template"; then
+        while read line; do
+            echo "echo \"$line\"" | bash >> "$journalEntryFile"
+        done < "$template"
+    else
+        # default template is a date stamp
+        echo "$(date)" > "$journalEntryFile"
 
 backup_file() {
     local commit_msg=""
