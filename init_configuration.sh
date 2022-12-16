@@ -3,6 +3,7 @@
 # Provided variables                                                           #
 ################################################################################
 # Ignores existing Env vars since the goal is to generate new configuration
+# TODO: allow to configure the directory and fime name to suppoer .env
 _JS_CONF_FILE_NAME="journalscript.env"
 _JS_CONF_DIR="$HOME/.config/journalscript"
 JS_CONF_FILE_TYPE="md"
@@ -56,7 +57,7 @@ mkdir -p "$template_dir"
 mkdir -p "$_JS_CONF_DIR"
 
 # TODO:  write configuration to file
-cat <<-EOF
+cat <<-EOF > "$_JS_CONF_DIR/$_JS_CONF_FILE_NAME"
 JS_CONF_FILE_TYPE="$file_type"
 JS_CONF_EDITOR="$editor"
 JS_CONF_DATA_DIR="$data_dir"
