@@ -8,10 +8,15 @@
 ################################################################################
 COMMADN_LS="ls"
 COMMAND_WRITE="write"
-COMMAND_CONFIGURE="configure"
-SUB_COMAND_WRITE_EDIT="edit"
+SUB_COMMAND_WRITE_EDIT="edit"
 SUB_COMMAND_WRITE_CREATE="create"
+COMMAND_CONFIGURE="configure"
+SUB_COMMAND_CONFIGURE_SHOW="configure-show"
+SUB_COMMAND_CONFIGURE_EDIT="configure-edit"
 
+_DEFAULT_COMMAND="$COMMAND_WRITE"
+_COMMAND=""
+_COMMAND_ARGUMENTS=()
 for i in "$@"; do
     case $i in
         --help)
@@ -38,34 +43,79 @@ for i in "$@"; do
     shift
 done
 
-################################################################################
-# Set configuration                                                            #
-################################################################################
+for __opt in "$@"; do
+    case "${__opt}" in
+        -h|--help)
+            _COMMAND="$COMMAND_HELP"
+            ;;
+        ls)
+            _COMMAND="$COMMAND_LS"
+            ;;
+        configure)
+            _COMMAND="$COMMAND_CONFIGURE"
+            ;;
+        write)
+            _COMMAND="$COMMAND_WRITE"
+        *)
+            # All unrecognized options are treated as arguments to the default
+            # command
+            _COMMAND_ARGUMENTS+=("${__opt}")
+            ;;
+    esac
+    shift
+done
 
-# Configuration defaults
-JS_CONF_FILE_TYPE="md"
-JS_CONF_EDITOR="nvim"
-JS_CONF_DATA_DIR="$HOME/repos/journal"
-JS_CONF_TEMPLATE_DIR="$JS_CONF_DATA_DIR/.journalscrript/templates"
+################################################################################
+# Set configuration   TODO: renamte from conf to env?                          #
+################################################################################
+# Look for configuration in the following locations in order
+# 1. Already specified in Env
+# 2. $XDG_CONFIG_HOME/journalscript/journalscript.env
+# 3. $HOME/.config/journalscript/journalscript.env
+# 4. $HOME/.journalscript/journalscript.env
 
+# Default config file location
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 # Returns the full path to the configuration directory
-config_dir() {
+default_config_location() {
     if test -d "$XDG_CONFIG_HOME/journalscript"; then
         echo "$XDG_CONFIG_HOME/journalscript"
     elif test -d "$HOME/.journalscript"; then
         echo "$HOME/.journalscript"
     fi
 }
-# Look for configuration in the following locations in order
-# 1. $XDG_CONFIG_HOME/journalscript/journalscript.env
-# 2. $HOME/.config/journalscript/journalscript.env
-# 3. $HOME/.journalscript/journalscript.env
-_JS_CONF_DIR=config_dir
-_JS_CONF_FILE_NAME="journalscript.env"
+_default_config_dir=default_config_location
+JOURNALSCRIPT_CONF_DIR="${JOURNALSCRIPT_CONF_DIR:-$_default_config_dir}"
+JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-"journalscript.env"}
+
+# Source configuration file, if it exists
 . $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env
-# Re-set in case it is overriden by journalscript.env
-_JS_CONF_DIR=config_dir
+if test -f $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env; then
+    # prefix variables in configuration file with _CONF_FILE in order
+    # to track their origin
+    eval $(sed -nr 's/^([a-zA-Z_][a-zA-Z0-9_]+=.*)/_CONF_\1/p'\
+        $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env)
+fi
+
+# Configuration vars are used in the following order of priority
+# 1. ENV
+# 2. Configuration file
+# 3. Defaults
+JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-\
+${_CONF_JOURNALSCRIPT_FILE_TYPE:-"md"}}
+JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-
+${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"nvim"}}                 # Use system defaults
+JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-\
+${_CONF_JOURNALSCRIPT_DATA_DIR:-"$HOME/repos/journal"}}
+JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
+${_CONF_JOURNALSCRIPT_TEMPLATE_DIR:-\
+"$JOURNALSCRIPT_DATA_DIR/.journalscrript/templates"}}
+
+# Unsets vars loaded from configuration file
+unset _CONF_JOURNALSCRIPT_FILE_TYPE
+unset _CONF_JOURNALSCRIPT_EDITOR
+unset _CONF_JOURNALSCRIPT_DATA_DIR
+unset _CONF_JOURNALSCRIPT_TEMPLATE_DIR
 
 ################################################################################
 # Set configuration                                                            #
@@ -145,3 +195,12 @@ case $COMMAND in
         exit 0
         ;;
 esac
+
+main() {
+    # If $_COMMAND is not provided, then set to 'write' (default command)
+    if [[ -z "$_COMMAND" ]]; then
+        _COMMAND=$_COMMAND_WRITE
+    fi
+    $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
+}
+
