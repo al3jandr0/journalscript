@@ -19,15 +19,6 @@ _DEFAULT_COMMAND="$_COMMAND_WRITE"
 ################################################################################
 # Parse Arguments                                                              #
 ################################################################################
-COMMADN_LS="ls"
-COMMAND_WRITE="write"
-SUB_COMMAND_WRITE_EDIT="edit"
-SUB_COMMAND_WRITE_CREATE="create"
-COMMAND_CONFIGURE="configure"
-SUB_COMMAND_CONFIGURE_SHOW="configure-show"
-SUB_COMMAND_CONFIGURE_EDIT="configure-edit"
-
-# TODO: figure out how to get rid of COMMAND_WRITE
 _PRINT_HELP=0
 _COMMAND=""
 _COMMAND_ARGUMENTS=()
@@ -54,17 +45,6 @@ for __opt in "$@"; do
     shift
 done
 
-main() {
-    if ${_PRINT_HELP}; then
-        _help "$_COMMAND"
-    fi
-    # If $_COMMAND is not provided, then set to 'write' (default command)
-    if [[ -z "$_COMMAND" ]]; then
-        _COMMAND=$_COMMAND_WRITE
-    fi
-    $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
-}
-
 ################################################################################
 # Env                                                                          #
 ################################################################################
@@ -73,6 +53,9 @@ main() {
 # 2. $XDG_CONFIG_HOME/journalscript/journalscript.env
 # 3. $HOME/.config/journalscript/journalscript.env
 # 4. $HOME/.journalscript/journalscript.env
+
+# Error out if $HOME is not defined
+HOME=${HOME:?"\$HOME is not defined"}
 
 # Default config file location
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -85,26 +68,27 @@ default_config_location() {
     fi
 }
 _default_config_dir=default_config_location
-JOURNALSCRIPT_CONF_DIR="${JOURNALSCRIPT_CONF_DIR:-$_default_config_dir}"
+JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR:-$_default_config_dir}
 JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-"journalscript.env"}
+unset _default_config_dir
 
 # Source configuration file, if it exists
-. $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env
-if test -f $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env; then
+#. $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env
+if test -f "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"; then
     # prefix variables in configuration file with _CONF_FILE in order
     # to track their origin
     eval $(sed -nr 's/^([a-zA-Z_][a-zA-Z0-9_]+=.*)/_CONF_\1/p'\
-        $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env)
+        "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME")
 fi
 
-# Configuration vars are used in the following order of priority
+# Configuration env vars are used in the following order of priority
 # 1. ENV
 # 2. Configuration file
 # 3. Defaults
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-\
 ${_CONF_JOURNALSCRIPT_FILE_TYPE:-"md"}}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-
-${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"nvim"}}                 # Use system defaults
+${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"nvim"}}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-\
 ${_CONF_JOURNALSCRIPT_DATA_DIR:-"$HOME/repos/journal"}}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
@@ -118,9 +102,8 @@ unset _CONF_JOURNALSCRIPT_DATA_DIR
 unset _CONF_JOURNALSCRIPT_TEMPLATE_DIR
 
 ################################################################################
-# Set configuration                                                            #
+# Functions                                                                    #
 ################################################################################
-
 write_template() {
     local journalName="$1"
     local journalEntryFile="$2"
@@ -196,4 +179,53 @@ case $COMMAND in
         ;;
 esac
 
+_configure() {
+    local args="$@"
+    # Accept only up to 1 argument
+    if [[ "${#args}" -gt 1 ]]; then
+        echo "ERROR. configuration command supports up to 1 argument"
+    fi
+    # if no arguments, then default to 'show' sub-command
+    if [[ ${#args} -eq 0 ]]; then
+        args+="show"
+    fi
+    # Run sub commands:
+    # config-show.
+    if [[ "${arg[0]}" == "show" ]]; then
+		cat <<-EOF
+		JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR}
+		JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME}
+		JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
+		JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
+		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
+		JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
+		EOF
+    # config-init
+    elif [[ "${arg[0]}" == "init" ]]; then
+        . init_configuration.sh
+    # unknown command.
+    else
+        echo "ERROR. Unsupported argument of 'configure'."
+        echo "See journalscript configure --help for supported options"
+    fi
+}
 
+_main() {
+    echo "\$_COMMAND $_COMMAND"
+    echo "\$_COMMAND_ARGUMENTS ${_COMMAND_ARGUMENTS[@]}"
+    if [[ ${_PRINT_HELP} -eq 1 ]]; then
+        _help "$_COMMAND"
+        exit 0
+    fi
+    # If $_COMMAND is not provided, then set to 'write' (default command)
+    if [[ -z "$_COMMAND" ]]; then
+        _COMMAND=$_COMMAND_WRITE
+    fi
+    $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
+}
+
+################################################################################
+# Run Program                                                                  #
+################################################################################
+# Call the `_main` function after everything has been defined.
+_main

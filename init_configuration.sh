@@ -6,8 +6,8 @@
 ################################################################################
 # ENV                                                                          #
 ################################################################################
-JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_FILE_NAME:-}
-JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_DIR:-}
+JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR:-}
+JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-}
