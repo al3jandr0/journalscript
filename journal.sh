@@ -2,6 +2,19 @@
 # Dependencies
 # - bash
 # - git
+#
+# Descision:
+# 1. If no journal exists, create new journal directory
+#    And promp user for confirmation
+################################################################################
+# Globals                                                                      #
+################################################################################
+_ME="journalscript"
+_VERSION="0.0.1"
+_COMMADN_LS="_ls"
+_COMMAND_WRITE="_write"
+_COMMAND_CONFIGURE="_configure"
+_DEFAULT_COMMAND="$_COMMAND_WRITE"
 
 ################################################################################
 # Parse Arguments                                                              #
@@ -14,39 +27,14 @@ COMMAND_CONFIGURE="configure"
 SUB_COMMAND_CONFIGURE_SHOW="configure-show"
 SUB_COMMAND_CONFIGURE_EDIT="configure-edit"
 
-_DEFAULT_COMMAND="$COMMAND_WRITE"
+# TODO: figure out how to get rid of COMMAND_WRITE
+_PRINT_HELP=0
 _COMMAND=""
 _COMMAND_ARGUMENTS=()
-for i in "$@"; do
-    case $i in
-        --help)
-			cat <<-EOF
-			Usage: journal [JS_CONF_JOURNAL_NAME]
-			A handy script to write journals.
-			    ls			displays available journals 
-                configure	initializes journalscript configuration
-			    --help		displays this help and exit
-			EOF
-            exit 0
-            ;;
-        ls)
-            COMMAND="$COMMAND_LS"
-            ;;
-        configure)
-            COMMAND="$COMMAND_CONFIGURE"
-            ;;
-        *)
-            COMMAND="$COMMAND_WRITE"
-            JOURNAL="$i"
-            ;;
-    esac
-    shift
-done
-
 for __opt in "$@"; do
     case "${__opt}" in
         -h|--help)
-            _COMMAND="$COMMAND_HELP"
+            _PRINT_HELP=1
             ;;
         ls)
             _COMMAND="$COMMAND_LS"
@@ -56,6 +44,7 @@ for __opt in "$@"; do
             ;;
         write)
             _COMMAND="$COMMAND_WRITE"
+            ;;
         *)
             # All unrecognized options are treated as arguments to the default
             # command
@@ -65,8 +54,19 @@ for __opt in "$@"; do
     shift
 done
 
+main() {
+    if ${_PRINT_HELP}; then
+        _help "$_COMMAND"
+    fi
+    # If $_COMMAND is not provided, then set to 'write' (default command)
+    if [[ -z "$_COMMAND" ]]; then
+        _COMMAND=$_COMMAND_WRITE
+    fi
+    $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
+}
+
 ################################################################################
-# Set configuration   TODO: renamte from conf to env?                          #
+# Env                                                                          #
 ################################################################################
 # Look for configuration in the following locations in order
 # 1. Already specified in Env
@@ -196,11 +196,4 @@ case $COMMAND in
         ;;
 esac
 
-main() {
-    # If $_COMMAND is not provided, then set to 'write' (default command)
-    if [[ -z "$_COMMAND" ]]; then
-        _COMMAND=$_COMMAND_WRITE
-    fi
-    $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
-}
 

@@ -14,7 +14,6 @@ JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-}
 _JOURNALSCRIPT_CONF_FILE="$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"
 
-
 ################################################################################
 # Functions                                                                    #
 ################################################################################
@@ -76,13 +75,17 @@ mkdir -p "$JOURNALSCRIPT_DATA_DIR"
 mkdir -p "$JOURNALSCRIPT_TEMPLATE_DIR"
 mkdir -p "$JOURNALSCRIPT_CONF_FILE_DIR"
 
-if [[ "${_JOURNALSCRIPT_CONF_FILE}" == [sS][tT][dD][oO][uU][tT] ]]
-    _JOURNALSCRIPT_CONF_FILE=&1
-fi
-# TODO: ahgh. how to choose between STDOUT or file. should I always print to both ?
-cat <<-EOF > "${_JOURNALSCRIPT_CONF_FILE}"
+_contents=$(cat <<-EOF
 JOURNALSCRIPT_FILE_TYPE="$JOURNALSCRIPT_FILE_TYPE"
 JOURNALSCRIPT_EDITOR="$JOURNALSCRIPT_EDITOR"
 JOURNALSCRIPT_DATA_DIR="$JOURNALSCRIPT_DATA_DIR"
 JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_TEMPLATE_DIR"
 EOF
+)
+if [[ "${_JOURNALSCRIPT_CONF_FILE}" == [sS][tT][dD][oO][uU][tT] ]]
+    printf "%s" "$_contents" 
+else
+    printf "%s" "$_contents" > "${_JOURNALSCRIPT_CONF_FILE}"
+fi
+
+unset _contents confirm
