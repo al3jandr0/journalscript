@@ -28,13 +28,13 @@ for __opt in "$@"; do
             _PRINT_HELP=1
             ;;
         ls)
-            _COMMAND="$COMMAND_LS"
+            _COMMAND="$_COMMAND_LS"
             ;;
         configure)
-            _COMMAND="$COMMAND_CONFIGURE"
+            _COMMAND="$_COMMAND_CONFIGURE"
             ;;
         write)
-            _COMMAND="$COMMAND_WRITE"
+            _COMMAND="$_COMMAND_WRITE"
             ;;
         *)
             # All unrecognized options are treated as arguments to the default
@@ -87,7 +87,7 @@ fi
 # 3. Defaults
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-\
 ${_CONF_JOURNALSCRIPT_FILE_TYPE:-"md"}}
-JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-
+JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-\
 ${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"nvim"}}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-\
 ${_CONF_JOURNALSCRIPT_DATA_DIR:-"$HOME/repos/journal"}}
@@ -182,26 +182,26 @@ esac
 _configure() {
     local args="$@"
     # Accept only up to 1 argument
-    if [[ "${#args}" -gt 1 ]]; then
+    if [[ "${#args[@]}" -gt 1 ]]; then
         echo "ERROR. configuration command supports up to 1 argument"
     fi
     # if no arguments, then default to 'show' sub-command
-    if [[ ${#args} -eq 0 ]]; then
+    if [[ ${#args[@]} -eq 0 ]]; then
         args+="show"
     fi
     # Run sub commands:
     # config-show.
-    if [[ "${arg[0]}" == "show" ]]; then
+    if [[ "${args[0]}" == "show" ]]; then
 		cat <<-EOF
-		JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR}
-		JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME}
+		JOURNALSCRIPT_CONF_FILE_DIR="${JOURNALSCRIPT_CONF_FILE_DIR}"
+		JOURNALSCRIPT_CONF_FILE_NAME="${JOURNALSCRIPT_CONF_FILE_NAME}"
 		JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
 		JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
 		JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
 		EOF
     # config-init
-    elif [[ "${arg[0]}" == "init" ]]; then
+    elif [[ "${args[0]}" == "init" ]]; then
         . init_configuration.sh
     # unknown command.
     else
