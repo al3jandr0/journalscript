@@ -7,14 +7,21 @@ A handy script to manage journals
 Clone the repo, cd into its root, and run the installation scrip 
 
 
-### Features to implemen
+### Features to implement
 - [ ] Add support for .env in order to allow for directory-level configured journals
 - [ ] Add support for method-agnostic post-save hooks in order to support automatic backup once a file is added or edited in order to de-couple backup mechanism
-- [ ] Consider adding a pre-hool. At the moment Im pasing to the editor an order list of journal entries, but for vim I only pass the last two. some editors can open direcotries, some rather open files
-- [ ] Nice to have: make the schipt POSIX complient - make it run on different terminal emulators bash, fish, etc.
+- [ ] Consider adding a pre-hook. At the moment I'm passing to the editor an order list of journal entries, but for vim I only pass the last two. Some editors can open directories, some rather open files
+- [ ] Nice to have: make the script POSIX compliant - make it run on different terminal emulators bash, fish, etc.
 - [ ] Package for arch, debian-like, fedora, and home-brew
+- [ ] Add man page
+- [ ] Package
+- - [ ] apt
+- - [ ] pacman
+- - [ ] dnf
+- - [ ] homebrew
+- - [ ] Windows?
 
-### Tests
+### Tests - cases
 1. Command: 'config init'
 1.1 Test journalscript config init
 1.1.1 Test defaults
@@ -25,14 +32,16 @@ Clone the repo, cd into its root, and run the installation scrip
 1.1.6 Test invalid location of config dir (no permissions) such that it command produces an error, and no config file is created
 
 1.2 Command: 'config'|'config show'
-1.2.1 Test config show with config located in $HOME
-    write config gile in $HOME/
-    run 'journal config'
-    validate stdout
+1.2.1 Test config show. 
+    Given no config file
+    And no env var overrides
+    Then journalscript prints to stdout that there is no cofiguration set. Indicate to run config init
 
-    Last two steps can be done with a unit test framework. However the first step 
-    but the first mutates the file system
 1.2.2 Test config show with config located in $XDG_CONFIG/journalscript
+    Given a config file located containing all of journalscripts env vars (need better deffinition) located in $HOME/.config/
+    And no env var overrides
+    Then journalscript prints to stdout the same values of journalscript's env vars corresponding to those in the configuration file
+
 1.2.3 No config file displays default values
 1.2.4 Test config shows override vars in the environment
 
@@ -43,3 +52,19 @@ Clone the repo, cd into its root, and run the installation scrip
 2.1.3 Test command generates a file in the expected location with the expected template (if any) 
 2.2 Test journalscript write edit 
 2.2.1 Test no new file is created in data directory
+
+3. Command: help
+3.1 Help adheres to usage / help format
+3.2 Help <command> prints the command-specific usage / help
+3.3 Help always exists with 0 code
+3.4 Help prints only to stdout - undecided whether warnings should be allowed?
+
+## Invariants
+1. Nothing else beside the output of the command is allowed to be printed to stout
+2. No file in the FS is modified except for those in the DATA directory - could make stricter by permitting only 1 file (the most recent one) in DATA to be modified 
+3. Env is inmutable. No var should be exported or unset
+4. The updated or created file (if any) should adhere to the format <date>.<type>
+
+### Terminal specific?
+1. Always run as interactive?
+
