@@ -48,27 +48,24 @@ done
 ################################################################################
 # Env                                                                          #
 ################################################################################
-# Look for configuration in the following locations in order
-# 1. Already specified in Env
-# 2. $XDG_CONFIG_HOME/journalscript/journalscript.env
-# 3. $HOME/.config/journalscript/journalscript.env
-# 4. $HOME/.journalscript/journalscript.env
-
+# System default env
 # Error out if $HOME is not defined
 HOME=${HOME:?"\$HOME is not defined"}
 EDITOR="${EDITOR:-vi}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_DOCUMENTS_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
 
-# Returns the full path to the configuration directory
-default_config_location() {
-    if test -d "$XDG_CONFIG_HOME/journalscript"; then
-        echo "$XDG_CONFIG_HOME/journalscript"
-    elif test -d "$HOME/.journalscript"; then
-        echo "$HOME/.journalscript"
-    fi
-}
-_default_config_dir=default_config_location
+# Journalsscript env
+
+# Look for configuration in the following locations in order
+# 1. Already specified in Env
+# 2. $XDG_CONFIG_HOME/journalscript/journalscript.env
+# 3. $HOME/.config/journalscript/journalscript.env
+# 4. $HOME/.journalscript/journalscript.env
+_default_config_dir="$HOME/.journalscript"
+if test -d "$XDG_CONFIG_HOME/journalscript"; then
+    _default_config_dir="$XDG_CONFIG_HOME/journalscript"
+fi
 JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR:-$_default_config_dir}
 JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-"journalscript.env"}
 unset _default_config_dir
@@ -78,6 +75,7 @@ unset _default_config_dir
 if test -f "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"; then
     # prefix variables in configuration file with _CONF_FILE in order
     # to track their origin
+    # TODO: update to support plugin vars
     eval $(sed -nr 's/^([a-zA-Z_][a-zA-Z0-9_]+=.*)/_CONF_\1/p'\
         "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME")
 fi
@@ -87,14 +85,14 @@ fi
 # 2. Configuration file
 # 3. Defaults
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-\
-${_CONF_JOURNALSCRIPT_FILE_TYPE:-"md"}}
+${_CONF_JOURNALSCRIPT_FILE_TYPE:-"txt"}}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-\
 ${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"$EDITOR"}}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-\
 ${_CONF_JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR"}}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
 ${_CONF_JOURNALSCRIPT_TEMPLATE_DIR:-\
-"$JOURNALSCRIPT_DATA_DIR/.journalscrript/templates"}}
+"$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"}}
 
 # Unsets vars loaded from configuration file
 unset _CONF_JOURNALSCRIPT_FILE_TYPE
@@ -212,8 +210,6 @@ _configure() {
 }
 
 _main() {
-    echo "\$_COMMAND $_COMMAND"
-    echo "\$_COMMAND_ARGUMENTS ${_COMMAND_ARGUMENTS[@]}"
     if [[ ${_PRINT_HELP} -eq 1 ]]; then
         _help "$_COMMAND"
         exit 0
