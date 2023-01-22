@@ -56,9 +56,10 @@ done
 
 # Error out if $HOME is not defined
 HOME=${HOME:?"\$HOME is not defined"}
-
-# Default config file location
+EDITOR="${EDITOR:-vi}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_DOCUMENTS_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
+
 # Returns the full path to the configuration directory
 default_config_location() {
     if test -d "$XDG_CONFIG_HOME/journalscript"; then
@@ -88,9 +89,9 @@ fi
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-\
 ${_CONF_JOURNALSCRIPT_FILE_TYPE:-"md"}}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-\
-${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"nvim"}}
+${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"$EDITOR"}}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-\
-${_CONF_JOURNALSCRIPT_DATA_DIR:-"$HOME/repos/journal"}}
+${_CONF_JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR"}}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
 ${_CONF_JOURNALSCRIPT_TEMPLATE_DIR:-\
 "$JOURNALSCRIPT_DATA_DIR/.journalscrript/templates"}}
