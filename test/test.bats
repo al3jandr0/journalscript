@@ -1,5 +1,6 @@
 # TODO: anchor to a specific bats version
 setup() {
+    # TODO: update with bats_load_library
     load 'test_helper/bats-support/load'
     load 'test_helper/bats-assert/load'
     # get the containing directory of this file
@@ -59,11 +60,11 @@ setup() {
 
 # TODO: add a tag for configure command such that you can filter tests per connand
 
-# Format: <var_name>="<value>"
+# Format: <var_name>=["]<value>["]
+# where var_name must be POSIX compliant
 _assert_output_conforms_to_format() {
     for line in "${lines[@]}"; do
-        # all valid var names are prefixed with JOURNALSCRIPT_
-        assert_regex "$line" '^JOURNALSCRIPT_.+=".+"$' 
+        assert_regex "$line" '^[a-zA-Z0-9][a-zA-Z0-9_]+="?.+"?$' 
     done
 }
 
@@ -71,7 +72,7 @@ _case=\
 "1.1.1 Given no configuration file. "\
 "And no env var overrides. "\
 "And no XDG 'dot' direcotory "\
-"When command 'configure show' is invoked. "\
+"When the command 'configure show' is invoked. "\
 "Then journalscript should write the default configuration to stdout."
 @test "${_case}" {
     run journal.sh configure show
@@ -89,3 +90,35 @@ _case=\
     assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
     assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
 }
+
+_casee=\
+"1.1.2 Given the configuration file .journalscript.env located in $HOME/. "\
+"And no env var overrides. "\
+"When command the 'configure show' is invoked. "\
+"Then journalscript should write the file's configuration to stdout."
+@test "${_casee}" {
+    # setup
+    mkdir -p "$HOME/.journalscript"
+    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/.journalscript/journalscript.env"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+}
+
+
+# TODO: test file loading ignores comments
+#       test file loeading ignores vars that do not conforms to format
+# TODO: update scritp to handle whether directories have '/' at the end or not
+
+

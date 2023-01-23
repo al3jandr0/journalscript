@@ -22,28 +22,23 @@ Clone the repo, cd into its root, and run the installation scrip
 - - [ ] Windows?
 
 ### Tests - cases
-1. Command: 'config init'
-1.1 Test journalscript config init
-1.1.1 Test defaults
-1.1.2 Test custom content but default location
-1.1.3 Test default content but custom location
-1.1.4 Test invalid location of data dir (no permissions) such that it command produces an error, and no config file is created
-1.1.5 Test invalid location of template dir (no permissions) such that it command produces an error, and no config file is created
-1.1.6 Test invalid location of config dir (no permissions) such that it command produces an error, and no config file is created
+x1. Command: 'config init'
+x1.1 Test journalscript config init
+x1.1.1 Test defaults
+x1.1.2 Test custom content but default location
+x1.1.3 Test default content but custom location
+x1.1.4 Test invalid location of data dir (no permissions) such that it command produces an error, and no config file is created
+x1.1.5 Test invalid location of template dir (no permissions) such that it command produces an error, and no config file is created
+x1.1.6 Test invalid location of config dir (no permissions) such that it command produces an error, and no config file is created
 
-1.2 Command: 'config'|'config show'
-1.2.1 Test config show. 
-    Given no config file
-    And no env var overrides
-    Then journalscript prints to stdout that there is no cofiguration set. Indicate to run config init
-
-1.2.2 Test config show with config located in $XDG_CONFIG/journalscript
-    Given a config file located containing all of journalscripts env vars (need better deffinition) located in $HOME/.config/
-    And no env var overrides
-    Then journalscript prints to stdout the same values of journalscript's env vars corresponding to those in the configuration file
-
-1.2.3 No config file displays default values
-1.2.4 Test config shows override vars in the environment
+1 Command: configure
+1.1 Subcommand: show
+1.1.1 Test No config file and no env overrides and no xdg directories displays default values
+1.2.2 Test config file located in $HOME gets picked up
+1.2.3 Test config file located in $XDG_CONFIG/journalscript get picked up
+1.2.4 Test config file located in custom location gets picked up with appropiate env overrides
+1.2.5 Test config shows system override vars in the environment
+1.2.6 Test config shows JOURNALSCRIPT specific override vars in the environment
 
 2. Command: ''|'write'
 2.1 Test journalscript write create 

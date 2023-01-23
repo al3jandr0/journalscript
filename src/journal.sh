@@ -70,35 +70,32 @@ JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR:-$_default_config_dir}
 JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-"journalscript.env"}
 unset _default_config_dir
 
-# Source configuration file, if it exists
-#. $_JS_CONF_DIR/$_JS_CONF_FILE_NAME.env
-if test -f "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"; then
-    # prefix variables in configuration file with _CONF_FILE in order
-    # to track their origin
-    # TODO: update to support plugin vars
-    eval $(sed -nr 's/^([a-zA-Z_][a-zA-Z0-9_]+=.*)/_CONF_\1/p'\
-        "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME")
-fi
-
 # Configuration env vars are used in the following order of priority
 # 1. ENV
 # 2. Configuration file
 # 3. Defaults
-JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-\
-${_CONF_JOURNALSCRIPT_FILE_TYPE:-"txt"}}
-JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-\
-${_CONF_JOURNALSCRIPT_FILE_EDITOR:-"$EDITOR"}}
-JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-\
-${_CONF_JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR"}}
-JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
-${_CONF_JOURNALSCRIPT_TEMPLATE_DIR:-\
-"$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"}}
 
-# Unsets vars loaded from configuration file
-unset _CONF_JOURNALSCRIPT_FILE_TYPE
-unset _CONF_JOURNALSCRIPT_EDITOR
-unset _CONF_JOURNALSCRIPT_DATA_DIR
-unset _CONF_JOURNALSCRIPT_TEMPLATE_DIR
+# 1 & 2. Source configuration file, if it exists
+if test -f "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"; then
+    # foe each line in the configuration file
+    while read line; do
+        # ignore comments
+        [[ "$line" =~ ^#.*$ ]] && continue
+        # each line follows the format: <name>=<value>
+        readarray -t -d '=' var < <(printf '%s' "$line")
+        # expand values
+        _expanded_value=$(eval printf '%s' "${var[1]}")
+        # set configuration file variable if it is not already set in env
+        declare "${var[0]}"="${!var[0]:-$_expanded_value}"
+    done < "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"
+fi
+
+# 3. Set default values if not in configuration file or already set in env
+JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
+JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
+JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR"}
+JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
+"$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"}
 
 ################################################################################
 # Functions                                                                    #
