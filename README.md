@@ -21,15 +21,7 @@ Clone the repo, cd into its root, and run the installation scrip
 - - [ ] homebrew
 - - [ ] Windows?
 
-### Tests - cases
-x1. Command: 'config init'
-x1.1 Test journalscript config init
-x1.1.1 Test defaults
-x1.1.2 Test custom content but default location
-x1.1.3 Test default content but custom location
-x1.1.4 Test invalid location of data dir (no permissions) such that it command produces an error, and no config file is created
-x1.1.5 Test invalid location of template dir (no permissions) such that it command produces an error, and no config file is created
-x1.1.6 Test invalid location of config dir (no permissions) such that it command produces an error, and no config file is created
+## Tests - cases
 
 1 Command: configure
 1.1 Subcommand: show
@@ -40,19 +32,31 @@ x1.1.6 Test invalid location of config dir (no permissions) such that it command
 1.2.5 Test config shows system override vars in the environment
 1.2.6 Test config shows JOURNALSCRIPT specific override vars in the environment
 
-2. Command: ''|'write'
-2.1 Test journalscript write create 
-2.1.1 Test command generates a file in the expected location 
-2.1.2 Test command generates a file with the expected name format 
-2.1.3 Test command generates a file in the expected location with the expected template (if any) 
-2.2 Test journalscript write edit 
-2.2.1 Test no new file is created in data directory
+1. Command: configure
+1.2 Subcommand: init
+1.2.1 Test defaults
+1.2.2 Test custom values and default location
+1.2.3 Test default values and custom location
+1.2.4 Test invalid location of data dir (no permissions) such that it command produces an error, and no config file is created
+1.2.5 Test invalid location of template dir (no permissions) such that it command produces an error, and no config file is created
+1.2.6 Test invalid location of configuration dir (no permissions) such that it command produces an error, and no config file is created
+
+2. Command: write
+2.1 Subcommand: write create 
+2.1.1 Test command creates a new journal if target journal doesnt exist
+2.1.2 Test command doesnt create a new journal if target journal exists
+2.1.3 Test write command is invoked when only the journal name is provided
+2.1.4 Test command generates a file in the expected location 
+2.1.5 Test command generates a file with the expected name format 
+2.1.6 Test command generates a file with the expected template (if any) 
+2.1.7 Test command fails if journalscript doesn't have permissions to target directory
+2.1.8 Test journalscript doesnt create a new file if target file exits 
 
 3. Command: help
 3.1 Help adheres to usage / help format
 3.2 Help <command> prints the command-specific usage / help
-3.3 Help always exists with 0 code
-3.4 Help prints only to stdout - undecided whether warnings should be allowed?
+3.3 Help always exits with 0 code
+3.4 Help prints only to stdout
 
 ## Invariants
 1. Nothing else beside the output of the command is allowed to be printed to stout
