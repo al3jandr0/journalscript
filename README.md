@@ -29,8 +29,7 @@ Clone the repo, cd into its root, and run the installation scrip
 1.2.2 Test config file located in $HOME gets picked up
 1.2.3 Test config file located in $XDG_CONFIG/journalscript get picked up
 1.2.4 Test config file located in custom location gets picked up with appropiate env overrides
-1.2.5 Test config shows system override vars in the environment
-1.2.6 Test config shows JOURNALSCRIPT specific override vars in the environment
+1.2.5 Test config shows existing env vars over those in configuration file
 
 1. Command: configure
 1.2 Subcommand: init

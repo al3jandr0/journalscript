@@ -68,13 +68,13 @@ _assert_output_conforms_to_format() {
     done
 }
 
-_case=\
+_1_1_1=\
 "1.1.1 Given no configuration file. "\
 "And no env var overrides. "\
 "And no XDG 'dot' direcotory "\
 "When the command 'configure show' is invoked. "\
 "Then journalscript should write the default configuration to stdout."
-@test "${_case}" {
+@test "${_1_1_1}" {
     run journal.sh configure show
     # assert command finishes sucessfully
     assert_success
@@ -91,12 +91,12 @@ _case=\
     assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
 }
 
-_casee=\
+_1_1_2=\
 "1.1.2 Given the configuration file .journalscript.env located in $HOME/. "\
 "And no env var overrides. "\
-"When command the 'configure show' is invoked. "\
+"When command 'configure show' is invoked. "\
 "Then journalscript should write the file's configuration to stdout."
-@test "${_casee}" {
+@test "${_1_1_2}" {
     # setup
     mkdir -p "$HOME/.journalscript"
     cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/.journalscript/journalscript.env"
@@ -116,6 +116,88 @@ _casee=\
     assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
 }
 
+_1_1_3=\
+"1.1.3 Given the configuration file .journalscript.env located in $XDG_CONFIG/journalscript "\
+"And no env var overrides. "\
+"When command 'configure show' is invoked. "\
+"Then journalscript should write the file's configuration to stdout."
+@test "${_1_1_3}" {
+    # setup
+    mkdir -p "$HOME/.config/journalscript"
+    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/.config/journalscript/journalscript.env"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.config/journalscript\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+}
+
+_1_1_4=\
+"1.1.4 Given the configuration file .journalscript.env located in a custome directory "\
+"And no env var overrides other than JOURNALSCRIPT_CONF_FILE_DIR "\
+"When command 'configure show' is invoked. "\
+"Then journalscript should write the file's configuration to stdout."
+@test "${_1_1_4}" {
+    # setup
+    export JOURNALSCRIPT_CONF_FILE_DIR="$HOME/Documents"
+    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/Documents/journalscript.env"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/Documents\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+}
+
+_1_1_5=\
+"1.1.5 Given no configuration file "\
+"And all the configuration in env var overrides "\
+"When command 'configure show' is invoked. "\
+"Then journalscript should write the file's configuration to stdout."
+@test "${_1_1_5}" {
+    # setup
+    export JOURNALSCRIPT_CONF_FILE_DIR="$HOME/Documents/somedir"
+    export JOURNALSCRIPT_FILE_TYPE="madeupTestType"
+    export JOURNALSCRIPT_EDITOR="madeupTestEditor"
+    export JOURNALSCRIPT_DATA_DIR="$HOME/Documents/somewhere/journals"
+    export JOURNALSCRIPT_TEMPLATE_DIR="$HOME/Documents/somewherelse/templates"
+    export JOURNALSCRIPT_CONF_FILE_NAME="someFile.env"
+
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"$JOURNALSCRIPT_FILE_TYPE\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"$JOURNALSCRIPT_EDITOR\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$JOURNALSCRIPT_DATA_DIR\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$JOURNALSCRIPT_TEMPLATE_DIR\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"$JOURNALSCRIPT_CONF_FILE_NAME\""
+}
+
+teardown() {
+    unset JOURNALSCRIPT_CONF_FILE_DIR
+}
 
 # TODO: test file loading ignores comments
 #       test file loeading ignores vars that do not conforms to format
