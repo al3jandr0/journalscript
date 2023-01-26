@@ -1,8 +1,16 @@
+################################################################################
+# Test set for command: configure                                              # 
+################################################################################
+
+# TODO: add a tag for configure command such that you can filter tests per connand
 # TODO: anchor to a specific bats version
+# TODO: update scritp to handle whether directories have '/' at the end or not
+
 setup() {
     # TODO: update with bats_load_library
     load 'test_helper/bats-support/load'
     load 'test_helper/bats-assert/load'
+    load 'test_helper/bats-file/load'
     # get the containing directory of this file
     # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0, as those will
     # point to the bats executable's location or the preprocessed file 
@@ -50,15 +58,6 @@ setup() {
     # TODO: unset XDG_DOCUMENTS_DIR, XDG_CONFIG_HOME
 }
 
-#teardown() {
-    #rm -rf "$BATS_TEST_TMPDIR" 
-#}
-
-###############################################################################
-# 1. Test set for command: configure                                          #
-###############################################################################
-
-# TODO: add a tag for configure command such that you can filter tests per connand
 
 # Format: <var_name>=["]<value>["]
 # where var_name must be POSIX compliant
@@ -67,6 +66,22 @@ _assert_output_conforms_to_format() {
         assert_regex "$line" '^[a-zA-Z0-9][a-zA-Z0-9_]+="?.+"?$' 
     done
 }
+
+###############################################################################
+# Command: configure                                                          #
+###############################################################################
+
+_1=\
+"1. When unsupported su-commands are provided to configure. "\
+"Then journalscript exists with an error"
+@test "${_1}" {
+    run journal.sh configure invalid 
+    assert_failure
+}
+
+###############################################################################
+# Command: configure show                                                     #
+###############################################################################
 
 _1_1_1=\
 "1.1.1 Given no configuration file. "\
@@ -195,12 +210,241 @@ _1_1_5=\
     assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"$JOURNALSCRIPT_CONF_FILE_NAME\""
 }
 
+_1_1_6=\
+"1.1.6 Given no configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"When the command 'configure' is invoked. "\
+"Then journalscript runs configure show."
+@test "${_1_1_6}" {
+    run journal.sh configure
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+}
+
+_1_1_7=\
+"1.1.7 Given a configuration file with comments located in $HOME "\
+"And no env var overrides. "\
+"When command 'configure show' is invoked. "\
+"Then journalscript should write the file's configuration to stdout ignoring the comments."
+@test "${_1_1_7}" {
+    # setup
+    mkdir -p "$HOME/.journalscript"
+    cp "$BATS_TEST_DIRNAME/test-config-file-with-comments.env" "$HOME/.journalscript/journalscript.env"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
+    refute_output --partial "Comments are ignored"
+    # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vi) should be provided
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
+    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+}
+
+
+###############################################################################
+# Command: configure init                                                     #
+###############################################################################
+
+_1_2_1=\
+"1.2.1 Given no configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"When the command configure init is invoked. "\
+"And user inputs no values other than stdout for target file. "\
+"And user accepts changes. "\
+"Then journalscript writes to stdout default configuration values."
+@test "${_1_2_1}" {
+    FILE_TYPE=""
+    EDITOR=""
+    DATA_DIR=""
+    TEMPLATE_DIR=""
+    ACEPT_CHANGES="yes"
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\nstdout\n$ACEPT_CHANGES") 
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+}
+
+_1_2_2=\
+"1.2.2 Given no configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"When the command configure init is invoked. "\
+"And user inputs no values. "\
+"And user accepts changes. "\
+"Then journalscript writes default configuration values to config file in default location."
+@test "${_1_2_2}" {
+    FILE_TYPE=""
+    EDITOR=""
+    DATA_DIR=""
+    TEMPLATE_DIR=""
+    ACEPT_CHANGES="yes"
+    FILE="$HOME/.journalscript/journalscript.env"
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n\n$ACEPT_CHANGES") 
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated configuration file  
+    assert_exists "$FILE"
+    assert_file_not_executable "$FILE"
+    assert_file_owner "$USER" "$FILE"
+    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+}
+
+_1_2_3=\
+"1.2.3 Given an existing configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"When the command configure init is invoked. "\
+"And user inputs no values. "\
+"And user accepts changes. "\
+"Then journalscript writes to configuration values to config file in default location."
+@test "${_1_2_3}" {
+    FILE_TYPE=""
+    EDITOR=""
+    DATA_DIR=""
+    TEMPLATE_DIR=""
+    ACEPT_CHANGES="yes"
+    FILE="$HOME/.journalscript/journalscript.env"
+    mkdir -p "$HOME/.journalscript"
+    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$FILE"
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n\n$ACEPT_CHANGES") 
+
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "$FILE will be overriden"
+    # assert generated configuration file  
+    assert_exists "$FILE"
+    assert_file_not_executable "$FILE"
+    assert_file_owner "$USER" "$FILE"
+    # contents are defaulted to original configuration file if user specifies none
+    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"testType\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"testEditor\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
+}
+
+_1_2_4=\
+"1.2.4 Given no configuration file. "\
+"And no env var overrides. "\
+"And XDG 'dot' direcotory "\
+"When the command configure init is invoked. "\
+"And user inputs no values. "\
+"And user accepts changes. "\
+"Then journalscript writes to default configuration values to config file in xdg directory."
+@test "${_1_2_4}" {
+    FILE_TYPE=""
+    EDITOR=""
+    DATA_DIR=""
+    TEMPLATE_DIR=""
+    ACEPT_CHANGES="yes"
+    FILE="$HOME/.config/journalscript/journalscript.env"
+    mkdir -p "$HOME/.config/journalscript"
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n\n$ACEPT_CHANGES") 
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated configuration file  
+    assert_exists "$FILE"
+    assert_file_not_executable "$FILE"
+    assert_file_owner "$USER" "$FILE"
+    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+}
+
+_1_2_5=\
+"1.2.5 Given no configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"When the command configure init is invoked. "\
+"And user provides inputs. "\
+"And user accepts changes. "\
+"Then journalscript writes a configuration file respecting the user choices."
+@test "${_1_2_5}" {
+    FILE_TYPE="banana"
+    EDITOR="mango"
+    DATA_DIR="$HOME"
+    TEMPLATE_DIR="$HOME"
+    ACEPT_CHANGES="yes"
+    FILE="$HOME/.journalscript/journalscript.env"
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n\n$ACEPT_CHANGES") 
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated configuration file  
+    assert_exists "$FILE"
+    assert_file_not_executable "$FILE"
+    assert_file_owner "$USER" "$FILE"
+    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"$FILE_TYPE\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"$EDITOR\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$DATA_DIR\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$TEMPLATE_DIR\""
+}
+
+_1_2_6=\
+"1.2.6 Given no configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"When the command configure init is invoked. "\
+"And user rejects changes. "\
+"Then journalscript writes no configuration file."
+@test "${_1_2_6}" {
+    FILE_TYPE=""
+    EDITOR=""
+    DATA_DIR=""
+    TEMPLATE_DIR=""
+    ACEPT_CHANGES="no"
+    FILE="$HOME/.journalscript/journalscript.env"
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n\n$ACEPT_CHANGES") 
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated configuration file  
+    assert_not_exists "$FILE"
+    # chek other possible locations
+    assert_not_exists "$HOME/.configure/journalscript/journalscript.env"
+}
+
+# TODO: test warnign and info messages. Im still workign out the language.
+
 teardown() {
     unset JOURNALSCRIPT_CONF_FILE_DIR
 }
-
-# TODO: test file loading ignores comments
-#       test file loeading ignores vars that do not conforms to format
-# TODO: update scritp to handle whether directories have '/' at the end or not
-
 

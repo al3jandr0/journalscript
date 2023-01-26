@@ -182,7 +182,7 @@ _configure() {
         echo "ERROR. configuration command supports up to 1 argument"
     fi
     # if no arguments, then default to 'show' sub-command
-    if [[ ${#args[@]} -eq 0 ]]; then
+    if [[ -z "$args" ]] || [[ ${#args[@]} -eq 0 ]]; then
         args+="show"
     fi
     # Run sub commands:
@@ -201,8 +201,9 @@ _configure() {
         . init_configuration.sh
     # unknown command.
     else
-        echo "ERROR. Unsupported argument of 'configure'."
+        echo "ERROR. Unsupported argument '${args[0]}' of 'configure'."
         echo "See journalscript configure --help for supported options"
+        exit 1
     fi
 }
 
