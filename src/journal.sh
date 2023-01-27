@@ -2,6 +2,7 @@
 # Dependencies
 # - bash
 # - git
+# - date
 #
 # Descision:
 # 1. If no journal exists, create new journal directory
@@ -118,7 +119,7 @@ write_template() {
 # TODO: Think about what ENV_VARS or params to expose to a backup function hook 
 backup_file() {
     local commit_msg=""
-    if [ "$2" = "$SUB_COMMAND_CREATE" ]; then
+    if [ "$2" -eq 1 ]; then
         commit_msg="Adds entry"
     else
         commit_msg="Edits entry"
@@ -175,19 +176,22 @@ case $COMMAND in
         ;;
 esac
 
+# Accepts up to one argument -the subcommand (init, or show)-, or no arguments
+# In case of no arguments, defaults to 'show' subcommand
 _configure() {
-    local args="$@"
-    # Accept only up to 1 argument
-    if [[ "${#args[@]}" -gt 1 ]]; then
+    # default command
+    local sub_command="show"
+    # Accept only up to 1 argument. Error if more than 1 argument
+    if [[ "${#@}" -eq 1 ]]; then
+        sub_command="$1"
+    elif [[ "${#@}" -gt 1 ]]; then
         echo "ERROR. configuration command supports up to 1 argument"
+        exit 1
     fi
-    # if no arguments, then default to 'show' sub-command
-    if [[ -z "$args" ]] || [[ ${#args[@]} -eq 0 ]]; then
-        args+="show"
-    fi
+    # if no arguments, then default to show sub_command 
+
     # Run sub commands:
-    # config-show.
-    if [[ "${args[0]}" == "show" ]]; then
+    if [[ "$sub_command" == "show" ]]; then
 		cat <<-EOF
 		JOURNALSCRIPT_CONF_FILE_DIR="${JOURNALSCRIPT_CONF_FILE_DIR}"
 		JOURNALSCRIPT_CONF_FILE_NAME="${JOURNALSCRIPT_CONF_FILE_NAME}"
@@ -196,8 +200,7 @@ _configure() {
 		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
 		JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
 		EOF
-    # config-init
-    elif [[ "${args[0]}" == "init" ]]; then
+    elif [[ "$sub_command" == "init" ]]; then
         . init_configuration.sh
     # unknown command.
     else
@@ -205,6 +208,71 @@ _configure() {
         echo "See journalscript configure --help for supported options"
         exit 1
     fi
+}
+
+# Copy template into new entry if the template exists
+# Templates have the same name as the journal. If no template file with
+# matching name exists in the templates direcotory exists, then copy 
+# _default_template.  If no _default_template file exits or no template dir
+# exists, then timestamp the file.
+# TODO: decide whether to accept bash in templates (dynamic templates)
+_write_template() {
+    local journal_name="$1"
+    local todays_entry="$2"
+    if test -f "$JOURNALSCRIPT_TEMPLATE_DIR/$journal_name"; then
+        cp "$JOURNALSCRIPT_TEMPLATE_DIR/$journal_name" "$todays_entry"
+    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/_default_template"; then
+        cp "$JOURNALSCRIPT_TEMPLATE_DIR/_default_template" "$todays_entry"
+    elif
+        date > "$todays_entry"
+        #echo "$(date)" > "$todays_entry"
+    fi
+}
+
+# TODO : desing an API for hooks, some editors may want the full on directory,
+#        others may not be able to open more than 1 file
+#        I think one coudl provide:
+#        Path/to/Directory
+#        Current file
+#        Previous entry file
+# Accepts up to one argument -the journal name-, or no arguments
+# In case of no arguments, defaults journal name becomes 'life'
+_write() {
+    # default journal name
+    local journal_name="life"
+    # if no argument (journal name), then default to 'life' journal 
+    if [[ ${#@} -eq 1 ]]; then
+        journal_name="$1"
+    elif [[ ${#@} -gt 1 ]]; then
+        echo "ERROR. configuration command supports up to 1 argument"
+        exit 1
+    fi
+    # date format: YYY-mm-dd
+    local todays_date=$(date +%Y-%m-%d)
+    local jornal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
+    local todays_entry="$journal_dir/$todays_entry.$JOURNALSCRIPT_FILE_TYPE"
+
+    # fail if JOURNALSCRIPT_DATA_DIR does not exist
+    if ! test -d "$JOURNALSCRIPT_DATA_DIR"; then
+        # TODO: write message to stderr
+        exit 1
+    fi
+    # if no journal directory, notify user and create it if user agrees
+    if ! test -d "$journal_dir"; then
+        # TODO: check on user
+        mkdir "$journal_dir"
+    fi
+    # if new entry, then copy template 
+    local is_new_file=0
+    if ! test -f "$todays_entry";then
+        is_new_file=1
+        _write_template "$journal_name" "$todays_entry"
+    fi
+    # get the two most recent files (current entry and previous entry)
+    readarray -t filesToOpen < <(ls -tA $journal_dir/* | head -n2) # 2 most recent files
+
+    # Enable a backup hook
+    open_files "${filesToOpen[@]}" && backup_file "$filename" "$is_new_file"
 }
 
 _main() {
