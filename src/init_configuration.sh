@@ -6,20 +6,18 @@
 ################################################################################
 # ENV                                                                          #
 ################################################################################
-JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR:-}
-JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-}
-_JOURNALSCRIPT_CONF_FILE="$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"
+_JOURNALSCRIPT_CONF_DIR=${_JOURNALSCRIPT_CONF_DIR:-}
 
 ################################################################################
 # Functions                                                                    #
 ################################################################################
 # Checks argument isnt stdout and it isnt the default "<empty>/<empty>"
-is_file() {
-    [[ "${#1}" -gt 1 && "$1" != [sS][tT][dD][oO][uU][tT] ]]
+is_stdout() {
+    [[ "$1" == [sS][tT][dD][oO][uU][tT] ]]
 }
 
 ################################################################################
@@ -29,13 +27,12 @@ read -p "\$JOURNALSCRIPT_FILE_TYPE. Journal entry's file format ($JOURNALSCRIPT_
 read -p "\$JOURNALSCRIPT_EDITOR. Editor ($JOURNALSCRIPT_EDITOR):" editor
 read -p "\$JOURNALSCRIPT_DATA_DIR. Journal entry location [path/to/directory] ($JOURNALSCRIPT_DATA_DIR):" data_dir
 read -p "\$JOURNALSCRIPT_TEMPLATE_DIR. Templates location [path/to/directory] ($JOURNALSCRIPT_TEMPLATE_DIR):" template_dir
-read -p "Configuration file [path/to/file|stdout] ($_JOURNALSCRIPT_CONF_FILE):" conf_file
+# TODO: rewrite prompt to: 'where do you whis to write config [~|~/.config|stdout]?:
+read -p "Configuration file [path/to/file|stdout] ($_JOURNALSCRIPT_CONF_DIR):" conf_dir
 
 # Default values if no user input
-_JOURNALSCRIPT_CONF_FILE=${conf_file:-$_JOURNALSCRIPT_CONF_FILE}
-if is_file "${_JOURNALSCRIPT_CONF_FILE}"; then
-    JOURNALSCRIPT_CONF_FILE_DIR="${_JOURNALSCRIPT_CONF_FILE%/*}"
-fi
+_JOURNALSCRIPT_CONF_DIR=${conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
+_JOURNALSCRIPT_CONF_FILE="${_JOURNALSCRIPT_CONF_DIR}/journalscript.env"
 JOURNALSCRIPT_FILE_TYPE=${file_type:-$JOURNALSCRIPT_FILE_TYPE}
 JOURNALSCRIPT_EDITOR=${editor:-$JOURNALSCRIPT_EDITOR}
 JOURNALSCRIPT_DATA_DIR=${data_dir:-$JOURNALSCRIPT_DATA_DIR}
@@ -55,9 +52,9 @@ fi
 if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
     echo "Templates directory $JOURNALSCRIPT_TEMPLATE_DIR will be created"
 fi
-if is_file "${_JOURNALSCRIPT_CONF_FILE}"; then
-    if ! test -d "$JOURNALSCRIPT_CONF_FILE_DIR"; then
-        echo "Configuration directory $JOURNALSCRIPT_CONF_FILE_DIR will be created"
+if ! is_stdout "${_JOURNALSCRIPT_CONF_DIR}"; then
+    if ! test -d "$_JOURNALSCRIPT_CONF_DIR"; then
+        echo "Configuration directory $JOURNALSCRIPT_CONF_DIR will be created"
     fi
     if test -f "${_JOURNALSCRIPT_CONF_FILE}"; then
         echo "The configuration file ${_JOURNALSCRIPT_CONF_FILE} will be overriden."
@@ -73,7 +70,7 @@ read -p "Confirm changes? [y/n]:" confirm
 
 mkdir -p "$JOURNALSCRIPT_DATA_DIR"
 mkdir -p "$JOURNALSCRIPT_TEMPLATE_DIR"
-mkdir -p "$JOURNALSCRIPT_CONF_FILE_DIR"
+mkdir -p "$_JOURNALSCRIPT_CONF_DIR"
 
 _contents=$(cat <<-EOF
 JOURNALSCRIPT_FILE_TYPE="$JOURNALSCRIPT_FILE_TYPE"
@@ -82,7 +79,7 @@ JOURNALSCRIPT_DATA_DIR="$JOURNALSCRIPT_DATA_DIR"
 JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_TEMPLATE_DIR"
 EOF
 )
-if [[ ${_JOURNALSCRIPT_CONF_FILE} == [sS][tT][dD][oO][uU][tT] ]]; then
+if is_stdout "${_JOURNALSCRIPT_CONF_DIR}"; then
     printf "%s" "$_contents" 
 else
     printf "%s" "$_contents" > "${_JOURNALSCRIPT_CONF_FILE}"

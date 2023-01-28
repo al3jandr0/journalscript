@@ -60,10 +60,10 @@ setup() {
 
 
 # Format: <var_name>=["]<value>["]
-# where var_name must be POSIX compliant
+# where var_name must be POSIX compliant(ish)
 _assert_output_conforms_to_format() {
     for line in "${lines[@]}"; do
-        assert_regex "$line" '^[a-zA-Z0-9][a-zA-Z0-9_]+="?.+"?$' 
+        assert_regex "$line" '^[a-zA-Z0-9_]+="?.+"?$' 
     done
 }
 
@@ -102,8 +102,7 @@ _1_1_1=\
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
     assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
 }
 
 _1_1_2=\
@@ -127,8 +126,7 @@ _1_1_2=\
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
 }
 
 _1_1_3=\
@@ -152,48 +150,20 @@ _1_1_3=\
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.config/journalscript\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
-}
-
-_1_1_4=\
-"1.1.4 Given the configuration file .journalscript.env located in a custome directory "\
-"And no env var overrides other than JOURNALSCRIPT_CONF_FILE_DIR "\
-"When command 'configure show' is invoked. "\
-"Then journalscript should write the file's configuration to stdout."
-@test "${_1_1_4}" {
-    # setup
-    export JOURNALSCRIPT_CONF_FILE_DIR="$HOME/Documents"
-    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/Documents/journalscript.env"
-    run journal.sh configure show
-    # assert command finishes sucessfully
-    assert_success
-    # assert nothing is written to stderr
-    assert_equal "$stderr" ""
-    # assert output conforms to format
-    _assert_output_conforms_to_format
-    # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
-    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/Documents\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
 }
 
 _1_1_5=\
 "1.1.5 Given no configuration file "\
 "And all the configuration in env var overrides "\
 "When command 'configure show' is invoked. "\
-"Then journalscript should write the file's configuration to stdout."
+"Then journalscript should write the overriden configuration to stdout."
 @test "${_1_1_5}" {
     # setup
-    export JOURNALSCRIPT_CONF_FILE_DIR="$HOME/Documents/somedir"
     export JOURNALSCRIPT_FILE_TYPE="madeupTestType"
     export JOURNALSCRIPT_EDITOR="madeupTestEditor"
     export JOURNALSCRIPT_DATA_DIR="$HOME/Documents/somewhere/journals"
     export JOURNALSCRIPT_TEMPLATE_DIR="$HOME/Documents/somewherelse/templates"
-    export JOURNALSCRIPT_CONF_FILE_NAME="someFile.env"
 
     run journal.sh configure show
     # assert command finishes sucessfully
@@ -207,7 +177,6 @@ _1_1_5=\
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"$JOURNALSCRIPT_EDITOR\""
     assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$JOURNALSCRIPT_DATA_DIR\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$JOURNALSCRIPT_TEMPLATE_DIR\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"$JOURNALSCRIPT_CONF_FILE_NAME\""
 }
 
 _1_1_6=\
@@ -229,13 +198,13 @@ _1_1_6=\
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
     assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
 }
 
 _1_1_7=\
 "1.1.7 Given a configuration file with comments located in $HOME "\
 "And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
 "When command 'configure show' is invoked. "\
 "Then journalscript should write the file's configuration to stdout ignoring the comments."
 @test "${_1_1_7}" {
@@ -256,8 +225,7 @@ _1_1_7=\
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
     assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "JOURNALSCRIPT_CONF_FILE_NAME=\"journalscript.env\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
 }
 
 
@@ -445,6 +413,6 @@ _1_2_6=\
 # TODO: test warnign and info messages. Im still workign out the language.
 
 teardown() {
-    unset JOURNALSCRIPT_CONF_FILE_DIR
+    unset _JOURNALSCRIPT_CONF_DIR
 }
 

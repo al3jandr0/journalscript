@@ -7,6 +7,10 @@
 # Descision:
 # 1. If no journal exists, create new journal directory
 #    And promp user for confirmation
+#
+# TODO: throw errors properly
+# TODO: prune directories of ending '/'
+#
 ################################################################################
 # Globals                                                                      #
 ################################################################################
@@ -52,24 +56,20 @@ done
 # System default env
 # Error out if $HOME is not defined
 HOME=${HOME:?"\$HOME is not defined"}
-EDITOR="${EDITOR:-vi}"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_DOCUMENTS_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
+EDITOR="${EDITOR:-vi}"
 
 # Journalsscript env
 
 # Look for configuration in the following locations in order
-# 1. Already specified in Env
-# 2. $XDG_CONFIG_HOME/journalscript/journalscript.env
-# 3. $HOME/.config/journalscript/journalscript.env
-# 4. $HOME/.journalscript/journalscript.env
-_default_config_dir="$HOME/.journalscript"
+# 1. $XDG_CONFIG_HOME/journalscript/journalscript.env
+# 2. $HOME/.config/journalscript/journalscript.env
+# 3. $HOME/.journalscript/journalscript.env
+_JOURNALSCRIPT_CONF_DIR="$HOME/.journalscript"
 if test -d "$XDG_CONFIG_HOME/journalscript"; then
-    _default_config_dir="$XDG_CONFIG_HOME/journalscript"
+    _JOURNALSCRIPT_CONF_DIR="$XDG_CONFIG_HOME/journalscript"
 fi
-JOURNALSCRIPT_CONF_FILE_DIR=${JOURNALSCRIPT_CONF_FILE_DIR:-$_default_config_dir}
-JOURNALSCRIPT_CONF_FILE_NAME=${JOURNALSCRIPT_CONF_FILE_NAME:-"journalscript.env"}
-unset _default_config_dir
 
 # Configuration env vars are used in the following order of priority
 # 1. ENV
@@ -77,7 +77,7 @@ unset _default_config_dir
 # 3. Defaults
 
 # 1 & 2. Source configuration file, if it exists
-if test -f "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"; then
+if test -f "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"; then
     # foe each line in the configuration file
     while read line; do
         # ignore comments
@@ -88,7 +88,7 @@ if test -f "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"; then
         _expanded_value=$(eval printf '%s' "${var[1]}")
         # set configuration file variable if it is not already set in env
         declare "${var[0]}"="${!var[0]:-$_expanded_value}"
-    done < "$JOURNALSCRIPT_CONF_FILE_DIR/$JOURNALSCRIPT_CONF_FILE_NAME"
+    done < "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"
 fi
 
 # 3. Set default values if not in configuration file or already set in env
@@ -129,6 +129,7 @@ backup_file() {
 
 # TODO: Fix files to remove the directory in position 0
 open_files() {
+    # TODO: do this with arguments when refactoring?
     local files=("$@")
     if [[ "$JS_CONF_EDITOR" == *"vim" ]]; then
         $JS_CONF_EDITOR -o "${files[@]}"
@@ -193,8 +194,7 @@ _configure() {
     # Run sub commands:
     if [[ "$sub_command" == "show" ]]; then
 		cat <<-EOF
-		JOURNALSCRIPT_CONF_FILE_DIR="${JOURNALSCRIPT_CONF_FILE_DIR}"
-		JOURNALSCRIPT_CONF_FILE_NAME="${JOURNALSCRIPT_CONF_FILE_NAME}"
+		_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
 		JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
 		JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
@@ -223,7 +223,7 @@ _write_template() {
         cp "$JOURNALSCRIPT_TEMPLATE_DIR/$journal_name" "$todays_entry"
     elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/_default_template"; then
         cp "$JOURNALSCRIPT_TEMPLATE_DIR/_default_template" "$todays_entry"
-    elif
+    else 
         date > "$todays_entry"
         #echo "$(date)" > "$todays_entry"
     fi
@@ -238,28 +238,30 @@ _write_template() {
 # Accepts up to one argument -the journal name-, or no arguments
 # In case of no arguments, defaults journal name becomes 'life'
 _write() {
-    # default journal name
-    local journal_name="life"
     # if no argument (journal name), then default to 'life' journal 
+    local journal_name="life"
     if [[ ${#@} -eq 1 ]]; then
         journal_name="$1"
     elif [[ ${#@} -gt 1 ]]; then
-        echo "ERROR. configuration command supports up to 1 argument"
+        echo "ERROR. jounal command supports up to 1 argument"
         exit 1
     fi
     # date format: YYY-mm-dd
     local todays_date=$(date +%Y-%m-%d)
     local jornal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
-    local todays_entry="$journal_dir/$todays_entry.$JOURNALSCRIPT_FILE_TYPE"
+    local todays_entry="$journal_dir/$todays_date.$JOURNALSCRIPT_FILE_TYPE"
 
     # fail if JOURNALSCRIPT_DATA_DIR does not exist
     if ! test -d "$JOURNALSCRIPT_DATA_DIR"; then
-        # TODO: write message to stderr
+        echo "fail if JOURNALSCRIPT_DATA_DIR does not exist"
         exit 1
     fi
     # if no journal directory, notify user and create it if user agrees
     if ! test -d "$journal_dir"; then
-        # TODO: check on user
+        read -p\
+        "The journal '$journal_name' doesn't exist. Do you wish to create it (y/n):" \
+        confirm
+        [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
         mkdir "$journal_dir"
     fi
     # if new entry, then copy template 
