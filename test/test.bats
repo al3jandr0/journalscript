@@ -29,30 +29,25 @@ setup() {
     fi
     ## Populate test directory with basic structure
     mkdir -p "$BATS_TEST_TMPDIR/home/$USER"
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER/.config"
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER/.bin"
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER/.cache"
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER/.local/share"
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER/.local/state"
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER/Documents"
-    mkdir -p "$BATS_TEST_TMPDIR/tmp"
-    mkdir -p "$BATS_TEST_TMPDIR/bin"
-    mkdir -p "$BATS_TEST_TMPDIR/dev"
-    mkdir -p "$BATS_TEST_TMPDIR/etc"
-    mkdir -p "$BATS_TEST_TMPDIR/lib"
-    mkdir -p "$BATS_TEST_TMPDIR/sbin"
-    mkdir -p "$BATS_TEST_TMPDIR/var"
-    mkdir -p "$BATS_TEST_TMPDIR/var/log"
-    mkdir -p "$BATS_TEST_TMPDIR/var/lock"
-    mkdir -p "$BATS_TEST_TMPDIR/var/tmp"
-    mkdir -p "$BATS_TEST_TMPDIR/usr"
-    mkdir -p "$BATS_TEST_TMPDIR/usr/bin"
-    mkdir -p "$BATS_TEST_TMPDIR/usr/man"
-    mkdir -p "$BATS_TEST_TMPDIR/usr/lib"
-    mkdir -p "$BATS_TEST_TMPDIR/usr/local"
-    mkdir -p "$BATS_TEST_TMPDIR/usr/share"
-    mkdir -p "$BATS_TEST_TMPDIR/mnt"
-    mkdir -p "$BATS_TEST_TMPDIR/proc"
+    mkdir "$BATS_TEST_TMPDIR/home/$USER/.config"
+    mkdir "$BATS_TEST_TMPDIR/home/$USER/.bin"
+    mkdir "$BATS_TEST_TMPDIR/home/$USER/.cache"
+    mkdir "$BATS_TEST_TMPDIR/home/$USER/.local/"
+    mkdir "$BATS_TEST_TMPDIR/home/$USER/Documents"
+    mkdir "$BATS_TEST_TMPDIR/tmp"
+    mkdir "$BATS_TEST_TMPDIR/bin"
+    mkdir "$BATS_TEST_TMPDIR/dev"
+    mkdir "$BATS_TEST_TMPDIR/etc"
+    mkdir "$BATS_TEST_TMPDIR/lib"
+    mkdir "$BATS_TEST_TMPDIR/sbin"
+    mkdir "$BATS_TEST_TMPDIR/var"
+    mkdir "$BATS_TEST_TMPDIR/usr"
+    mkdir "$BATS_TEST_TMPDIR/usr/bin"
+    mkdir "$BATS_TEST_TMPDIR/usr/man"
+    mkdir "$BATS_TEST_TMPDIR/usr/lib"
+    mkdir "$BATS_TEST_TMPDIR/usr/share"
+    mkdir "$BATS_TEST_TMPDIR/mnt"
+    mkdir "$BATS_TEST_TMPDIR/proc"
 
     HOME="$BATS_TEST_TMPDIR/home/$USER"
     # TODO: unset XDG_DOCUMENTS_DIR, XDG_CONFIG_HOME
@@ -100,8 +95,56 @@ _1_1_1=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
-    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
+}
+
+_1_1_1_dash_1=\
+"1.1.1-1 Given no configuration file. "\
+"And no env var overrides. "\
+"And XDG 'dot' direcotory. "\
+"And templates directory within config dir. "\
+"When the command 'configure show' is invoked. "\
+"Then journalscript should write the default configuration to stdout."
+@test "${_1_1_1_dash_1}" {
+    mkdir -p "$HOME/.config/journalscript/templates"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/.config/journalscript/templates\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
+}
+
+_1_1_1_dash_2=\
+"1.1.1-2 Given no configuration file. "\
+"And no env var overrides. "\
+"And no XDG 'dot' direcotory "\
+"And templates directory within journals directory. "\
+"When the command 'configure show' is invoked. "\
+"Then journalscript should write the default configuration to stdout."
+@test "${_1_1_1_dash_2}" {
+    mkdir -p "$HOME/Documents/journals/.journalscript/templates"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
 }
 
@@ -196,8 +239,8 @@ _1_1_6=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
-    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
 }
 
@@ -255,8 +298,9 @@ _1_2_1=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
-    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    # TODO: update init behavior to create a tempalte directory in default location
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 _1_2_2=\
@@ -285,8 +329,8 @@ _1_2_2=\
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vi\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 _1_2_3=\
@@ -327,7 +371,7 @@ _1_2_3=\
 _1_2_4=\
 "1.2.4 Given no configuration file. "\
 "And no env var overrides. "\
-"And XDG 'dot' direcotory "\
+"And XDG 'dot' direcotory. "\
 "When the command configure init is invoked. "\
 "And user inputs no values. "\
 "And user accepts changes. "\
@@ -351,8 +395,8 @@ _1_2_4=\
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vi\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/.journalscript/templates\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_DATA_DIR=\"$HOME/Documents/journals\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 _1_2_5=\

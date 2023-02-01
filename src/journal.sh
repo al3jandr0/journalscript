@@ -20,6 +20,7 @@ _COMMADN_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
 _DEFAULT_COMMAND="$_COMMAND_WRITE"
+_DEFAULT_JOURNAL_NAME="life"
 
 ################################################################################
 # Parse Arguments                                                              #
@@ -78,25 +79,42 @@ fi
 
 # 1 & 2. Source configuration file, if it exists
 if test -f "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"; then
-    # foe each line in the configuration file
+    # for each line in the configuration file
     while read line; do
         # ignore comments
         [[ "$line" =~ ^#.*$ ]] && continue
+        # split each line into name and value. name=var[0], value=var[1]
         # each line follows the format: <name>=<value>
         readarray -t -d '=' var < <(printf '%s' "$line")
-        # expand values
+        # expand values since they may invlude env vars
         _expanded_value=$(eval printf '%s' "${var[1]}")
-        # set configuration file variable if it is not already set in env
+        # set configuration file variable only if it is not already set in env
         declare "${var[0]}"="${!var[0]:-$_expanded_value}"
     done < "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"
 fi
 
-# 3. Set default values if not in configuration file or already set in env
+# 3. Set default values if env var has no value 
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
-JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR"}
-JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-\
-"$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"}
+# TODO: rename DATA DIR to journals dir
+JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
+
+# Template directory default is set to whichever exists in this order
+# 1. JOURNALSCRIPT_DATA_DIR/.journalscript/templates
+# 2. _JOURNALSCRIPT_CONF_DIR/.journalscript/templates
+# 3. Empty value
+JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-""}
+if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]] ; then
+    JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"
+    if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
+        JOURNALSCRIPT_TEMPLATE_DIR="$_JOURNALSCRIPT_CONF_DIR/templates"
+    fi
+    if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
+        # set no directory
+        JOURNALSCRIPT_TEMPLATE_DIR=""
+    fi
+fi
+_JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 
 ################################################################################
 # Functions                                                                    #

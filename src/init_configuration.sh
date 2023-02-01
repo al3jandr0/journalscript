@@ -5,7 +5,8 @@
 #
 ################################################################################
 # ENV                                                                          #
-################################################################################
+#####################################"###########################################
+# Inherent from caller
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-}
@@ -15,7 +16,7 @@ _JOURNALSCRIPT_CONF_DIR=${_JOURNALSCRIPT_CONF_DIR:-}
 ################################################################################
 # Functions                                                                    #
 ################################################################################
-# Checks argument isnt stdout and it isnt the default "<empty>/<empty>"
+# Checks argument is stdout or STDOUT 
 is_stdout() {
     [[ "$1" == [sS][tT][dD][oO][uU][tT] ]]
 }
@@ -26,6 +27,8 @@ is_stdout() {
 read -p "\$JOURNALSCRIPT_FILE_TYPE. Journal entry's file format ($JOURNALSCRIPT_FILE_TYPE):" file_type
 read -p "\$JOURNALSCRIPT_EDITOR. Editor ($JOURNALSCRIPT_EDITOR):" editor
 read -p "\$JOURNALSCRIPT_DATA_DIR. Journal entry location [path/to/directory] ($JOURNALSCRIPT_DATA_DIR):" data_dir
+JOURNALSCRIPT_DATA_DIR=${data_dir:-$JOURNALSCRIPT_DATA_DIR}
+JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"}
 read -p "\$JOURNALSCRIPT_TEMPLATE_DIR. Templates location [path/to/directory] ($JOURNALSCRIPT_TEMPLATE_DIR):" template_dir
 # TODO: rewrite prompt to: 'where do you whis to write config [~|~/.config|stdout]?:
 read -p "Configuration file [path/to/file|stdout] ($_JOURNALSCRIPT_CONF_DIR):" conf_dir
@@ -35,13 +38,13 @@ _JOURNALSCRIPT_CONF_DIR=${conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
 _JOURNALSCRIPT_CONF_FILE="${_JOURNALSCRIPT_CONF_DIR}/journalscript.env"
 JOURNALSCRIPT_FILE_TYPE=${file_type:-$JOURNALSCRIPT_FILE_TYPE}
 JOURNALSCRIPT_EDITOR=${editor:-$JOURNALSCRIPT_EDITOR}
-JOURNALSCRIPT_DATA_DIR=${data_dir:-$JOURNALSCRIPT_DATA_DIR}
 JOURNALSCRIPT_TEMPLATE_DIR=${template_dir:-$JOURNALSCRIPT_TEMPLATE_DIR}
 
 unset file_type editor data_dir template_dir conf_file
 
 ################################################################################
 # Validate                                                                     #
+# TODO: update language and user feedback                                      #
 ################################################################################
 if ! command -v "$JOURNALSCRIPT_EDITOR" > /dev/null 2>&1; then
     echo "WARNING: could not find editor '$JOURNALSCRIPT_EDITOR' in system. Verify it is installed"
@@ -62,6 +65,7 @@ if ! is_stdout "${_JOURNALSCRIPT_CONF_DIR}"; then
         echo "A new configuration file ${_JOURNALSCRIPT_CONF_FILE} will be created"
     fi
 fi
+
 ################################################################################
 # Execute: Write config directory and file                                     #
 ################################################################################
