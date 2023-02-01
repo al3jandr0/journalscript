@@ -7,9 +7,11 @@
 # Descision:
 # 1. If no journal exists, create new journal directory
 #    And promp user for confirmation
-#
+# 2. Each journal entry goes into its own file, and the file name is the date
+# 3. Journal enties are stored under a directory named after the journal
+# 
 # TODO: throw errors properly
-# TODO: prune directories of ending '/'
+# TODO: prune directories ending '/'
 #
 ################################################################################
 # Globals                                                                      #
@@ -195,6 +197,7 @@ case $COMMAND in
         ;;
 esac
 
+# TODO: print hooks
 # Accepts up to one argument -the subcommand (init, or show)-, or no arguments
 # In case of no arguments, defaults to 'show' subcommand
 _configure() {
@@ -228,66 +231,88 @@ _configure() {
     fi
 }
 
-# Copy template into new entry if the template exists
-# Templates have the same name as the journal. If no template file with
-# matching name exists in the templates direcotory exists, then copy 
-# _default_template.  If no _default_template file exits or no template dir
-# exists, then timestamp the file.
-# TODO: decide whether to accept bash in templates (dynamic templates)
+# Copies a template into a new journal entry
+#
+# Templates' parent directory is specified with JOURNALSCRIPT_TEMPLATE_DIR.
+# Whithin that directory this function searches first for a journal-specific
+# template which determined by a template file stored under /template.d that
+# matching the name of the journal and if such file is not found, then the
+# function uses the fallback template /template.  In case there is no fallback
+# template, then today's date is written on teh first list of the journal entry
+# as a default behavior
+#
+# TODO: Implement bash (dyamic templates)
 _write_template() {
-    local journal_name="$1"
-    local todays_entry="$2"
-    if test -f "$JOURNALSCRIPT_TEMPLATE_DIR/$journal_name"; then
-        cp "$JOURNALSCRIPT_TEMPLATE_DIR/$journal_name" "$todays_entry"
-    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/_default_template"; then
-        cp "$JOURNALSCRIPT_TEMPLATE_DIR/_default_template" "$todays_entry"
-    else 
-        date > "$todays_entry"
-        #echo "$(date)" > "$todays_entry"
+    local journal_name="$1"   # Name of the journal
+    local journal_entry="$2"  # Full path to journal entry (file)
+
+    # if no directory, then writes today's date as a fallback template
+    if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]]; then
+        date > "$journal_entry"
+
+    # Templates are searched in these locations in this order
+    # 1. JOURNALSCRIPT_TEMPLATE_DIR/template.d/<journal_name>
+    # 2. JOURNALSCRIPT_TEMPLATE_DIR/template 
+    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name"; then
+        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name" $journal_entry
+    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template"; then
+        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template" $journal_entry
+    # Lastly, if template directory is specified but it has no contents
+    # fallback to writing date 
+    else
+        date > "$journal_entry"
     fi
 }
 
-# TODO : desing an API for hooks, some editors may want the full on directory,
-#        others may not be able to open more than 1 file
-#        I think one coudl provide:
-#        Path/to/Directory
-#        Current file
-#        Previous entry file
-# Accepts up to one argument -the journal name-, or no arguments
-# In case of no arguments, defaults journal name becomes 'life'
+# Writes journal entries.
+#
+# In case of new entires cretes the a new journal entry. And in case of
+# existing entres it opens the existng entry.
+# It populates new etries with templates and it invokes open and backup hooks
+# for editing and saving journal entries.
+# _write accepts up to one argument which is the journal name 
+# Or no arguments, in such case the journal name become _DEFAILT_JOURNAL_NAME
 _write() {
-    # if no argument (journal name), then default to 'life' journal 
-    local journal_name="life"
+    # if no argument (journal name), then default to the default journal 
+    local journal_name="$_DEFAULT_JOURNAL_NAME"
+    # Sets the journal name to the fist argument 
     if [[ ${#@} -eq 1 ]]; then
         journal_name="$1"
+    # The command deosnt accept more than 1 argumetn. Error out in such case
     elif [[ ${#@} -gt 1 ]]; then
         echo "ERROR. jounal command supports up to 1 argument"
         exit 1
     fi
-    # date format: YYY-mm-dd
-    local todays_date=$(date +%Y-%m-%d)
-    local jornal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
-    local todays_entry="$journal_dir/$todays_date.$JOURNALSCRIPT_FILE_TYPE"
-
     # fail if JOURNALSCRIPT_DATA_DIR does not exist
     if ! test -d "$JOURNALSCRIPT_DATA_DIR"; then
         echo "fail if JOURNALSCRIPT_DATA_DIR does not exist"
         exit 1
     fi
-    # if no journal directory, notify user and create it if user agrees
+
+    # directory that hosts all the entries of the journal
+    local journal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
+    # full path the journal entry file to crete/edit
+    local todays_date=$(date +%Y-%m-%d)  # date format: YYY-mm-dd
+    local todays_entry="$journal_dir/$todays_date.$JOURNALSCRIPT_FILE_TYPE"
+
+    # if the journal directory doesnt not exist, notify user and create it if
+    # the user agrees
     if ! test -d "$journal_dir"; then
         read -p\
-        "The journal '$journal_name' doesn't exist. Do you wish to create it (y/n):" \
+        "The journal directory '$journal_name' doesn't exist. Do you wish to create it (y/n):" \
         confirm
         [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
-        mkdir "$journal_dir"
+        mkdir -p "$journal_dir"
     fi
-    # if new entry, then copy template 
+
+    # Write template into new entries
     local is_new_file=0
     if ! test -f "$todays_entry";then
         is_new_file=1
         _write_template "$journal_name" "$todays_entry"
     fi
+
+    # open journal entry
     # get the two most recent files (current entry and previous entry)
     readarray -t filesToOpen < <(ls -tA $journal_dir/* | head -n2) # 2 most recent files
 
