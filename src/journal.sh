@@ -24,7 +24,6 @@ _COMMADN_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
 _DEFAULT_COMMAND="$_COMMAND_WRITE"
-_DEFAULT_JOURNAL_NAME="life"
 
 ################################################################################
 # Parse Arguments                                                              #
@@ -98,6 +97,7 @@ if test -f "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"; then
 fi
 
 # 3. Set default values if env var has no value 
+JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
 # TODO: rename DATA DIR to journals dir
@@ -316,6 +316,7 @@ _configure() {
 		JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
 		JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
+		JOURNALSCRIP_DEFAULT_JOURNAL="${JOURNALSCRIP_DEFAULT_JOURNAL}"
 		EOF
     elif [[ "$sub_command" == "init" ]]; then
         . init_configuration.sh
@@ -336,13 +337,8 @@ _configure() {
 # _write accepts up to one argument which is the journal name 
 # Or no arguments, in such case the journal name become _DEFAILT_JOURNAL_NAME
 _write() {
-    # if no argument (journal name), then default to the default journal 
-    local journal_name="$_DEFAULT_JOURNAL_NAME"
-    # Sets the journal name to the fist argument 
-    if [[ ${#@} -eq 1 ]]; then
-        journal_name="$1"
     # The command deosnt accept more than 1 argumetn. Error out in such case
-    elif [[ ${#@} -gt 1 ]]; then
+    if [[ ${#@} -gt 1 ]]; then
         echo "ERROR. jounal command supports up to 1 argument"
         exit 1
     fi
@@ -351,7 +347,8 @@ _write() {
         echo "fail if JOURNALSCRIPT_DATA_DIR does not exist"
         exit 1
     fi
-
+    # if no argument (journal name), then default to the default journal 
+    local journal_name="${1:-$JOURNALSCRIP_DEFAULT_JOURNAL}"
     # directory that hosts all the entries of the journal
     local journal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
     # full path the journal entry file to crete/edit
