@@ -5,11 +5,13 @@
 # - date
 #
 # Descision:
+# 0. journalscript is desined to work out of the box withouth any configuration
 # 1. If no journal exists, create new journal directory
 #    And promp user for confirmation
 # 2. Each journal entry goes into its own file, and the file name is the date
 # 3. Journal enties are stored under a directory named after the journal
-# 
+# 4. The journal directory location is controlled by JOURNALSCRIPT_DATA_DIR,
+#    and it defaults to $HOME/Documents/journals
 # TODO: throw errors properly
 # TODO: prune directories ending '/'
 #
@@ -121,6 +123,96 @@ _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 ################################################################################
 # Functions                                                                    #
 ################################################################################
+
+# Writes a template into a new journal entry
+#
+# Templates' parent directory is specified with JOURNALSCRIPT_TEMPLATE_DIR.
+# Whithin that directory this function searches first for a journal-specific
+# template which determined by a template file stored under /template.d that
+# matching the name of the journal and if such file is not found, then the
+# function uses the fallback template /template.  In case there is no fallback
+# template, then today's date is written on teh first list of the journal entry
+# as a default behavior
+#
+# TODO: Implement bash (dyamic templates)
+_write_template() {
+    local journal_name="$1"   # Name of the journal
+    local journal_entry="$2"  # Full path to journal entry (file)
+
+    # if no directory, then writes today's date as a fallback template
+    if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]]; then
+        date > "$journal_entry"
+
+    # Templates are searched in these locations in this order
+    # 1. JOURNALSCRIPT_TEMPLATE_DIR/template.d/<journal_name>
+    # 2. JOURNALSCRIPT_TEMPLATE_DIR/template 
+    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name"; then
+        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name" $journal_entry
+    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template"; then
+        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template" $journal_entry
+    # Lastly, if template directory is specified but it has no contents
+    # fallback to writing date 
+    else
+        date > "$journal_entry"
+    fi
+}
+
+# 1. findis open or backup hook
+# Hooks are located under the parent directory JOURNALSCRIPT_CONF_DIR/hooks
+# each hook type is searchd following the same pattern. 
+# journalscript searches for a hook specific for an editor (or backup-tool) 
+# under /hooks/open.d/ (or /hooks/backup.d/). Hooks must match the name of the 
+# editor (or backup-tool). i.e. /open.d/vim, open.d/git, etc.
+# There is a fallback hook for each type:
+# /hooks/open for open hook, and /hooks/backup for backup hook
+# The fallbacks are used if no specific hook is found
+_find_hook() {
+    local action="$1"  # open or backup
+    local tool="$2"    # Editor or backup tool
+
+    if test -f "$_JOURANLSCRIPT_HOOKS_DIR/$action.d/$tool"; then
+        echo "$_JOURANLSCRIPT_HOOKS_DIR/$action.d/$tool"
+    elif test -f "$hooks_dir/$action"; then
+        echo "$hooks_dir/$action"
+    else
+        echo ""
+    fi
+}
+
+# Opens a journal entry
+#
+# It attempts to run an user defined hook to open the journal entry
+# If no hook is found, then it fallbacks to invokign the configured editor
+#
+# TODO: set ENV for hook
+_open_journal_entry() {
+    local journal_entry="$1"
+    local open_hook=$( _find_hook "open" "$JOURNALSCRIPT_EDITOR" )
+
+    # invoke configured editor directly and run backup hook
+    if [[ -n "$open_hook" ]]; then
+        . "$open_hook"
+    else
+    # If there is no open hook, default to invokig the configured editor
+        $JOURNALSCRIPT_EDITOR "$journal_entry"
+    fi
+}
+
+# Opens backup hook
+#
+# It attempts to run a user defined hook, if none is found then it does nothign
+_backup_journal_entry() {
+    local journal_entry="$1"
+    local backup_hook=$( _find_hook "backup" "git" )
+
+    # if there is no backup hook, do nothing
+    if [[ -n "$backup_hook" ]]; then
+        . "$backup_hook" 
+    fi
+}
+
+###########################################################################  Old
+
 write_template() {
     local journalName="$1"
     local journalEntryFile="$2"
@@ -197,6 +289,10 @@ case $COMMAND in
         ;;
 esac
 
+################################################################################
+# Commands                                                                     #
+################################################################################
+
 # TODO: print hooks
 # Accepts up to one argument -the subcommand (init, or show)-, or no arguments
 # In case of no arguments, defaults to 'show' subcommand
@@ -228,39 +324,6 @@ _configure() {
         echo "ERROR. Unsupported argument '${args[0]}' of 'configure'."
         echo "See journalscript configure --help for supported options"
         exit 1
-    fi
-}
-
-# Copies a template into a new journal entry
-#
-# Templates' parent directory is specified with JOURNALSCRIPT_TEMPLATE_DIR.
-# Whithin that directory this function searches first for a journal-specific
-# template which determined by a template file stored under /template.d that
-# matching the name of the journal and if such file is not found, then the
-# function uses the fallback template /template.  In case there is no fallback
-# template, then today's date is written on teh first list of the journal entry
-# as a default behavior
-#
-# TODO: Implement bash (dyamic templates)
-_write_template() {
-    local journal_name="$1"   # Name of the journal
-    local journal_entry="$2"  # Full path to journal entry (file)
-
-    # if no directory, then writes today's date as a fallback template
-    if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]]; then
-        date > "$journal_entry"
-
-    # Templates are searched in these locations in this order
-    # 1. JOURNALSCRIPT_TEMPLATE_DIR/template.d/<journal_name>
-    # 2. JOURNALSCRIPT_TEMPLATE_DIR/template 
-    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name"; then
-        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name" $journal_entry
-    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template"; then
-        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template" $journal_entry
-    # Lastly, if template directory is specified but it has no contents
-    # fallback to writing date 
-    else
-        date > "$journal_entry"
     fi
 }
 
@@ -311,13 +374,10 @@ _write() {
         is_new_file=1
         _write_template "$journal_name" "$todays_entry"
     fi
-
-    # open journal entry
-    # get the two most recent files (current entry and previous entry)
-    readarray -t filesToOpen < <(ls -tA $journal_dir/* | head -n2) # 2 most recent files
-
-    # Enable a backup hook
-    open_files "${filesToOpen[@]}" && backup_file "$filename" "$is_new_file"
+   
+    # TODO: set env vars for hooks
+    # runs open and backup hook (upon success)
+    _open_journal_entry "$todays_entry" && _backup_journal_entry
 }
 
 _main() {
