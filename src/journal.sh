@@ -12,8 +12,6 @@
 # 3. Journal enties are stored under a directory named after the journal
 # 4. The journal directory location is controlled by JOURNALSCRIPT_DATA_DIR,
 #    and it defaults to $HOME/Documents/journals
-# TODO: throw errors properly
-# TODO: prune directories ending '/'
 #
 ################################################################################
 # Globals                                                                      #
@@ -100,7 +98,6 @@ fi
 JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
-# TODO: rename DATA DIR to journals dir
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
 
 # Template directory default is set to whichever exists in this order
@@ -133,8 +130,6 @@ _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 # function uses the fallback template /template.  In case there is no fallback
 # template, then today's date is written on teh first list of the journal entry
 # as a default behavior
-#
-# TODO: Implement bash (dyamic templates)
 _write_template() {
     local journal_name="$1"   # Name of the journal
     local journal_entry="$2"  # Full path to journal entry (file)
@@ -184,8 +179,6 @@ _find_hook() {
 #
 # It attempts to run an user defined hook to open the journal entry
 # If no hook is found, then it fallbacks to invokign the configured editor
-#
-# TODO: set ENV for hook
 _open_journal_entry() {
     local journal_entry="$1"
     local open_hook=$( _find_hook "open" "$JOURNALSCRIPT_EDITOR" )
@@ -212,89 +205,26 @@ _backup_journal_entry() {
     fi
 }
 
-###########################################################################  Old
-
-write_template() {
-    local journalName="$1"
-    local journalEntryFile="$2"
-    local template="$JS_CONF_TEMPLATE_DIR/$journalName"
-
-    if test -f "$template"; then
-        while read line; do
-            echo "echo \"$line\"" | bash >> "$journalEntryFile"
-        done < "$template"
-    else
-        # default template is a date stamp
-        echo "$(date)" > "$journalEntryFile"
-    fi
-}
-
-# TODO: Think about what ENV_VARS or params to expose to a backup function hook 
-backup_file() {
-    local commit_msg=""
-    if [ "$2" -eq 1 ]; then
-        commit_msg="Adds entry"
-    else
-        commit_msg="Edits entry"
-    fi
-    git -C "$JS_CONF_DATA_DIR" add "$1" && git -C "$JS_CONF_DATA_DIR" commit -m "$commit_msg" && git -C "$JS_CONF_DATA_DIR" push
-}
-
-# TODO: Fix files to remove the directory in position 0
-open_files() {
-    # TODO: do this with arguments when refactoring?
-    local files=("$@")
-    if [[ "$JS_CONF_EDITOR" == *"vim" ]]; then
-        $JS_CONF_EDITOR -o "${files[@]}"
-    else
-        $JS_CONF_EDITOR "${files[0]}"
-    fi
-}
-
-today=$(date +%Y-%m-%d)
-filename="$JS_CONF_DATA_DIR/$JOURNAL/$today.$JS_CONF_FILE_TYPE"
-case $COMMAND in
-    ls)
-        # Validate
-        # Execute
-        # TODO: filter ignored files
-        ls "$JS_CONF_DATA_DIR"
-        exit 0
-        ;;
-    write)
-        # Validate
-        if ! test -d "$JS_CONF_DATA_DIR"; then
-            echo "WANR: Looks like you dont have a designated directory to store your journals."
-            echo "WANR: The location $JS_CONF_DATA_DIR does not exist in your system"
-            echo "WARN: Run 'journalscript configure' to setup a directory to store your journals"
-            exit 1
-        elif ! test -d "$JS_CONF_DATA_DIR/$JOURNAL"; then
-            echo "WARN: No journal found with name $JOURNAL"
-            read -p "Would you like to create a new jurnal named $JOURNAL? (y/n):" yes_no
-            if yes_no; then
-                mkdir "$JS_CONF_DATA_DIR/$JOURNAL"
-            else
-                exit 0
-            fi
-        fi
-        # Execute
-        SUB_COMMAND="$SUB_COMMAND_EDIT"
-        if ! test -f $filename; then
-            SUB_COMMAND="$SUB_COMMAND_CREATE"
-            write_template "$JOURNAL" "$filename"
-        fi
-        readarray -t filesToOpen < <(ls -tA $JS_CONF_DATA_DIR/$JOURNAL/* | head -n2) # 2 most recent files
-        # Enable a backup hook
-        open_files "${filesToOpen[@]}" && backup_file "$filename" "$SUB_COMMAND"
-        exit 0
-        ;;
-esac
+# keeping here for when I do dynamic templates
+#write_template() {
+#    local journalName="$1"
+#    local journalEntryFile="$2"
+#    local template="$JS_CONF_TEMPLATE_DIR/$journalName"
+#
+#    if test -f "$template"; then
+#        while read line; do
+#            echo "echo \"$line\"" | bash >> "$journalEntryFile"
+#        done < "$template"
+#    else
+#        # default template is a date stamp
+#        echo "$(date)" > "$journalEntryFile"
+#    fi
+#}
 
 ################################################################################
 # Commands                                                                     #
 ################################################################################
 
-# TODO: print hooks
 # Accepts up to one argument -the subcommand (init, or show)-, or no arguments
 # In case of no arguments, defaults to 'show' subcommand
 _configure() {

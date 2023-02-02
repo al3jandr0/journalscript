@@ -2,9 +2,6 @@
 # Test set for command: configure                                              # 
 ################################################################################
 
-# TODO: add a tag for configure command such that you can filter tests per connand
-# TODO: anchor to a specific bats version
-# TODO: update scritp to handle whether directories have '/' at the end or not
 # TODO: Set the variable $BATS_TEST_TIMEOUT before setup() starts. This means you can set it either on the command line, in free code in the test file or in setup_file().
 
 setup() {

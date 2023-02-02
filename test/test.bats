@@ -2,10 +2,6 @@
 # Test set for command: configure                                              # 
 ################################################################################
 
-# TODO: add a tag for configure command such that you can filter tests per connand
-# TODO: anchor to a specific bats version
-# TODO: update scritp to handle whether directories have '/' at the end or not
-
 setup() {
     # TODO: update with bats_load_library
     load 'test_helper/bats-support/load'

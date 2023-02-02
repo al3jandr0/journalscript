@@ -47,7 +47,6 @@ unset file_type editor data_dir template_dir conf_file
 
 ################################################################################
 # Validate                                                                     #
-# TODO: update language and user feedback                                      #
 ################################################################################
 if ! command -v "$JOURNALSCRIPT_EDITOR" > /dev/null 2>&1; then
     echo "WARNING: could not find editor '$JOURNALSCRIPT_EDITOR' in system. Verify it is installed"

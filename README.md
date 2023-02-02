@@ -8,18 +8,51 @@ Clone the repo, cd into its root, and run the installation scrip
 
 
 ### Features to implement
-- [ ] Add support for .env in order to allow for directory-level configured journals
-- [ ] Add support for method-agnostic post-save hooks in order to support automatic backup once a file is added or edited in order to de-couple backup mechanism
-- [ ] Consider adding a pre-hook. At the moment I'm passing to the editor an order list of journal entries, but for vim I only pass the last two. Some editors can open directories, some rather open files
-- [ ] Nice to have: make the script POSIX compliant - make it run on different terminal emulators bash, fish, etc.
-- [ ] Package for arch, debian-like, fedora, and home-brew
+- [x] Add support for .env in order to allow for directory-level configured journals
+- [x] Add support for method-agnostic post-save hooks in order to support automatic backup once a file is added or edited in order to de-couple backup mechanism
+- [x] Consider adding a pre-hook. At the moment I'm passing to the editor an order list of journal entries, but for vim I only pass the last two. Some editors can open directories, some rather open files
+- [x] Test all commands
+- [ ] Print hook env var in configure show (update tests)
+- [ ] Rename JOURNALSCRIPT_DATA_DIR to JOURNALSCRIPT_JOURNAL_DIR
+- [ ] Implement safe append for files and directories
+- [ ] Set "strict" mode
+- [ ] Make journalscript interactive only (would it break testing)?
+- [ ] Standarize throwing errors
+- [ ] Re-write error messages
+- [ ] Find out language for init_config
+- [ ] Implement help - Find out language guide
+- [ ] Proof read the entire program. Look for inconsistent language and typos
+- [ ] Add a man page
 - [ ] Add man page
+- [ ] Add support for dynamic templates
+- [ ] init_config: update user feedback
+- [ ] Write a readme:
+- - Motivation
+- - For devs: decisions / philosophy
+- - installation guide
+- - features highlight
+- - version, and testing
+- - dependencies
+- - release page
+- - quickguide
 - [ ] Package
 - - [ ] apt
 - - [ ] pacman
 - - [ ] dnf
 - - [ ] homebrew
 - - [ ] Windows?
+- - Make isntallable from source. Add make ?
+
+Test
+- [ ] refactor: make loading of lib and common setup run once per test suite
+- [ ] anchor bats version
+- [ ] Add tags to test (1 tag per command)
+- [ ] Rename test files
+- [ ] Set a timeout for bats tests
+
+- [ ] Implement LS command
+- [ ] Nice to have: make the script POSIX compliant - make it run on different terminal emulators bash, fish, etc.
+- [ ] Nice to have: Pretify init_config (emojis)?
 
 ## Tests - cases
 
