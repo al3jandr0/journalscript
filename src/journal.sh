@@ -138,10 +138,11 @@ _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 _write_template() {
     local journal_name="$1"   # Name of the journal
     local journal_entry="$2"  # Full path to journal entry (file)
+    local timestamp=$(date +'%a %b %d %I:%M %p %Z %Y')
 
     # if no directory, then writes today's date as a fallback template
     if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]]; then
-        date > "$journal_entry"
+        printf "%s\n" "$timestamp" > "$journal_entry"
 
     # Templates are searched in these locations in this order
     # 1. JOURNALSCRIPT_TEMPLATE_DIR/template.d/<journal_name>
@@ -153,7 +154,7 @@ _write_template() {
     # Lastly, if template directory is specified but it has no contents
     # fallback to writing date 
     else
-        date > "$journal_entry"
+        printf "%s\n" "$timestamp" > "$journal_entry"
     fi
 }
 
@@ -316,7 +317,7 @@ _configure() {
 		JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
 		JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
-		JOURNALSCRIP_DEFAULT_JOURNAL="${JOURNALSCRIP_DEFAULT_JOURNAL}"
+		JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
     elif [[ "$sub_command" == "init" ]]; then
         . init_configuration.sh
@@ -343,24 +344,23 @@ _write() {
         exit 1
     fi
     # fail if JOURNALSCRIPT_DATA_DIR does not exist
-    if ! test -d "$JOURNALSCRIPT_DATA_DIR"; then
+    if [[ -z "$JOURNALSCRIPT_DATA_DIR" ]]; then
         echo "fail if JOURNALSCRIPT_DATA_DIR does not exist"
         exit 1
     fi
     # if no argument (journal name), then default to the default journal 
-    local journal_name="${1:-$JOURNALSCRIP_DEFAULT_JOURNAL}"
+    local journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
+    echo "$journal_name"
     # directory that hosts all the entries of the journal
     local journal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
     # full path the journal entry file to crete/edit
     local todays_date=$(date +%Y-%m-%d)  # date format: YYY-mm-dd
     local todays_entry="$journal_dir/$todays_date.$JOURNALSCRIPT_FILE_TYPE"
-
+    echo "$todays_entry"
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
     if ! test -d "$journal_dir"; then
-        read -p\
-        "The journal directory '$journal_name' doesn't exist. Do you wish to create it (y/n):" \
-        confirm
+        read -p "The journal directory '$journal_dir' doesn't exist. Do you wish to create it (y/n):" confirm
         [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
         mkdir -p "$journal_dir"
     fi
@@ -386,6 +386,7 @@ _main() {
     if [[ -z "$_COMMAND" ]]; then
         _COMMAND=$_COMMAND_WRITE
     fi
+    echo "$_COMMAND ${_COMMAND_ARGUMENTS[@]}"
     $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
 }
 

@@ -42,14 +42,23 @@ Clone the repo, cd into its root, and run the installation scrip
 
 2. Command: write
 2.1 Subcommand: write create 
-2.1.1 Test command creates a new journal if target journal doesnt exist
-2.1.2 Test command doesnt create a new journal if target journal exists
-2.1.3 Test write command is invoked when only the journal name is provided
-2.1.4 Test command generates a file in the expected location 
-2.1.5 Test command generates a file with the expected name format 
-2.1.6 Test command generates a file with the expected template (if any) 
-2.1.7 Test command fails if journalscript doesn't have permissions to target directory
-2.1.8 Test journalscript doesnt create a new file if target file exits 
+2.1.1 Test command creates default journal if journal doesn't exist
+2.1.2 Test command creates provided journal if journal doesn't exist
+2.1.3 Test command creates a journal entry in the journal directory
+2.1.4 Test command doesn't create a new file if target file exits 
+2.1.5 Test command fails when journalscript doesn't have permissions to target directory
+2.2 Sub-component: write with templates
+2.2.1 Test default behavior when there is no templates
+2.2.2 Test default template is picked up at data directory
+2.2.3 Test default template is picked up at configure directory
+2.2.4 Test custom template is picked up at data directory
+2.2.5 Test custom template is picked up at configure 
+2.3 Sub-component: write with hooks
+2.3.1 Test fallback open hook behavior
+2.3.2 Test default open hook
+2.3.3 Test editor specific hook
+2.3.4 Test backup hook is executed if it exists
+2.3.4 Test backup hook is not executed when open hook fails
 
 3. Command: help
 3.1 Help adheres to usage / help format

@@ -12,6 +12,7 @@ JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-}
 JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-}
 _JOURNALSCRIPT_CONF_DIR=${_JOURNALSCRIPT_CONF_DIR:-}
+JOURNALSCRIP_DEFAULT_JOURNAL=${JOURNALSCRIP_DEFAULT_JOURNAL:-}
 
 ################################################################################
 # Functions                                                                    #
@@ -31,6 +32,7 @@ JOURNALSCRIPT_DATA_DIR=${data_dir:-$JOURNALSCRIPT_DATA_DIR}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"}
 read -p "\$JOURNALSCRIPT_TEMPLATE_DIR. Templates location [path/to/directory] ($JOURNALSCRIPT_TEMPLATE_DIR):" template_dir
 # TODO: rewrite prompt to: 'where do you whis to write config [~|~/.config|stdout]?:
+read -p "Would you like to set a default journal (optional) ($JOURNALSCRIPT_DEFAULT_JOURNAL):" default_journal
 read -p "Configuration file [path/to/file|stdout] ($_JOURNALSCRIPT_CONF_DIR):" conf_dir
 
 # Default values if no user input
@@ -39,6 +41,7 @@ _JOURNALSCRIPT_CONF_FILE="${_JOURNALSCRIPT_CONF_DIR}/journalscript.env"
 JOURNALSCRIPT_FILE_TYPE=${file_type:-$JOURNALSCRIPT_FILE_TYPE}
 JOURNALSCRIPT_EDITOR=${editor:-$JOURNALSCRIPT_EDITOR}
 JOURNALSCRIPT_TEMPLATE_DIR=${template_dir:-$JOURNALSCRIPT_TEMPLATE_DIR}
+JOURNALSCRIPT_DEFAULT_JOURNAL=${default_journal:-$JOURNALSCRIPT_DEFAULT_JOURNAL}
 
 unset file_type editor data_dir template_dir conf_file
 
@@ -81,6 +84,7 @@ JOURNALSCRIPT_FILE_TYPE="$JOURNALSCRIPT_FILE_TYPE"
 JOURNALSCRIPT_EDITOR="$JOURNALSCRIPT_EDITOR"
 JOURNALSCRIPT_DATA_DIR="$JOURNALSCRIPT_DATA_DIR"
 JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_TEMPLATE_DIR"
+JOURNALSCRIPT_DEFAULT_JOURNAL="$JOURNALSCRIPT_DEFAULT_JOURNAL"
 EOF
 )
 if is_stdout "${_JOURNALSCRIPT_CONF_DIR}"; then
