@@ -185,9 +185,116 @@ _2_2_1=\
 } 
 
 # 2.2.2 Test default template is picked up at data directory
+_2_2_2=\
+"2.2.2 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And default template exists in the journal dir. "\
+"When the command 'write' is invoked. "\
+"The contentes of the new template are copied into the new journal entry" 
+@test "${_2_2_2}" {
+    local template_dir="$HOME/Documents/journals/.journalscript/templates"
+    mkdir -p "$template_dir"
+    mkdir -p "$HOME/Documents/journals/life"
+    printf "default template" > "$template_dir/template"
+    local todays_date=$(date +%Y-%m-%d)
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated journal entry 
+    assert_file_exists "$journal_entry"
+    assert_file_contains "$journal_entry" "default template"
+}
+
 # 2.2.3 Test default template is picked up at configure directory
+_2_2_3=\
+"2.2.3 Given no config file. "\
+"And no env overrides. "\
+"And no XDG dot dir. "\
+"And existing journal. "\
+"And default template exists in the config dir. "\
+"When the command 'write' is invoked. "\
+"The contentes of the new template are copied into the new journal entry" 
+@test "${_2_2_3}" {
+    local template_dir="$HOME/.journalscript/templates"
+    mkdir -p "$template_dir"
+    mkdir -p "$HOME/Documents/journals/life"
+    printf "default template" > "$template_dir/template"
+    local todays_date=$(date +%Y-%m-%d)
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated journal entry 
+    assert_file_exists "$journal_entry"
+    assert_file_contains "$journal_entry" "default template"
+}
+
 # 2.2.4 Test custom template is picked up at data directory
+_2_2_4=\
+"2.2.4 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And default template exists in the journal dir. "\
+"And default a matching journal specific template exists in the journal dir. "\
+"When the command 'write' is invoked. "\
+"The contents of the new template are copied into the new journal entry" 
+@test "${_2_2_4}" {
+    local template_dir="$HOME/Documents/journals/.journalscript/templates"
+    mkdir -p "$template_dir"
+    mkdir -p "$template_dir/template.d"
+    mkdir -p "$HOME/Documents/journals/life"
+    printf "default template" > "$template_dir/template"
+    printf "custom template" > "$template_dir/template.d/life"
+    local todays_date=$(date +%Y-%m-%d)
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated journal entry 
+    assert_file_exists "$journal_entry"
+    assert_file_contains "$journal_entry" "custom template"
+}
+
 # 2.2.5 Test custom template is picked up at configure 
+_2_2_5=\
+"2.2.5 Given no config file. "\
+"And no env overrides. "\
+"And no XDG dot dir. "\
+"And existing journal. "\
+"And default template exists in the config dir. "\
+"And default a matching journal specific template exists in the config dir. "\
+"When the command 'write' is invoked. "\
+"The contents of the new template are copied into the new journal entry" 
+@test "${_2_2_5}" {
+    local template_dir="$HOME/.config/journalscript/templates"
+    mkdir -p "$template_dir"
+    mkdir -p "$template_dir/template.d"
+    mkdir -p "$HOME/Documents/journals/life"
+    printf "default template" > "$template_dir/template"
+    printf "custom template" > "$template_dir/template.d/life"
+    local todays_date=$(date +%Y-%m-%d)
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert generated journal entry 
+    assert_file_exists "$journal_entry"
+    assert_file_contains "$journal_entry" "custom template"
+}
 
 # TODO: provide VARS to hooks
 # journal entry
