@@ -55,15 +55,6 @@ setup() {
     # TODO: unset XDG_DOCUMENTS_DIR, XDG_CONFIG_HOME
 }
 
-
-# Format: <var_name>=["]<value>["]
-# where var_name must be POSIX compliant(ish)
-_assert_output_conforms_to_format() {
-    for line in "${lines[@]}"; do
-        assert_regex "$line" '^[a-zA-Z0-9_]+="?.+"?$' 
-    done
-}
-
 ###############################################################################
 # Command: configure                                                          #
 ###############################################################################
@@ -162,6 +153,7 @@ _2_1_4=\
 # Command: write (with templates)                                             #
 ###############################################################################
 
+# 2.2.1 Test fallback behavior when there is no templates
 _2_2_1=\
 "2.2.1 Given no config file. "\
 "And no env overrides. "\
@@ -296,15 +288,179 @@ _2_2_5=\
     assert_file_contains "$journal_entry" "custom template"
 }
 
-# TODO: provide VARS to hooks
-# journal entry
-# previous entry
-# whether it is create or edit
-# the journal directory
+###############################################################################
+# Command: write (with hooks)                                                 #
+###############################################################################
 
+# 2.3.1 Test fallback open hook behavior
+_2_3_1=\
+"2.3.1 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And no open hooks. "\
+"When the command 'write' is invoked. "\
+"Then journalscrip runs fallback 'hook'."
+@test "${_2_3_1}" {
+    mkdir -p "$HOME/Documents/journals/life"
+    local todays_date=$(date +%Y-%m-%d)
+    local todays_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    # A little hack to test whether fallback happens:
+    # I cant set the EDITOR to a real editor because they are interactive
+    # thus the test will hang
+    # Instead I print to stdout. The 1st argument is the jounal entry file name
+    # So by testing it is in the output, I ensure JOURNALSCRIPT_EDITOR was
+    # invoked
+    export JOURNALSCRIPT_EDITOR="echo"
+
+    run journal.sh life
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "$todays_entry"
+    # assert generated journal entry 
+    assert_file_exists "$todays_entry"
+}
+
+# 2.3.2 Test default open hook
+_2_3_2=\
+"2.3.2 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And the default open hooks. "\
+"When the command 'write' is invoked. "\
+"Then journalscrip runs the default 'hook'."
+@test "${_2_3_2}" {
+    mkdir -p "$HOME/Documents/journals/life"
+    mkdir -p "$HOME/.journalscript/hooks"
+    local todays_date=$(date +%Y-%m-%d)
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    printf 'echo "default open hook" > $JOURNALSCRIPT_JOURNAL_ENTRY'\
+    > "$HOME/.journalscript/hooks/open"
+
+    run journal.sh life
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "$todays_entry"
+    # assert generated journal entry 
+    assert_file_exists "$journal_entry"
+    assert_file_contains "$journal_entry" "default open hook"
+}
+
+# 2.3.3 Test open hook has access to all of JOURNALSCRIPT vars
+_2_3_3=\
+"2.3.3 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And a the default open hook exists. "\
+"When the command 'write' is invoked. "\
+"Then journalscrip runs fallback 'hook'."
+@test "${_2_3_3}" {
+    local journal_dir="$HOME/Documents/journals/life"
+    mkdir -p "$journal_dir"
+    local todays_date=$(date +%Y-%m-%d)
+    local file_name="$todays_date.txt"
+    local todays_entry="$journal_dir/$todays_date.txt"
+    # A little hack to test whether fallback happens:
+    # I cant set the EDITOR to a real editor because they are interactive
+    # thus the test will hang
+    # Instead I print to stdout. The 1st argument is the jounal entry file name
+    # So by testing it is in the output, I ensure JOURNALSCRIPT_EDITOR was
+    # invoked
+    export JOURNALSCRIPT_EDITOR="eval echo \""\
+"JOURNALSCRIPT_JOURNAL_NAME=\$JOURNALSCRIPT_JOURNAL_NAME,"\
+"JOURNALSCRIPT_JOURNAL_DIRECTORY=\$JOURNALSCRIPT_JOURNAL_DIRECTORY,"\
+"JOURNALSCRIPT_JOURNAL_ENTRY=\$JOURNALSCRIPT_JOURNAL_ENTRY,"\
+"JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY=\$JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY,"\
+"JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME=\$JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME\""
+
+    run journal.sh life
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "JOURNALSCRIPT_JOURNAL_NAME=life"
+    assert_output --partial "JOURNALSCRIPT_JOURNAL_DIRECTORY=$journal_dir"
+    assert_output --partial "JOURNALSCRIPT_JOURNAL_ENTRY=$todays_entry"
+    assert_output --partial "JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME=$file_name"
+    assert_output --partial "JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY=1"
+    # assert generated journal entry 
+    assert_file_exists "$todays_entry"
+}
+
+# 2.3.4 Test editor specific hook
+_2_3_4=\
+"2.3.4 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And the default open hooks exists. "\
+"And an editor specific open hook exists which matches the editor. "\
+"When the command 'write' is invoked. "\
+"Then journalscrip runs the default 'hook'."
+@test "${_2_3_4}" {
+    mkdir -p "$HOME/Documents/journals/life"
+    mkdir -p "$HOME/.journalscript/hooks"
+    mkdir -p "$HOME/.journalscript/hooks/open.d"
+    local todays_date=$(date +%Y-%m-%d)
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    printf 'echo "default open hook" > $JOURNALSCRIPT_JOURNAL_ENTRY'\
+    > "$HOME/.journalscript/hooks/open"
+    printf 'echo "specific hook" > $JOURNALSCRIPT_JOURNAL_ENTRY'\
+    > "$HOME/.journalscript/hooks/open.d/specific"
+    export JOURNALSCRIPT_EDITOR="specific"
+
+    run journal.sh life
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "$todays_entry"
+    # assert generated journal entry 
+    assert_file_exists "$journal_entry"
+    assert_file_contains "$journal_entry" "specific hook"
+}
+
+# 2.3.5 Test backup hook is executed if it exists
+_2_3_5=\
+"2.3.5 Given no config file. "\
+"And no env overrides. "\
+"And existing journal. "\
+"And no open hooks. "\
+"And default backup hooks. "\
+"When the command 'write' is invoked. "\
+"Then journalscrip runs fallback 'hook'."
+@test "${_2_3_5}" {
+    mkdir -p "$HOME/Documents/journals/life"
+    mkdir -p "$HOME/.journalscript/hooks"
+    local todays_date=$(date +%Y-%m-%d)
+    local todays_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    printf 'echo "default backup hook"' > "$HOME/.journalscript/hooks/backup"
+    # A little hack to test whether fallback happens:
+    # I cant set the EDITOR to a real editor because they are interactive
+    # thus the test will hang
+    # Instead I print to stdout. The 1st argument is the jounal entry file name
+    # So by testing it is in the output, I ensure JOURNALSCRIPT_EDITOR was
+    # invoked
+    export JOURNALSCRIPT_EDITOR="echo"
+
+    run journal.sh life
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "$todays_entry"
+    assert_output --partial "default backup hook"
+    # assert generated journal entry 
+    assert_file_exists "$todays_entry"
+}
+
+# TODO: do so when errors are emmited properly
+# 2.3.6 Test backup hook is not executed when open hook fails
 
 teardown() {
-    unset JOURNALSCRIPT_DATA_DIR
+    unset JOURNALSCRIPT_EDITOR
 }
 
 

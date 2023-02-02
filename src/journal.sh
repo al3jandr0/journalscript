@@ -96,7 +96,7 @@ if test -f "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"; then
     done < "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"
 fi
 
-# 3. Set default values if env var has no value 
+# 3. Set default values only if var has no value 
 JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
@@ -171,16 +171,16 @@ _find_hook() {
     local action="$1"  # open or backup
     local tool="$2"    # Editor or backup tool
 
-    if test -f "$_JOURANLSCRIPT_HOOKS_DIR/$action.d/$tool"; then
-        echo "$_JOURANLSCRIPT_HOOKS_DIR/$action.d/$tool"
-    elif test -f "$hooks_dir/$action"; then
-        echo "$hooks_dir/$action"
+    if test -f "$_JOURNALSCRIPT_HOOKS_DIR/$action.d/$tool"; then
+        echo "$_JOURNALSCRIPT_HOOKS_DIR/$action.d/$tool"
+    elif test -f "$_JOURNALSCRIPT_HOOKS_DIR/$action"; then
+        echo "$_JOURNALSCRIPT_HOOKS_DIR/$action"
     else
         echo ""
     fi
 }
 
-# Opens a journal entry
+# Runs open hook (Opens a journal entry)
 #
 # It attempts to run an user defined hook to open the journal entry
 # If no hook is found, then it fallbacks to invokign the configured editor
@@ -199,7 +199,7 @@ _open_journal_entry() {
     fi
 }
 
-# Opens backup hook
+# Runs backup hook (backup journal entry)
 #
 # It attempts to run a user defined hook, if none is found then it does nothign
 _backup_journal_entry() {
@@ -350,13 +350,12 @@ _write() {
     fi
     # if no argument (journal name), then default to the default journal 
     local journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
-    echo "$journal_name"
     # directory that hosts all the entries of the journal
     local journal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
     # full path the journal entry file to crete/edit
     local todays_date=$(date +%Y-%m-%d)  # date format: YYY-mm-dd
-    local todays_entry="$journal_dir/$todays_date.$JOURNALSCRIPT_FILE_TYPE"
-    echo "$todays_entry"
+    local entry_name="$todays_date.$JOURNALSCRIPT_FILE_TYPE"
+    local todays_entry="$journal_dir/$entry_name"
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
     if ! test -d "$journal_dir"; then
@@ -371,9 +370,15 @@ _write() {
         is_new_file=1
         _write_template "$journal_name" "$todays_entry"
     fi
-   
-    # TODO: set env vars for hooks
-    # runs open and backup hook (upon success)
+
+    # Make special vars avaiable to hooks
+    JOURNALSCRIPT_JOURNAL_NAME=$journal_name # name of the journal
+    JOURNALSCRIPT_JOURNAL_DIRECTORY=$journal_dir # full path to journal dir
+    JOURNALSCRIPT_JOURNAL_ENTRY=$todays_entry # full path to journal entry file
+    JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME="$entry_name" # entry file name
+    JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY=$is_new_file # whether the file is new
+
+    # runs open hook, and runs backup hook upon open success
     _open_journal_entry "$todays_entry" && _backup_journal_entry
 }
 
@@ -386,7 +391,6 @@ _main() {
     if [[ -z "$_COMMAND" ]]; then
         _COMMAND=$_COMMAND_WRITE
     fi
-    echo "$_COMMAND ${_COMMAND_ARGUMENTS[@]}"
     $_COMMAND "${_COMMAND_ARGUMENTS[@]}"
 }
 

@@ -48,7 +48,7 @@ Clone the repo, cd into its root, and run the installation scrip
 2.1.4 Test command doesn't create a new file if target file exits 
 2.1.5 Test command fails when journalscript doesn't have permissions to target directory
 2.2 Sub-component: write with templates
-2.2.1 Test default behavior when there is no templates
+2.2.1 Test fallback behavior when there is no templates
 2.2.2 Test default template is picked up at data directory
 2.2.3 Test default template is picked up at configure directory
 2.2.4 Test custom template is picked up at data directory
@@ -56,9 +56,10 @@ Clone the repo, cd into its root, and run the installation scrip
 2.3 Sub-component: write with hooks
 2.3.1 Test fallback open hook behavior
 2.3.2 Test default open hook
-2.3.3 Test editor specific hook
-2.3.4 Test backup hook is executed if it exists
-2.3.4 Test backup hook is not executed when open hook fails
+2.3.3 Test open hook has access to all of JOURNALSCRIPT vars
+2.3.4 Test editor specific hook
+2.3.5 Test backup hook is executed if it exists
+2.3.6 Test backup hook is not executed when open hook fails
 
 3. Command: help
 3.1 Help adheres to usage / help format
