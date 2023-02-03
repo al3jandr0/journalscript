@@ -10,7 +10,7 @@
 #    And promp user for confirmation
 # 2. Each journal entry goes into its own file, and the file name is the date
 # 3. Journal enties are stored under a directory named after the journal
-# 4. The journal directory location is controlled by JOURNALSCRIPT_DATA_DIR,
+# 4. The journal directory location is controlled by JOURNALSCRIPT_JOURNAL_DIR,
 #    and it defaults to $HOME/Documents/journals
 #
 ################################################################################
@@ -98,15 +98,16 @@ fi
 JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
-JOURNALSCRIPT_DATA_DIR=${JOURNALSCRIPT_DATA_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
+JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-\
+"$XDG_DOCUMENTS_DIR/journals"}
 
 # Template directory default is set to whichever exists in this order
-# 1. JOURNALSCRIPT_DATA_DIR/.journalscript/templates
+# 1. JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates
 # 2. _JOURNALSCRIPT_CONF_DIR/.journalscript/templates
 # 3. Empty value
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-""}
 if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]] ; then
-    JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_DATA_DIR/.journalscript/templates"
+    JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"
     if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
         JOURNALSCRIPT_TEMPLATE_DIR="$_JOURNALSCRIPT_CONF_DIR/templates"
     fi
@@ -243,9 +244,10 @@ _configure() {
     if [[ "$sub_command" == "show" ]]; then
 		cat <<-EOF
 		_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
+		_JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR}"
 		JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
 		JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
-		JOURNALSCRIPT_DATA_DIR="${JOURNALSCRIPT_DATA_DIR}"
+		JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"
 		JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
 		JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
@@ -273,15 +275,15 @@ _write() {
         echo "ERROR. jounal command supports up to 1 argument"
         exit 1
     fi
-    # fail if JOURNALSCRIPT_DATA_DIR does not exist
-    if [[ -z "$JOURNALSCRIPT_DATA_DIR" ]]; then
-        echo "fail if JOURNALSCRIPT_DATA_DIR does not exist"
+    # fail if JOURNALSCRIPT_JOURNAL_DIR does not exist
+    if [[ -z "$JOURNALSCRIPT_JOURNAL_DIR" ]]; then
+        echo "fail if JOURNALSCRIPT_JOURNAL_DIR does not exist"
         exit 1
     fi
     # if no argument (journal name), then default to the default journal 
     local journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
     # directory that hosts all the entries of the journal
-    local journal_dir="$JOURNALSCRIPT_DATA_DIR/$journal_name"
+    local journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
     # full path the journal entry file to crete/edit
     local todays_date=$(date +%Y-%m-%d)  # date format: YYY-mm-dd
     local entry_name="$todays_date.$JOURNALSCRIPT_FILE_TYPE"

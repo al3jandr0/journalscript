@@ -12,13 +12,15 @@ Clone the repo, cd into its root, and run the installation scrip
 - [x] Add support for method-agnostic post-save hooks in order to support automatic backup once a file is added or edited in order to de-couple backup mechanism
 - [x] Consider adding a pre-hook. At the moment I'm passing to the editor an order list of journal entries, but for vim I only pass the last two. Some editors can open directories, some rather open files
 - [x] Test all commands
-- [ ] Print hook env var in configure show (update tests)
-- [ ] Rename JOURNALSCRIPT_DATA_DIR to JOURNALSCRIPT_JOURNAL_DIR
+- [x] Print hook env var in configure show (update tests)
+- [x] Rename JOURNALSCRIPT_DATA_DIR to JOURNALSCRIPT_JOURNAL_DIR
 - [ ] Implement safe append for files and directories
 - [ ] Set "strict" mode
 - [ ] Make journalscript interactive only (would it break testing)?
+
 - [ ] Standarize throwing errors
 - [ ] Re-write error messages
+
 - [ ] Find out language for init_config
 - [ ] Implement help - Find out language guide
 - [ ] Proof read the entire program. Look for inconsistent language and typos
@@ -45,9 +47,10 @@ Clone the repo, cd into its root, and run the installation scrip
 
 Test
 - [x] refactor: make loading of lib and common setup run once per test suite
-- [ ] anchor bats version
-- [ ] Add tags to test (1 tag per command)
+- [x] Add tags to test (1 tag per command)
 - [x] Rename test files
+##### HERE
+- [ ] anchor bats version
 - [ ] Set a timeout for bats tests
 
 - [ ] Implement LS command
