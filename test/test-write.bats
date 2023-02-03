@@ -12,7 +12,7 @@ setup() {
 ###############################################################################
 # Command: configure                                                          #
 ###############################################################################
-
+# bats file_tags=write
 _2=\
 "2. When unsupported sub-commands are provided to write. "\
 "Then journalscript exists with an error"
@@ -112,6 +112,7 @@ _2_1_4=\
 ###############################################################################
 
 # 2.2.1 Test fallback behavior when there is no templates
+# bats test_tags=write:template
 _2_2_1=\
 "2.2.1 Given no config file. "\
 "And no env overrides. "\
@@ -135,6 +136,7 @@ _2_2_1=\
 } 
 
 # 2.2.2 Test default template is picked up at data directory
+# bats test_tags=write:template
 _2_2_2=\
 "2.2.2 Given no config file. "\
 "And no env overrides. "\
@@ -161,6 +163,7 @@ _2_2_2=\
 }
 
 # 2.2.3 Test default template is picked up at configure directory
+# bats test_tags=write:template
 _2_2_3=\
 "2.2.3 Given no config file. "\
 "And no env overrides. "\
@@ -188,6 +191,7 @@ _2_2_3=\
 }
 
 # 2.2.4 Test custom template is picked up at data directory
+# bats test_tags=write:template
 _2_2_4=\
 "2.2.4 Given no config file. "\
 "And no env overrides. "\
@@ -217,6 +221,7 @@ _2_2_4=\
 }
 
 # 2.2.5 Test custom template is picked up at configure 
+# bats test_tags=write:template
 _2_2_5=\
 "2.2.5 Given no config file. "\
 "And no env overrides. "\
@@ -251,6 +256,7 @@ _2_2_5=\
 ###############################################################################
 
 # 2.3.1 Test fallback open hook behavior
+# bats test_tags=write:hook
 _2_3_1=\
 "2.3.1 Given no config file. "\
 "And no env overrides. "\
@@ -281,6 +287,7 @@ _2_3_1=\
 }
 
 # 2.3.2 Test default open hook
+# bats test_tags=write:hook
 _2_3_2=\
 "2.3.2 Given no config file. "\
 "And no env overrides. "\
@@ -308,6 +315,7 @@ _2_3_2=\
 }
 
 # 2.3.3 Test open hook has access to all of JOURNALSCRIPT vars
+# bats test_tags=write:hook
 _2_3_3=\
 "2.3.3 Given no config file. "\
 "And no env overrides. "\
@@ -349,6 +357,7 @@ _2_3_3=\
 }
 
 # 2.3.4 Test editor specific hook
+# bats test_tags=write:hook
 _2_3_4=\
 "2.3.4 Given no config file. "\
 "And no env overrides. "\
@@ -381,6 +390,7 @@ _2_3_4=\
 }
 
 # 2.3.5 Test backup hook is executed if it exists
+# bats test_tags=write:hook
 _2_3_5=\
 "2.3.5 Given no config file. "\
 "And no env overrides. "\
