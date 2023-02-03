@@ -2,6 +2,9 @@
 # Test set for command: configure                                              # 
 ################################################################################
 
+# timeout from any test after 2 seconds
+BATS_TEST_TIMEOUT=2
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup

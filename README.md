@@ -14,7 +14,6 @@ Clone the repo, cd into its root, and run the installation scrip
 - [x] Test all commands
 - [x] Print hook env var in configure show (update tests)
 - [x] Rename JOURNALSCRIPT_DATA_DIR to JOURNALSCRIPT_JOURNAL_DIR
-- [ ] Implement safe append for files and directories
 - [ ] Set "strict" mode
 - [ ] Make journalscript interactive only (would it break testing)?
 
@@ -44,14 +43,15 @@ Clone the repo, cd into its root, and run the installation scrip
 - - [ ] homebrew
 - - [ ] Windows?
 - - Make isntallable from source. Add make ?
+- [ ] (?) Implement safe append for files and directories
 
 Test
 - [x] refactor: make loading of lib and common setup run once per test suite
 - [x] Add tags to test (1 tag per command)
 - [x] Rename test files
 ##### HERE
-- [ ] anchor bats version
-- [ ] Set a timeout for bats tests
+- [x] anchor bats version
+- [x] Set a timeout for bats tests
 
 - [ ] Implement LS command
 - [ ] Nice to have: make the script POSIX compliant - make it run on different terminal emulators bash, fish, etc.
