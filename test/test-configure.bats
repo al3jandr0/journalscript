@@ -117,7 +117,7 @@ _1_1_2=\
 @test "${_1_1_2}" {
     # setup
     mkdir -p "$HOME/.journalscript"
-    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/.journalscript/journalscript.env"
+    cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$HOME/.journalscript/journalscript.env"
     run journal.sh configure show
     # assert command finishes sucessfully
     assert_success
@@ -143,7 +143,7 @@ _1_1_3=\
 @test "${_1_1_3}" {
     # setup
     mkdir -p "$HOME/.config/journalscript"
-    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$HOME/.config/journalscript/journalscript.env"
+    cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$HOME/.config/journalscript/journalscript.env"
     run journal.sh configure show
     # assert command finishes sucessfully
     assert_success
@@ -223,7 +223,7 @@ _1_1_7=\
 @test "${_1_1_7}" {
     # setup
     mkdir -p "$HOME/.journalscript"
-    cp "$BATS_TEST_DIRNAME/test-config-file-with-comments.env" "$HOME/.journalscript/journalscript.env"
+    cp "$BATS_TEST_DIRNAME/resources/config-file-comments.env" "$HOME/.journalscript/journalscript.env"
     run journal.sh configure show
     # assert command finishes sucessfully
     assert_success
@@ -325,7 +325,7 @@ _1_2_3=\
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
     mkdir -p "$HOME/.journalscript"
-    cp "$BATS_TEST_DIRNAME/test-config-file.env" "$FILE"
+    cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$FILE"
     run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
 
     # assert command finishes sucessfully
