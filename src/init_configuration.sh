@@ -76,7 +76,6 @@ read -p "Confirm changes? [y/n]:" confirm
 
 mkdir -p "$JOURNALSCRIPT_DATA_DIR"
 mkdir -p "$JOURNALSCRIPT_TEMPLATE_DIR"
-mkdir -p "$_JOURNALSCRIPT_CONF_DIR"
 
 _contents=$(cat <<-EOF
 JOURNALSCRIPT_FILE_TYPE="$JOURNALSCRIPT_FILE_TYPE"
@@ -89,6 +88,7 @@ EOF
 if is_stdout "${_JOURNALSCRIPT_CONF_DIR}"; then
     printf "%s" "$_contents" 
 else
+    mkdir -p "$_JOURNALSCRIPT_CONF_DIR"
     printf "%s" "$_contents" > "${_JOURNALSCRIPT_CONF_FILE}"
 fi
 unset _contents confirm
