@@ -3,52 +3,9 @@
 ################################################################################
 
 setup() {
-    # TODO: update with bats_load_library
-    load 'test_helper/bats-support/load'
-    load 'test_helper/bats-assert/load'
-    load 'test_helper/bats-file/load'
-    # get the containing directory of this file
-    # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0, as those will
-    # point to the bats executable's location or the preprocessed file 
-    # respectively
-    PROJECT_ROOT="$(
-        cd "$( dirname "$BATS_TEST_FILENAME")"
-        >/dev/null 2>&1 && pwd )"
-    # make executables in src/ visible to PATH
-    PATH="$PROJECT_ROOT/../src:$PATH"
-
-    # Create "fake" file system directory structure
-    # consider sharing the dir
-    if [[ ! "$BATS_TEST_TMPDIR" || ! -d "$BATS_TEST_TMPDIR" ]]; then
-      echo "Could not create test root dir"
-      exit 1
-    fi
-    ## Populate test directory with basic structure
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.config"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.bin"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.cache"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.local/"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/Documents"
-    mkdir "$BATS_TEST_TMPDIR/tmp"
-    mkdir "$BATS_TEST_TMPDIR/bin"
-    mkdir "$BATS_TEST_TMPDIR/dev"
-    mkdir "$BATS_TEST_TMPDIR/etc"
-    mkdir "$BATS_TEST_TMPDIR/lib"
-    mkdir "$BATS_TEST_TMPDIR/sbin"
-    mkdir "$BATS_TEST_TMPDIR/var"
-    mkdir "$BATS_TEST_TMPDIR/usr"
-    mkdir "$BATS_TEST_TMPDIR/usr/bin"
-    mkdir "$BATS_TEST_TMPDIR/usr/man"
-    mkdir "$BATS_TEST_TMPDIR/usr/lib"
-    mkdir "$BATS_TEST_TMPDIR/usr/share"
-    mkdir "$BATS_TEST_TMPDIR/mnt"
-    mkdir "$BATS_TEST_TMPDIR/proc"
-
-    HOME="$BATS_TEST_TMPDIR/home/$USER"
-    # TODO: unset XDG_DOCUMENTS_DIR, XDG_CONFIG_HOME
+    load 'test_helper/common-setup'
+    _common_setup
 }
-
 
 # Format: <var_name>=["]<value>["]
 # where var_name must be POSIX compliant(ish)
@@ -61,6 +18,7 @@ _assert_output_conforms_to_format() {
 ###############################################################################
 # Command: configure                                                          #
 ###############################################################################
+# bats file_tags=configure
 
 _1=\
 "1. When unsupported su-commands are provided to configure. "\
@@ -74,6 +32,7 @@ _1=\
 # Command: configure show                                                     #
 ###############################################################################
 
+# bats test_tags=configure:show
 _1_1_1=\
 "1.1.1 Given no configuration file. "\
 "And no env var overrides. "\
@@ -97,6 +56,7 @@ _1_1_1=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
+# bats test_tags=configure:show
 _1_1_1_dash_1=\
 "1.1.1-1 Given no configuration file. "\
 "And no env var overrides. "\
@@ -122,6 +82,7 @@ _1_1_1_dash_1=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
+# bats test_tags=configure:show
 _1_1_1_dash_2=\
 "1.1.1-2 Given no configuration file. "\
 "And no env var overrides. "\
@@ -147,6 +108,7 @@ _1_1_1_dash_2=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
+# bats test_tags=configure:show
 _1_1_2=\
 "1.1.2 Given the configuration file .journalscript.env located in $HOME/. "\
 "And no env var overrides. "\
@@ -172,6 +134,7 @@ _1_1_2=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
 }
 
+# bats test_tags=configure:show
 _1_1_3=\
 "1.1.3 Given the configuration file .journalscript.env located in $XDG_CONFIG/journalscript "\
 "And no env var overrides. "\
@@ -197,6 +160,7 @@ _1_1_3=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
 }
 
+# bats test_tags=configure:show
 _1_1_5=\
 "1.1.5 Given no configuration file "\
 "And all the configuration in env var overrides "\
@@ -225,6 +189,7 @@ _1_1_5=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"$JOURNALSCRIPT_DEFAULT_JOURNAL\""
 }
 
+# bats test_tags=configure:show
 _1_1_6=\
 "1.1.6 Given no configuration file. "\
 "And no env var overrides. "\
@@ -248,6 +213,7 @@ _1_1_6=\
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
+# bats test_tags=configure:show
 _1_1_7=\
 "1.1.7 Given a configuration file with comments located in $HOME "\
 "And no env var overrides. "\
@@ -280,6 +246,7 @@ _1_1_7=\
 # Command: configure init                                                     #
 ###############################################################################
 
+# bats test_tags=configure:init
 _1_2_1=\
 "1.2.1 Given no configuration file. "\
 "And no env var overrides. "\
@@ -308,6 +275,7 @@ _1_2_1=\
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
+# bats test_tags=configure:init
 _1_2_2=\
 "1.2.2 Given no configuration file. "\
 "And no env var overrides. "\
@@ -339,6 +307,7 @@ _1_2_2=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
+# bats test_tags=configure:init
 _1_2_3=\
 "1.2.3 Given an existing configuration file. "\
 "And no env var overrides. "\
@@ -375,6 +344,7 @@ _1_2_3=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
+# bats test_tags=configure:init
 _1_2_4=\
 "1.2.4 Given no configuration file. "\
 "And no env var overrides. "\
@@ -407,6 +377,7 @@ _1_2_4=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
+# bats test_tags=configure:init
 _1_2_5=\
 "1.2.5 Given no configuration file. "\
 "And no env var overrides. "\
@@ -438,6 +409,7 @@ _1_2_5=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$TEMPLATE_DIR\""
 }
 
+# bats test_tags=configure:init
 _1_2_6=\
 "1.2.6 Given no configuration file. "\
 "And no env var overrides. "\

@@ -2,52 +2,9 @@
 # Test set for command: configure                                              # 
 ################################################################################
 
-# TODO: Set the variable $BATS_TEST_TIMEOUT before setup() starts. This means you can set it either on the command line, in free code in the test file or in setup_file().
-
 setup() {
-    # TODO: update with bats_load_library
-    load 'test_helper/bats-support/load'
-    load 'test_helper/bats-assert/load'
-    load 'test_helper/bats-file/load'
-    # get the containing directory of this file
-    # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0, as those will
-    # point to the bats executable's location or the preprocessed file 
-    # respectively
-    PROJECT_ROOT="$(
-        cd "$( dirname "$BATS_TEST_FILENAME")"
-        >/dev/null 2>&1 && pwd )"
-    # make executables in src/ visible to PATH
-    PATH="$PROJECT_ROOT/../src:$PATH"
-
-    # Create "fake" file system directory structure
-    # consider sharing the dir
-    if [[ ! "$BATS_TEST_TMPDIR" || ! -d "$BATS_TEST_TMPDIR" ]]; then
-      echo "Could not create test root dir"
-      exit 1
-    fi
-    ## Populate test directory with basic structure
-    mkdir -p "$BATS_TEST_TMPDIR/home/$USER"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.config"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.bin"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.cache"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/.local/"
-    mkdir "$BATS_TEST_TMPDIR/home/$USER/Documents"
-    mkdir "$BATS_TEST_TMPDIR/tmp"
-    mkdir "$BATS_TEST_TMPDIR/bin"
-    mkdir "$BATS_TEST_TMPDIR/dev"
-    mkdir "$BATS_TEST_TMPDIR/etc"
-    mkdir "$BATS_TEST_TMPDIR/lib"
-    mkdir "$BATS_TEST_TMPDIR/sbin"
-    mkdir "$BATS_TEST_TMPDIR/var"
-    mkdir "$BATS_TEST_TMPDIR/usr"
-    mkdir "$BATS_TEST_TMPDIR/usr/bin"
-    mkdir "$BATS_TEST_TMPDIR/usr/man"
-    mkdir "$BATS_TEST_TMPDIR/usr/lib"
-    mkdir "$BATS_TEST_TMPDIR/usr/share"
-    mkdir "$BATS_TEST_TMPDIR/mnt"
-    mkdir "$BATS_TEST_TMPDIR/proc"
-
-    HOME="$BATS_TEST_TMPDIR/home/$USER"
+    load 'test_helper/common-setup'
+    _common_setup
     export JOURNALSCRIPT_EDITOR=":" # no-op editor
     # TODO: unset XDG_DOCUMENTS_DIR, XDG_CONFIG_HOME
 }
@@ -68,6 +25,7 @@ _2=\
 # Command: write                                                              #
 ###############################################################################
 
+# 2.1.1 Test command creates default journal if journal doesn't exist
 _2_1_1=\
 "2.1.1 Given no config file. "\
 "And no env overrides. "\
@@ -85,6 +43,7 @@ _2_1_1=\
     assert_dir_exists "$HOME/Documents/journals/life"
 }
 
+# 2.1.2 Test command creates provided journal if journal doesn't exist
 _2_1_2=\
 "2.1.2 Given no config file. "\
 "And no env overrides. "\
@@ -102,6 +61,7 @@ _2_1_2=\
     assert_dir_exists "$HOME/Documents/journals/myjournal"
 }
 
+# 2.1.3 Test command creates a journal entry in the journal directory
 _2_1_3=\
 "2.1.3 Given no config file. "\
 "And no env overrides. "\
@@ -122,6 +82,7 @@ _2_1_3=\
     assert_file_exists "$HOME/Documents/journals/life/$todays_date.txt"
 }
 
+# 2.1.4 Test command doesn't create a new file if target file exits 
 _2_1_4=\
 "2.1.4 Given no config file. "\
 "And no env overrides. "\
