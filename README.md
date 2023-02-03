@@ -14,19 +14,18 @@ Clone the repo, cd into its root, and run the installation scrip
 - [x] Test all commands
 - [x] Print hook env var in configure show (update tests)
 - [x] Rename JOURNALSCRIPT_DATA_DIR to JOURNALSCRIPT_JOURNAL_DIR
-- [ ] Set "strict" mode
-- [ ] Make journalscript interactive only (would it break testing)?
+- [x] Set "strict" mode
+- [x] Standarize throwing errors
+- [x] Re-write error messages
+- [x] refactor: make loading of lib and common setup run once per test suite
+- [x] Add tags to test (1 tag per command)
+- [x] Rename test files
+- [x] anchor bats version
+- [x] Set a timeout for bats tests
 
-- [ ] Standarize throwing errors
-- [ ] Re-write error messages
-
-- [ ] Find out language for init_config
-- [ ] Implement help - Find out language guide
-- [ ] Proof read the entire program. Look for inconsistent language and typos
-- [ ] Add a man page
-- [ ] Add man page
-- [ ] Add support for dynamic templates
-- [ ] init_config: update user feedback
+#### Checkpoint
+- [ ] CICD run tests uppon merge or as merge check?
+- [ ] Add license
 - [ ] Write a readme:
 - - Motivation
 - - For devs: decisions / philosophy
@@ -43,16 +42,16 @@ Clone the repo, cd into its root, and run the installation scrip
 - - [ ] homebrew
 - - [ ] Windows?
 - - Make isntallable from source. Add make ?
-- [ ] (?) Implement safe append for files and directories
+- [ ] Find out language for init_config
+- [ ] Implement help - Find out language guide
+- [ ] Proof read the entire program. Look for inconsistent language and typos
+- [ ] Add a man page
+- [ ] Add man page
+- [ ] Add support for dynamic templates
+- [ ] init_config: update user feedback
 
-Test
-- [x] refactor: make loading of lib and common setup run once per test suite
-- [x] Add tags to test (1 tag per command)
-- [x] Rename test files
-##### HERE
-- [x] anchor bats version
-- [x] Set a timeout for bats tests
 
+#Maybes
 - [ ] Implement LS command
 - [ ] Nice to have: make the script POSIX compliant - make it run on different terminal emulators bash, fish, etc.
 - [ ] Nice to have: Pretify init_config (emojis)?
@@ -67,9 +66,4 @@ Test
 ## Invariants
 - 1. Nothing else beside the output of the command is allowed to be printed to stout
 - 2. No file in the FS is modified except for those in the DATA directory - could make stricter by permitting only 1 file (the most recent one) in DATA to be modified 
-- 3. Env is inmutable. No var should be exported or unset
-- 4. The updated or created file (if any) should adhere to the format <date>.<type>
-
-### Terminal specific?
-- 1. Always run as interactive?
 

@@ -59,7 +59,7 @@ if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
 fi
 if ! is_stdout "${_JOURNALSCRIPT_CONF_DIR}"; then
     if ! test -d "$_JOURNALSCRIPT_CONF_DIR"; then
-        echo "Configuration directory $JOURNALSCRIPT_CONF_DIR will be created"
+        echo "Configuration directory $_JOURNALSCRIPT_CONF_DIR will be created"
     fi
     if test -f "${_JOURNALSCRIPT_CONF_FILE}"; then
         echo "The configuration file ${_JOURNALSCRIPT_CONF_FILE} will be overriden."

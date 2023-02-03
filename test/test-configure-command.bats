@@ -27,7 +27,6 @@ _1=\
 "1. When unsupported su-commands are provided to configure. "\
 "Then journalscript exists with an error"
 @test "${_1}" {
-    sleep 3s
     run journal.sh configure invalid 
     assert_failure
 }

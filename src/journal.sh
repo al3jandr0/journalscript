@@ -12,10 +12,13 @@
 # 3. Journal enties are stored under a directory named after the journal
 # 4. The journal directory location is controlled by JOURNALSCRIPT_JOURNAL_DIR,
 #    and it defaults to $HOME/Documents/journals
-#
+
 ################################################################################
 # Globals                                                                      #
 ################################################################################
+set -o nounset
+set -o errtrace
+set -o pipefail
 _ME="journalscript"
 _VERSION="0.0.1"
 _COMMADN_LS="_ls"
@@ -122,6 +125,15 @@ _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 # Functions                                                                    #
 ################################################################################
 
+# Prints to stdr with some formating, and exits with code 1
+_fail() {
+    {
+        printf "%s " "$(tput setaf 1)ERROR$(tput sgr0)"
+        printf "%s\n" "${@}"
+    } 1>&2
+  exit 1
+}
+
 # Writes a template into a new journal entry
 #
 # Templates' parent directory is specified with JOURNALSCRIPT_TEMPLATE_DIR.
@@ -181,7 +193,7 @@ _find_hook() {
 # It attempts to run an user defined hook to open the journal entry
 # If no hook is found, then it fallbacks to invokign the configured editor
 _open_journal_entry() {
-    local journal_entry="$1"
+    local journal_entry="${1:-}"
     local open_hook=$( _find_hook "open" "$JOURNALSCRIPT_EDITOR" )
 
     # invoke configured editor directly and run backup hook
@@ -197,7 +209,7 @@ _open_journal_entry() {
 #
 # It attempts to run a user defined hook, if none is found then it does nothign
 _backup_journal_entry() {
-    local journal_entry="$1"
+    local journal_entry="${1:-}"
     local backup_hook=$( _find_hook "backup" "git" )
 
     # if there is no backup hook, do nothing
@@ -235,12 +247,11 @@ _configure() {
     if [[ "${#@}" -eq 1 ]]; then
         sub_command="$1"
     elif [[ "${#@}" -gt 1 ]]; then
-        echo "ERROR. configuration command supports up to 1 argument"
-        exit 1
+        _fail "'configure' command supports up to 1 argument only."
     fi
     # if no arguments, then default to show sub_command 
 
-    # Run sub commands:
+    # run sub commands:
     if [[ "$sub_command" == "show" ]]; then
 		cat <<-EOF
 		_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
@@ -255,9 +266,7 @@ _configure() {
         . init_configuration.sh
     # unknown command.
     else
-        echo "ERROR. Unsupported argument '${args[0]}' of 'configure'."
-        echo "See journalscript configure --help for supported options"
-        exit 1
+        _fail "Unsupported argument '${args[0]}' of command 'configure'."
     fi
 }
 
@@ -272,13 +281,11 @@ _configure() {
 _write() {
     # The command deosnt accept more than 1 argumetn. Error out in such case
     if [[ ${#@} -gt 1 ]]; then
-        echo "ERROR. jounal command supports up to 1 argument"
-        exit 1
+        _fail "'write' command supports up to 1 argument."
     fi
     # fail if JOURNALSCRIPT_JOURNAL_DIR does not exist
     if [[ -z "$JOURNALSCRIPT_JOURNAL_DIR" ]]; then
-        echo "fail if JOURNALSCRIPT_JOURNAL_DIR does not exist"
-        exit 1
+        _fail "JOURNALSCRIPT_JOURNAL_DIR is not set"
     fi
     # if no argument (journal name), then default to the default journal 
     local journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
