@@ -134,6 +134,31 @@ _fail() {
   exit 1
 }
 
+_help() {
+    if [[ -z "${@}" ]]; then
+        cat >&1 <<-EOF
+
+		Journalscript, version $_VERSION
+
+		Usage: journal [options]
+		       journal COMMAND [options] [ARG...]
+
+		Options:
+		  --help        Prints this message and quits
+		  -v, --version Prints version information and quits
+
+		Commands:
+		  write         writes a new journal entry. Default command, it executes in
+		                the absence of COMMAND.
+		  configure     assits configuring journalscript
+		
+		Run journal COMMAND --help for more information on a command.
+		EOF
+    elif [[ "$1" =~ write|configure ]]; then
+        _help$1
+    fi
+}
+
 # Writes a template into a new journal entry
 #
 # Templates' parent directory is specified with JOURNALSCRIPT_TEMPLATE_DIR.
@@ -238,6 +263,10 @@ _backup_journal_entry() {
 # Commands                                                                     #
 ################################################################################
 
+_help_configure() {
+    echo "help configure"
+}
+
 # Accepts up to one argument -the subcommand (init, or show)-, or no arguments
 # In case of no arguments, defaults to 'show' subcommand
 _configure() {
@@ -268,6 +297,31 @@ _configure() {
     else
         _fail "Unsupported argument '${args[0]}' of command 'configure'."
     fi
+}
+
+_help_write() {
+    cat >&1 <<-EOF
+
+	Usage: journal write [options] [journal] 
+
+	Writes a new entry to the journal.  If no journal is provided, it writes to
+	the default journal. Journals are stored as directories and each journal 
+	entry is a file in the journal directory.  Each journal entry corresponds to
+	a day, and their name is formated: YYYY-mm-dd.
+	The command creates new files if they don't exists, and it copies a template
+	into them if template is configured.  Then it executes an open hook in order
+	edit the the new journal entry (or an existing one). If no open hook exists, 
+	it defaults to use the launching the configured editor.  Once the user closes 
+	the editor, journalscript invokes a backup hook if any exists.
+
+	Options:
+	  --help        Prints this message and quits
+
+	Examples:
+	    journal                     Writes an entry to the default journal
+	    journal my-journal          Writes an entry to 'my-jouranl'
+	    journal write my-journal    Writes an entry to 'my-journal'
+	EOF
 }
 
 # Writes journal entries.

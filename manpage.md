@@ -36,12 +36,9 @@ Journalscript is highly configurable. However it requires no configuration upfro
 
 ## write [journal]
 
-Creates and opens a new journal entry for the current date (YYY-mm-dd). If such entry exists already, it opens the existing entry.
-For new files, it creates a new file using a template. 
-To open a journal entry the command makes use of an open hook, and if none exists then it uses the configured editor.
-After the user closes such editor, then journalscript invokes a backup hook if any exists.
-The default journal is called 'life', and when no journal directory exist, it prompts the user to create a new one. 
-Write is the default command, so when journalscript is invoked without a command, journalscript runs the write command without arguments.
+Writes a new entry to the journal.  If no journal is provided, it writes to the default journal. Journals are stored as directories and each journal entry is a file in the journal directory.  Each journal entry corresponds to a day, and their name is formated: YYYY-mm-dd.
+
+The command creates new files if they don't exists, and it copies a template into them if template is configured.  Then it executes an open hook in order edit the the new journal entry (or an existing one). If no open hook exists, it defaults to use the launching the configured editor.  Once the user closes the editor, journalscript invokes a backup hook if any exists.
 
 **TEMPLATES**
 
@@ -51,22 +48,6 @@ Journalscript looks for templates in the following locations:
 2. The default template `/templates/template`
 
 In case no other template is found, the fall back behavior is to write the the current date on the first line of the journal entry. 
-
-
-
-**HOOKS**
-
-Journalscript leverages hooks to allow users to customize editing and backing up journal entries.  By default, journalscript opens a journal entry using the configured editor, and it takes no action to backup entries.  However, by configuring an **open hook** the user can customize both the editor and the arguments passed to the editor., and by configuring a **backup hook** the user tells to run a backup routine upon exiting the editor.  
-
-Journalscript looks for an open hook in the following locations:\ 
-
-1. A hook specific to the configured editor. Any file under `/hooks/open.d/`\ 
-2. The default hook `/hooks/open`
-
-Journalscript looks for backup hook in the following locations:\ 
-
-1. A hook specific to the configured editor. Any file under `/hooks/backup.d/`\ 
-2. The default hook `/hooks/backup`
 
 ## configure [show|init]
 
@@ -80,7 +61,11 @@ Displays the configuration parameters (also referred as environment variables) a
 
 Launches an interactive wizard that helps the user setting up a journalscript configuration
 
-# PARAMETERS
+# RETURN VALUE
+
+Returns 1 in case of error. Otherwise returns 0.
+
+# ENVIRONMENT
 
 JOURNALSCRIPT_FILE_TYPE\ 
 
@@ -101,5 +86,33 @@ JOURNALSCRIPT_TEMPLATE_DIR\
 JOURNALSCRIPT_DEFAULT_JOURNAL\
 
 : When journalscript wire is invoked without arguments, it writes to the default journal. Its default value is `life` 
+
+# FILES
+
+## Hooks
+
+**HOOKS**
+
+Journalscript leverages hooks to allow users to customize editing and backing up journal entries.  By default, journalscript opens a journal entry using the configured editor (JOURNALSCRIPT_EDITOR), and it takes no action to backup entries.  However, by configuring an **open hook**, users can customize both the choice of editor and the arguments passed to the editor, and by configuring a **backup hook**, users tell journalscript to run a backup routine upon exiting the editor. 
+
+Hooks directory structure
+
+```
+<config root>/hooks/
+             |----- open.d/		# stores editor specific hooks
+             |----- open		# default open hook
+             |----- backup.d/	# stores backup tool specific hooks
+             |----- backup		# default backup hook
+```
+
+Journalscript looks for an open hook in this order:\ 
+
+1. A hook specific to the configured editor. Any file under `/hooks/open.d/`\ 
+2. The default hook `/hooks/open`
+
+Journalscript looks for backup hook in this order:\ 
+
+1. A hook specific to the configured editor. Any file under `/hooks/backup.d/`\ 
+2. The default hook `/hooks/backup`
 
 # EXAMPLES
