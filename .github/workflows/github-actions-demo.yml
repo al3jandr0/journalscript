@@ -25,4 +25,5 @@ jobs:
           ls ${{ github.workspace }}
       - run: npm install -g bats
       - run: bats -v
+      - run: bats ./test
       - run: echo "🍏 This job's status is ${{ job.status }}."
