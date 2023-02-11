@@ -30,12 +30,16 @@ _DEFAULT_COMMAND="$_COMMAND_WRITE"
 # Parse Arguments                                                              #
 ################################################################################
 _PRINT_HELP=0
+_PRINT_VERSION=0
 _COMMAND=""
 _COMMAND_ARGUMENTS=()
 for __opt in "$@"; do
     case "${__opt}" in
         -h|--help)
             _PRINT_HELP=1
+            ;;
+        -v|--version)
+            _PRINT_VERSION=1
             ;;
         ls)
             _COMMAND="$_COMMAND_LS"
@@ -148,9 +152,9 @@ _help() {
 		  -v, --version Prints version information and quits
 
 		Commands:
-		  write         writes a new journal entry. Default command, it executes in
+		  write         Writes a new journal entry. Default command, it executes in
 		                the absence of COMMAND.
-		  configure     assits configuring journalscript
+		  configure     Assits configuring journalscript
 		
 		Run journal COMMAND --help for more information on a command.
 		EOF
@@ -264,7 +268,28 @@ _backup_journal_entry() {
 ################################################################################
 
 _help_configure() {
-    echo "help configure"
+    cat >&1 <<-EOF
+
+	Usage: journal configure [options] [show|init] 
+
+	Configure command assists users customizing journalscript.  It supports
+	two sub-commands: show, init.  When no sub-command is provided, configure
+    defaults to 'show'.
+
+	show:
+	  Displays the values of journalscript's configuration.
+
+	init:
+	  Launches an interactive wizzard that helps users to create a configuration.
+
+	Options:
+	  --help        Prints this message and quits
+
+	Examples:
+	    journal configure           Runs configure show
+	    journal configure show      Displays the configuration
+	    journal configure init      Launches wizard to create a configuration
+	EOF
 }
 
 # Accepts up to one argument -the subcommand (init, or show)-, or no arguments
@@ -295,7 +320,7 @@ _configure() {
         . init_configuration.sh
     # unknown command.
     else
-        _fail "Unsupported argument '${args[0]}' of command 'configure'."
+        _fail "Unsupported argument '$sub_command' of command 'configure'."
     fi
 }
 
@@ -376,6 +401,10 @@ _write() {
 }
 
 _main() {
+    if [[ ${_PRINT_VERSION} -eq 1 ]]; then
+        printf "%s\n" "$_ME $_VERSION"
+        exit 0
+    fi
     if [[ ${_PRINT_HELP} -eq 1 ]]; then
         _help "$_COMMAND"
         exit 0
