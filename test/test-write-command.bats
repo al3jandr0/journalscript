@@ -9,7 +9,6 @@ setup() {
     load 'test_helper/common-setup'
     _common_setup
     export JOURNALSCRIPT_EDITOR=":" # no-op editor
-    # TODO: unset XDG_DOCUMENTS_DIR, XDG_CONFIG_HOME
 }
 
 ###############################################################################

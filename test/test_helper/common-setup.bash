@@ -43,7 +43,7 @@ _common_setup() {
     mkdir "$BATS_TEST_TMPDIR/mnt"
     mkdir "$BATS_TEST_TMPDIR/proc"
 
-    HOME="$BATS_TEST_TMPDIR/home/$USER"
+    export HOME="$BATS_TEST_TMPDIR/home/$USER"
     export -n XDG_COFIG_HOME
     export -n XDG_DOCUMENTS_DIR
 }
