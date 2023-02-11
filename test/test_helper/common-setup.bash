@@ -44,6 +44,6 @@ _common_setup() {
     mkdir "$BATS_TEST_TMPDIR/proc"
 
     export HOME="$BATS_TEST_TMPDIR/home/$USER"
-    export -n XDG_COFIG_HOME
+    export -n XDG_CONFIG_HOME
     export -n XDG_DOCUMENTS_DIR
 }
