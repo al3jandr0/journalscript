@@ -143,7 +143,7 @@ _1_1_2=\
 
 # bats test_tags=configure:show
 _1_1_3=\
-"1.1.3 Given the configuration file .journalscript.env located in $XDG_CONFIG/journalscript "\
+"1.1.3 Given the configuration file .journalscript.env located in \$XDG_CONFIG/journalscript "\
 "And no env var overrides. "\
 "When command 'configure show' is invoked. "\
 "Then journalscript should write the file's configuration to stdout."

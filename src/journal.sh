@@ -308,6 +308,7 @@ _configure() {
     # run sub commands:
     if [[ "$sub_command" == "show" ]]; then
 		cat <<-EOF
+		XDG_CONFIG_HOME="${XDG_CONFIG_HOME}"
 		_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
 		_JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR}"
 		JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
