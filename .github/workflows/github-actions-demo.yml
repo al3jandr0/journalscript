@@ -7,7 +7,8 @@ on:
     pull_request:
       - main
 jobs:
-  check-bats-version:
+  test-source:
+    # run only if changes to src
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -18,10 +19,6 @@ jobs:
         with:
           submodules: 'true'
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
           ls -R ${{ github.workspace }}
@@ -29,3 +26,32 @@ jobs:
       - run: bats -v
       - run: bats ./test
       - run: echo "🍏 This job's status is ${{ job.status }}."
+  build-man-page:
+    # run only if chages to man source page
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building man page."
+  build-dev-package:
+    # run only if chages to make_deb_script
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        # dpkg-deb ?
+        run: sudo apt-get install --yes lintian dpkg
+      - name: build deb archive
+        run: bash make_deb_archive.sh
+      - name: lint deb archive
+        run: lintian release/*.deb 
+  release:
+    # Add if condition in here:
+    # if main branch
+    # and if current version > that latest release's version
+    # then release
+    # othwerwise skip
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building dev package"
+      - name: List files in the repository
+        run: |
+          ls -R ${{ github.workspace }}
+
