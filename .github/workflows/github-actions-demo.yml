@@ -35,8 +35,9 @@ jobs:
     # run only if chages to make_deb_script
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
       - name: install dependencies
-        # dpkg-deb ?
         run: sudo apt-get install --yes lintian dpkg
       - name: build deb archive
         run: bash make_deb_archive.sh
