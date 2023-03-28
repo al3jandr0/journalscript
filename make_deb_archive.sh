@@ -8,9 +8,9 @@ SCRIPT="./src/journal.sh"
 # Source name and version from the script itself
 # > $SCRIPT -v 
 # > <name> <version-number>
-readarray -t -d ' ' name_version < <(bash $SCRIPT -v)
+name_version=( $(bash $SCRIPT -v) )
 PACKAGE_NAME="${name_version[0]}"
-VERSION=$(printf "%s" "${name_version[1]}")
+VERSION="${name_version[1]}"
 ARCHITECTURE="all"
 ARCHIVE="release/${PACKAGE_NAME}_${VERSION}_${ARCHITECTURE}"
 INSTALATION_DIR="/bin"
