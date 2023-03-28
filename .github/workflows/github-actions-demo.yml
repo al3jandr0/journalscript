@@ -31,12 +31,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building man page."
-  build-dev-package:
+  build-deb-package:
     # run only if chages to make_deb_script
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - run: echo "Building dev package"
+      - name: List files in the repository
+        run: |
+          ls -R ${{ github.workspace }}
       - name: install dependencies
         run: sudo apt-get install --yes lintian dpkg
       - name: build deb archive
