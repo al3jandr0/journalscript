@@ -8,7 +8,7 @@ on:
       - main
 jobs:
   test-source:
-    # run only if changes to src
+    # TODO: run only if changes to src/ or test/
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -28,11 +28,13 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
   build-man-page:
     # run only if chages to man source page
+    # This will depend on how many jobs will need the manual (thinking docs, hombrew, sources)
+    # I may place the man page under release if source requires it
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building man page."
   build-deb-package:
-    # run only if chages to make_deb_script
+    # run only if chages to make_deb_script, man page, or /src
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -47,16 +49,47 @@ jobs:
         run: bash make_deb_archive.sh
       - name: lint deb archive
         run: lintian release/*.deb 
+        # TODO: upload deb archive artifact. Always upload?
+  version:
+    steps:
+      runs-on: ubuntu-latest
+      outputs:
+        current-tag: $ {{ steps.version.latesttag.tag }}
+        current-tag: $ {{ steps.version.currentversion.version }}
+      - uses: actions/checkout@v3
+      - name: Get Latest tag
+        id: latesttag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 0.0.0
+        # output?
+      - name: Get current version
+        id: currentversion
+        shell: bash
+        run: v=( $(src/journal.sh -v) ); echo "version=${v[1]}" >> "$GITHUB_OUTPUT"
   release:
-    # Add if condition in here:
+    # TODO: Add execution condition in here:
     # if main branch
     # and if current version > that latest release's version
     # then release
     # othwerwise skip
     runs-on: ubuntu-latest
     steps:
+      - name: Auto tag
+        run: |
+          # get latest tag
+          # get current version
+          # if latest is null then, set tag, and mark a new release
+          # if latest is there and < current version then, set tag, and mark as new release
+          # if latest is = current version then skip
+          # if latest is > cuurrent version then error
+
       - run: echo "Building dev package"
       - name: List files in the repository
         run: |
           ls -R ${{ github.workspace }}
+      - name: "Set latest tag"
+          id: set-latest-tag
+          run: echo "latest_tag=$(git tag | sort --version-sort | tail -n1)" 
+
 
