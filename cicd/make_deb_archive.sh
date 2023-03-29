@@ -4,7 +4,7 @@
 ###############################################################################
 #
 # Targe script to package
-SCRIPT="./src/journal.sh"
+SCRIPT=${1:-"src/journal.sh"}
 # Source name and version from the script itself
 # > $SCRIPT -v 
 # > <name> <version-number>

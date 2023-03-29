@@ -7,7 +7,7 @@ on:
     pull_request:
       - main
 jobs:
-  test-source:
+  unit_test:
     # TODO: run only if changes to src/ or test/
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building man page."
-  build-deb-package:
+  deb_package:
     # run only if chages to make_deb_script, man page, or /src
     runs-on: ubuntu-latest
     steps:
@@ -46,50 +46,51 @@ jobs:
       - name: install dependencies
         run: sudo apt-get install --yes lintian dpkg
       - name: build deb archive
-        run: bash make_deb_archive.sh
+        run: bash cicd/make_deb_archive.sh
       - name: lint deb archive
         run: lintian release/*.deb 
-        # TODO: upload deb archive artifact. Always upload?
-  version:
-    steps:
+        # TODO: upload deb archive artifact. Always upload? yes, cus that's good for debugging
+  version_check:
       runs-on: ubuntu-latest
-      outputs:
-        current-tag: $ {{ steps.version.latesttag.tag }}
-        current-tag: $ {{ steps.version.currentversion.version }}
-      - uses: actions/checkout@v3
-      - name: Get Latest tag
-        id: latesttag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-        with:
-          fallback: 0.0.0
-        # output?
-      - name: Get current version
-        id: currentversion
-        shell: bash
-        run: v=( $(src/journal.sh -v) ); echo "version=${v[1]}" >> "$GITHUB_OUTPUT"
-  release:
-    # TODO: Add execution condition in here:
-    # if main branch
-    # and if current version > that latest release's version
-    # then release
-    # othwerwise skip
-    runs-on: ubuntu-latest
+      defaults:
+        run:
+          shell: bash
     steps:
-      - name: Auto tag
+      outputs:
+        latest_tag: $ {{ steps.version.check.latest_tag }}
+        source_version: $ {{ steps.version.check.source_version }}
+        version_diff: $ {{ steps.version.check.version_diff }}
+        change_type: $ {{ steps.version.check.change_type }}
+      - uses: actions/checkout@v3
+      - name: Check Versions
+        id: check
         run: |
-          # get latest tag
-          # get current version
-          # if latest is null then, set tag, and mark a new release
-          # if latest is there and < current version then, set tag, and mark as new release
-          # if latest is = current version then skip
-          # if latest is > cuurrent version then error
-
-      - run: echo "Building dev package"
-      - name: List files in the repository
-        run: |
-          ls -R ${{ github.workspace }}
-      - name: "Set latest tag"
-          id: set-latest-tag
-          run: echo "latest_tag=$(git tag | sort --version-sort | tail -n1)" 
+          v=( $(bash cicd/get_versions.sh) )
+          echo "latest_tag=${v[0]} source_version=${v[1]} version_diff=${v[2]} change_type=${v[3]}"
+          echo "latest_tag=${v[0]}" >> "$GITHUB_OUTPUT"
+          echo "source_version=${v[1]}" >> "$GITHUB_OUTPUT"
+          echo "version_diff=${v[2]}" >> "$GITHUB_OUTPUT"
+          echo "change_type=${v[3]}" >> "$GITHUB_OUTPUT"
+          if [ "${v[2]}" -eq "UNEXPECTED" ]; then
+            echo "::error title=Unexpected version::source_version is smaller than the current release version"
+          fi
+  release:
+    if: success() && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [version_check, deb_pacakge, unit_test]
+    steps:
+      - env:
+        VERSION_DIFF: ${{ needs.version_check.outputs.version_diff }}
+        CHANGE_TYPE:  ${{ needs.version_check.outputs.change_type }}
+        VERSION:      ${{ needs.version_check.outputs.source_version }}
+      - name: Patch release
+        if: env.VERSION_DIFF == 'NEW' && env.CHANGE_TYPE == 'PATCH'
+        run: echo "update existing release release (pathc it). VERSION=$VERSION"
+      - name: Release Minor
+        if: env.VERSION_DIFF == 'NEW' && env.CHANGE_TYPE == 'MINOR'
+        run: echo "create brand new release VERSION=$VERSION"
+      - name: Release Mayor
+        if: env.VERSION_DIFF == 'NEW' && env.CHANGE_TYPE == 'MAYOR'
+        run: echo "create brand new release VERSION=$VERSION"
 
 
