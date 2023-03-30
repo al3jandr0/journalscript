@@ -6,6 +6,7 @@ on:
       - main
     pull_request:
       - main
+
 jobs:
   unit_test:
     # TODO: run only if changes to src/ or test/
@@ -49,19 +50,19 @@ jobs:
       - name: build deb archive
         run: bash cicd/make_deb_archive.sh
       - name: lint deb archive
-        run: lintian release/*.deb 
+        run: lintian release/*.deb
         # TODO: upload deb archive artifact. Always upload? yes, cus that's good for debugging
   version_check:
-      runs-on: ubuntu-latest
-      defaults:
-        run:
-          shell: bash
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      latest_tag: $ {{ steps.version.check.latest_tag }}
+      source_version: $ {{ steps.version.check.source_version }}
+      version_diff: $ {{ steps.version.check.version_diff }}
+      change_type: $ {{ steps.version.check.change_type }}
     steps:
-      outputs:
-        latest_tag: $ {{ steps.version.check.latest_tag }}
-        source_version: $ {{ steps.version.check.source_version }}
-        version_diff: $ {{ steps.version.check.version_diff }}
-        change_type: $ {{ steps.version.check.change_type }}
       - uses: actions/checkout@v3
       - name: Check Versions
         id: check
@@ -81,9 +82,9 @@ jobs:
     needs: [version_check, deb_pacakge, unit_test]
     steps:
       - env:
-        VERSION_DIFF: ${{ needs.version_check.outputs.version_diff }}
-        CHANGE_TYPE:  ${{ needs.version_check.outputs.change_type }}
-        VERSION:      ${{ needs.version_check.outputs.source_version }}
+          VERSION_DIFF: ${{ needs.version_check.outputs.version_diff }}
+          CHANGE_TYPE: ${{ needs.version_check.outputs.change_type }}
+          VERSION: ${{ needs.version_check.outputs.source_version }}
       - name: Patch release
         if: env.VERSION_DIFF == 'NEW' && env.CHANGE_TYPE == 'PATCH'
         run: echo "update existing release release (pathc it). VERSION=$VERSION"
@@ -93,5 +94,3 @@ jobs:
       - name: Release Mayor
         if: env.VERSION_DIFF == 'NEW' && env.CHANGE_TYPE == 'MAYOR'
         run: echo "create brand new release VERSION=$VERSION"
-
-
