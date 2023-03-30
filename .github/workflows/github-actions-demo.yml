@@ -9,6 +9,7 @@ on:
 jobs:
   unit_test:
     # TODO: run only if changes to src/ or test/
+    name: yaml is none-sense
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
