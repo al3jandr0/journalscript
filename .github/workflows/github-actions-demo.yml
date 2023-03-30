@@ -56,10 +56,10 @@ jobs:
   version_check:
     runs-on: ubuntu-latest
     outputs:
-      latest_tag: ${{ steps.check.latest_tag }}
-      source_version: ${{ steps.check.source_version }}
-      version_diff: ${{ steps.check.version_diff }}
-      change_type: ${{ steps.check.change_type }}
+      latest_tag: ${{ steps.check.outputs.latest_tag }}
+      source_version: ${{ steps.check.outputs.source_version }}
+      version_diff: ${{ steps.check.outputs.version_diff }}
+      change_type: ${{ steps.check.outputs.change_type }}
     steps:
       - uses: actions/checkout@v3
       - name: Check Versions
