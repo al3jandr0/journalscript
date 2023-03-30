@@ -96,9 +96,11 @@ jobs:
         if: env.CHANGE_TYPE == 'MINOR'
         uses: softprops/action-gh-release@v1
         with:
-          name: env.VERSION
-          files: release/journalscript-*
-          tag_name: env.VERSION
+          name: Journalscript ${{ env.VERSION }}
+          files: release/journalscript*
+          tag_name: ${{ env.VERSION }}
+          draft: true
+          fail_on_unmatched_files: true
       - name: Mayor release
         if: env.CHANGE_TYPE == 'MAYOR'
         run: echo "create brand new release VERSION=$VERSION"
