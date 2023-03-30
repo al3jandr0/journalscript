@@ -20,7 +20,7 @@ set -o nounset
 set -o errtrace
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.0.0"
+_VERSION="0.1.0"
 _COMMADN_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
