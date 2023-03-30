@@ -1,5 +1,4 @@
-name: learn-github-actions
-run-name: ${{ github.actor }} is learning GitHub Actions 🚀
+name: Journalscritp CICD pipeline
 on:
   push:
     branches:
@@ -7,28 +6,25 @@ on:
     pull_request:
       - main
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   unit_test:
-    # TODO: run only if changes to src/ or test/
-    name: yaml is none-sense
+    name: Unit test
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
           submodules: 'true'
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - name: List files in the repository
-        run: |
-          ls -R ${{ github.workspace }}
       - run: npm install -g bats
-      - run: bats -v
-      - run: bats ./test
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-  build-man-page:
+      - name: Install Bats
+        run: bats -v
+      - name: Run unit tests
+        run: bats ./test
+  build_man_page:
     # run only if chages to man source page
     # This will depend on how many jobs will need the manual (thinking docs, hombrew, sources)
     # I may place the man page under release if source requires it
@@ -36,22 +32,25 @@ jobs:
     steps:
       - run: echo "Building man page."
   deb_package:
-    # run only if chages to make_deb_script, man page, or /src
+    name: Build debian package (artifact)
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: echo "Building dev package"
-      - name: List files in the repository
-        run: |
-          ls -R ${{ github.workspace }}
-      - name: install dependencies
+      - name: Install dependencies
         run: sudo apt-get install --yes lintian dpkg
-      - name: build deb archive
+      - name: Build deb archive
         run: bash cicd/make_deb_archive.sh
-      - name: lint deb archive
+      - name: Lint deb archive
         run: lintian release/*.deb
-        # TODO: upload deb archive artifact. Always upload? yes, cus that's good for debugging
+        # TODO: fail jon on errors or warnings
+      - name: Upload deb package artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: release/*.deb 
+          retention-days: 5
+          if-no-files-found: error
   version_check:
     runs-on: ubuntu-latest
     defaults:

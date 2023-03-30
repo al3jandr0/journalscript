@@ -68,5 +68,4 @@ if [[ $VERSION_DIFF != "UNEXCPECTED" ]]; then
     fi
 fi
 
-CHANGE_TYPE=""
 printf "%s %s %s %s" "$LATEST_TAG" "v$SOURCE_VERSION" "$VERSION_DIFF" "$CHANGE_TYPE" 
