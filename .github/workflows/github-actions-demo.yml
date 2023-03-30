@@ -79,7 +79,7 @@ jobs:
   release:
     if: success() && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    needs: [version_check, deb_pacakge, unit_test]
+    needs: [version_check, deb_package, unit_test]
     env:
       VERSION_DIFF: ${{ needs.version_check.outputs.version_diff }}
       CHANGE_TYPE: ${{ needs.version_check.outputs.change_type }}
