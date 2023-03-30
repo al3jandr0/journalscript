@@ -77,7 +77,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: [version_check, deb_package, unit_test]
-    if: success() && github.ref_name == 'main' && ${{ needs.version_check.outputs.version_diff == 'NEW' }}
+    if: success() && github.ref_name == 'main' && needs.version_check.outputs.version_diff == 'NEW'
     env:
       CHANGE_TYPE: ${{needs.version_check.outputs.change_type}}
       VERSION: ${{needs.version_check.outputs.source_version}}
