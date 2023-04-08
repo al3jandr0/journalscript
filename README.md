@@ -4,10 +4,10 @@ A handy script to manage journals
 
 ## Getting started
 
-Clone the repo, cd into its root, and run the installation scrip 
-
+Clone the repo, cd into its root, and run the installation scrip
 
 ### Features to implement
+
 - [x] Add support for .env in order to allow for directory-level configured journals
 - [x] Add support for method-agnostic post-save hooks in order to support automatic backup once a file is added or edited in order to de-couple backup mechanism
 - [x] Consider adding a pre-hook. At the moment I'm passing to the editor an order list of journal entries, but for vim I only pass the last two. Some editors can open directories, some rather open files
@@ -24,6 +24,7 @@ Clone the repo, cd into its root, and run the installation scrip
 - [x] Set a timeout for bats tests
 
 #### Checkpoint
+
 - [ ] CICD run tests uppon merge or as merge check?
 - [ ] Add license
 - [ ] Write a readme:
@@ -50,13 +51,14 @@ Clone the repo, cd into its root, and run the installation scrip
 - [ ] Add support for dynamic templates
 - [ ] init_config: update user feedback
 
-
 #Maybes
+
 - [ ] Implement LS command
 - [ ] Nice to have: make the script POSIX compliant - make it run on different terminal emulators bash, fish, etc.
 - [ ] Nice to have: Pretify init_config (emojis)?
 
 ## Missing Tests cases
+
 - 3. Command: help
 - 3.1 Help adheres to usage / help format
 - 3.2 Help <command> prints the command-specific usage / help
@@ -64,6 +66,6 @@ Clone the repo, cd into its root, and run the installation scrip
 - 3.4 Help prints only to stdout
 
 ## Invariants
-- 1. Nothing else beside the output of the command is allowed to be printed to stout
-- 2. No file in the FS is modified except for those in the DATA directory - could make stricter by permitting only 1 file (the most recent one) in DATA to be modified 
 
+- 1. Nothing else beside the output of the command is allowed to be printed to stout
+- 2. No file in the FS is modified except for those in the DATA directory - could make stricter by permitting only 1 file (the most recent one) in DATA to be modified
