@@ -20,7 +20,7 @@ set -o nounset
 set -o errtrace
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.1.0"
+_VERSION="0.0.1"
 _COMMADN_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -106,7 +106,7 @@ JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-\
-    	    																	"$XDG_DOCUMENTS_DIR/journals"}
+    	    	    																	"$XDG_DOCUMENTS_DIR/journals"}
 
 # Template directory default is set to whichever exists in this order
 # 1. JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates

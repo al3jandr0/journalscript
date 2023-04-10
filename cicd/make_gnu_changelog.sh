@@ -1,12 +1,26 @@
 #!/bin/env bash
-VERSION=${1:?"must provide a version"}
-PACKAGE=${2:-"journalscript"}
-FILE=${3:-"CHANGELOG-EXAMPLE.md"}
+#
+###############################################################################
+#  Inputs                                                                     #
+###############################################################################
+FILE=${1:-"CHANGELOG.md"}
+SOURCE_SCRIPT=${2:-"src/journal.sh"}
 
+###############################################################################
+#  Outputs                                                                    #
+###############################################################################
+# prints converted changelog to stdout
+
+###############################################################################
+# ENV                                                                         #
+###############################################################################
 PREV_READ_BLOCK="FOREWORD"
 # SECTION CONTEXT
 CONTEXT_VERSION=""
 CONTEXT_DATE=""
+name_version=($(bash $SOURCE_SCRIPT -v))
+PACKAGE="${name_version[0]}"
+VERSION="${name_version[1]}"
 
 markdown_type() {
     local line_begining="$1"
@@ -57,7 +71,7 @@ filter_block() {
     fi
 }
 
-HEADER_REGEX="## \+\[\?\(v[0-9]\+\.[0-9]\+\.[0-9]\+\)\]\? - \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\)"
+HEADER_REGEX="## \+\[\?v\([0-9]\+\.[0-9]\+\.[0-9]\+\)\]\? - \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\)"
 set_context() {
     local block="$1"
     local line="$2"
@@ -72,7 +86,7 @@ set_context() {
     fi
 }
 
-write() lejandro{
+write() {
     local write_block="$1"
     local line="$2"
     case $write_block in
@@ -80,11 +94,12 @@ write() lejandro{
         printf "%s (%s) unstable; urgency=low\n\n" "$PACKAGE" "$CONTEXT_VERSION"
         ;;
     RELEASE_LIST_ITEM)
-        printf "%s\n" "${line/-/\*}"
+        printf "  %s\n" "${line/-/\*}"
         ;;
     FOOTER)
+        # day-of-week, dd month yyyy hh:mm:ss +zzzz
         formated_date=$(date -d "$CONTEXT_DATE" "+%a, %d %b %Y %H:%M:%S %z")
-        printf "\n%s %s <%s> %s\n\n" "--" "alejandro" "contact.al3j@gmail.com" "$formated_date"
+        printf "\n %s %s <%s>  %s\n\n" "--" "alejandro" "contact.al3j@gmail.com" "$formated_date"
         ;;
     esac
 }
