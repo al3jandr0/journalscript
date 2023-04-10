@@ -9,9 +9,9 @@ set -e
 ###############################################################################
 # Targe script to package
 CHANGELOG=${1:-"CHANGELOG.md"}
-SCRIPT=${2:-"src/journal.sh"}
+MANUAL_PAGE=${2:-"journalscript.1"}
+SCRIPT=${3:-"src/journal.sh"}
 COPYRIGHT=""
-MANUAL_PAGE=""
 
 ###############################################################################
 # Outputs                                                                     #
@@ -21,7 +21,7 @@ MANUAL_PAGE=""
 # Source name and version from the script itself
 # > $SCRIPT -v
 # > <name> <version-number>
-name_version=($(bash $SCRIPT -v))
+read -ra name_version < <(bash "$SCRIPT" -v)
 PACKAGE_NAME="${name_version[0]}"
 VERSION="${name_version[1]}"
 ARCHITECTURE="all"
@@ -34,16 +34,32 @@ INSTALATION_DIR="/bin"
 # Removes directory path of the script
 file_name="${SCRIPT##*/}"
 # Removes extension (.sh, .bash, etc.)
-without_extension="${file_name%%.*}"
+executable_without_extension="${file_name%%.*}"
 mkdir -p "${ARCHIVE}${INSTALATION_DIR}"
-cp $SCRIPT "${ARCHIVE}${INSTALATION_DIR}/$without_extension"
+cp "$SCRIPT" "${ARCHIVE}${INSTALATION_DIR}/$executable_without_extension"
 
 ###############################################################################
 # Write changelog                                                             #
 ###############################################################################
 CHANGELOG_DST="${ARCHIVE}/usr/share/doc/${PACKAGE_NAME}"
 mkdir -p "$CHANGELOG_DST"
-bash cicd/make_gnu_changelog.sh "$CHANGELOG" "$SCRIPT" | gzip -9 -c >"$CHANGELOG_DST/changelog.gz"
+bash cicd/make_gnu_changelog.sh "$CHANGELOG" "$SCRIPT" |
+    gzip -9 -cn >"$CHANGELOG_DST/changelog.gz"
+
+###############################################################################
+# Write manual page                                                           #
+###############################################################################
+MAN_DIR="${ARCHIVE}/usr/share/man/man1/"
+mkdir -p "$MAN_DIR"
+gzip -9 -cn "$MANUAL_PAGE" >"${MAN_DIR}${executable_without_extension}.1.gz"
+
+###############################################################################
+# Write copyright file                                                        #
+###############################################################################
+# TODO
+###############################################################################
+# Write control file                                                          #
+###############################################################################
 
 # Debian directory is capitalized since this is not a srouce archive
 mkdir -p "${ARCHIVE}/DEBIAN"

@@ -18,39 +18,50 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
-          submodules: 'true'
+          submodules: "true"
       - run: npm install -g bats
       - name: Install Bats
         run: bats -v
       - name: Run unit tests
         run: bats ./test
   build_man_page:
-    # run only if chages to man source page
-    # This will depend on how many jobs will need the manual (thinking docs, hombrew, sources)
-    # I may place the man page under release if source requires it
+    name: Build man page
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building man page."
+      - name: Install dependencies (pandoc)
+        run: sudo apt-get install --yes pandoc
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Convert markup to man format
+      - run: pandoc --standalone --to=man --fail-if-warnings --output=release/journalscript.1 manpage.md
+      - name: Upload man page
+        uses: actions/upload-artifact@v3
+        with:
+          path: release/journalscript.1
+          retention-days: 5
   deb_package:
     name: Build debian package (artifact)
+    needs: [build_man_page]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: echo "Building dev package"
       - name: Install dependencies
-        run: sudo apt-get install --yes --no-install-recommends lintian
-        #run: sudo apt-get install --yes --no-install-recommends lintian dpkg
+        run: sudo apt-get install --yes --no-install-recommends lintian dpkg
+      - name: Download manpage
+        uses: actions/download-artifact@v3
+        with:
+          path: journalscript.1
       - name: Build deb archive
         run: bash cicd/make_deb_archive.sh
+
       - name: Lint deb archive
-        run: lintian release/*.deb
-        # TODO: fail on errors or warnings
+        run: lintian --fail-on error --fail-on warning --no-tag-display-limit release/*.deb
+
       - name: Upload deb package artifact
         uses: actions/upload-artifact@v3
         with:
-          name: release-artifacts
-          path: release/*.deb 
+          path: release/*.deb
           retention-days: 5
           if-no-files-found: error
   version_check:
@@ -58,22 +69,17 @@ jobs:
     outputs:
       latest_tag: ${{ steps.check.outputs.latest_tag }}
       source_version: ${{ steps.check.outputs.source_version }}
-      version_diff: ${{ steps.check.outputs.version_diff }}
-      change_type: ${{ steps.check.outputs.change_type }}
+      is_release: ${{ steps.check.outputs.is_release }}
     steps:
       - uses: actions/checkout@v3
       - name: Check Versions
         id: check
         run: |
           v=( $(bash cicd/get_versions.sh) )
-          echo "latest_tag=${v[0]} source_version=${v[1]} version_diff=${v[2]} change_type=${v[3]}"
+          echo "latest_tag=${v[0]} source_version=${v[1]} is_release=${v[2]}"
           echo "latest_tag=${v[0]}" >> "$GITHUB_OUTPUT"
           echo "source_version=${v[1]}" >> "$GITHUB_OUTPUT"
-          echo "version_diff=${v[2]}" >> "$GITHUB_OUTPUT"
-          echo "change_type=${v[3]}" >> "$GITHUB_OUTPUT"
-          if [[ "${v[2]}" == "UNEXPECTED" ]]; then
-            echo "::error title=Unexpected version::source_version is smaller than the current release version"
-          fi
+          echo "is_release=${v[2]}" >> "$GITHUB_OUTPUT"
   release:
     runs-on: ubuntu-latest
     needs: [version_check, deb_package, unit_test]
@@ -85,7 +91,6 @@ jobs:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
         with:
-          name: release-artifacts
           path: release/
       - name: Display structure of downloaded files
         run: ls -R release/
