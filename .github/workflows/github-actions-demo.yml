@@ -33,7 +33,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Convert markup to man format
-        run: pandoc --standalone --to=man --fail-if-warnings --output=release/journalscript.1 manpage.md
+        run: |
+          mkdir -p release 
+          pandoc --standalone --to=man --fail-if-warnings --output=release/journalscript.1 manpage.md
       - name: Upload man page
         uses: actions/upload-artifact@v3
         with:
