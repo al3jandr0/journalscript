@@ -10,8 +10,8 @@ set -e
 # Targe script to package
 CHANGELOG=${1:-"CHANGELOG.md"}
 MANUAL_PAGE=${2:-"journalscript.1"}
-SCRIPT=${3:-"src/journal.sh"}
-COPYRIGHT=""
+COPYRIGHT=${3:-"LICENSE"}
+SCRIPT=${4:-"src/journal.sh"}
 
 ###############################################################################
 # Outputs                                                                     #
@@ -57,7 +57,7 @@ gzip -9 -cn "$MANUAL_PAGE" >"${MAN_DIR}${executable_without_extension}.1.gz"
 # Write copyright file                                                         #
 ###############################################################################
 mkdir -p "$DOCUMENTS_DIR"
-cp ./LICENSE "$DOCUMENTS_DIR/copyright"
+cp "$COPYRIGHT" "$DOCUMENTS_DIR/copyright"
 
 ###############################################################################
 # Write control file                                                          #
