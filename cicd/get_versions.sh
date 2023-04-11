@@ -36,7 +36,7 @@ IS_RELEASE="false" # "true" | "false"
 latest_tagged_commit=$(git rev-list --tags --max-count=1)
 # Get the greates version number tag among the tags in the commit (a single
 # commit could have multiple tags)
-LATEST_TAG=$(git tag --list --points-at $latest_tagged_commit | sort -rV | head -1)
+LATEST_TAG=$(git tag --list --points-at "$latest_tagged_commit" | sort -rV | head -1)
 # If no tag (no releases have been done) default to version v0.0.0
 LATEST_TAG=${LATEST_TAG:-"v0.0.0"}
 #echo "latest_tag=$latest_tag"
@@ -54,9 +54,9 @@ SOURCE_VERSION="${SOURCE_VERSION[1]}"
 ###############################################################################
 larger=$(printf "v${SOURCE_VERSION}\n${LATEST_TAG}" | sort -rV | head -1)
 if [[ "v${SOURCE_VERSION}" == "$LATEST_TAG" ]]; then
-    IS_RELEASE="true"
-elif [[ "v${SOURCE_VERSION}" == "$larger" ]]; then
     IS_RELEASE="false"
+elif [[ "v${SOURCE_VERSION}" == "$larger" ]]; then
+    IS_RELEASE="true"
 else
     printf "Unexpected version number. Source version (v%s) < latest tag (%s)\n" \
         "$SOURCE_VERSION" "$LATEST_TAG" >&2
