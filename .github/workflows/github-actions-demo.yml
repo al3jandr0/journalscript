@@ -96,12 +96,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: release/
+      - name: Display structure of downloaded files
+        run: ls -R ${{ github.workspace }}
       - name: Minor release
         uses: softprops/action-gh-release@v1
         with:
           name: Journalscript ${{ env.VERSION }}
           files: release/journalscript*.deb
-          body_path: ${{ github.workspace }}-CHANGELOG-EXAMPLE.tx
+          body_path: ${{ github.workspace }}-CHANGELOG.md
           tag_name: ${{ env.VERSION }}
           draft: true
           fail_on_unmatched_files: true
