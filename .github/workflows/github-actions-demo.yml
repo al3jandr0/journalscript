@@ -65,7 +65,7 @@ jobs:
       - name: Upload deb package artifact
         uses: actions/upload-artifact@v3
         with:
-          #name: deb-package
+          name: deb-package
           path: release/*.deb
           if-no-files-found: error
           retention-days: 5
@@ -102,7 +102,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: Journalscript ${{ env.VERSION }}
-          files: release/journalscript*.deb
+          files: release/deb-package/journalscript*.deb
           body_path: ${{ github.workspace }}-CHANGELOG.md
           tag_name: ${{ env.VERSION }}
           draft: true
