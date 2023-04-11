@@ -69,3 +69,7 @@ Clone the repo, cd into its root, and run the installation scrip
 
 - 1. Nothing else beside the output of the command is allowed to be printed to stout
 - 2. No file in the FS is modified except for those in the DATA directory - could make stricter by permitting only 1 file (the most recent one) in DATA to be modified
+
+TODO:
+
+- Add to pakcage description that the pacge includes the script, but also changelog, license, and autocomplete for bash
