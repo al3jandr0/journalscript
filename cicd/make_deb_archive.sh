@@ -27,6 +27,7 @@ VERSION="${name_version[1]}"
 ARCHITECTURE="all"
 ARCHIVE="release/${PACKAGE_NAME}_${VERSION}_${ARCHITECTURE}"
 INSTALATION_DIR="/bin"
+DOCUMENTS_DIR="${ARCHIVE}/usr/share/doc/${PACKAGE_NAME}"
 
 ###############################################################################
 # Copy source                                                                 #
@@ -41,10 +42,9 @@ cp "$SCRIPT" "${ARCHIVE}${INSTALATION_DIR}/$executable_without_extension"
 ###############################################################################
 # Write changelog                                                             #
 ###############################################################################
-CHANGELOG_DST="${ARCHIVE}/usr/share/doc/${PACKAGE_NAME}"
-mkdir -p "$CHANGELOG_DST"
+mkdir -p "$DOCUMENTS_DIR"
 bash cicd/make_gnu_changelog.sh "$CHANGELOG" "$SCRIPT" |
-    gzip -9 -cn >"$CHANGELOG_DST/changelog.gz"
+    gzip -9 -cn >"$DOCUMENTS_DIR/changelog.gz"
 
 ###############################################################################
 # Write manual page                                                           #
@@ -54,9 +54,11 @@ mkdir -p "$MAN_DIR"
 gzip -9 -cn "$MANUAL_PAGE" >"${MAN_DIR}${executable_without_extension}.1.gz"
 
 ###############################################################################
-# Write copyright file                                                        #
+# Write copyright file                                                         #
 ###############################################################################
-# TODO
+mkdir -p "$DOCUMENTS_DIR"
+cp ./LICENSE "$DOCUMENTS_DIR/copyright"
+
 ###############################################################################
 # Write control file                                                          #
 ###############################################################################
