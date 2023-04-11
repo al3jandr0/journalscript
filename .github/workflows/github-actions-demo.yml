@@ -95,8 +95,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: release/
-      - name: Display structure of downloaded files
-        run: ls -R release/
       - name: Minor release
         uses: softprops/action-gh-release@v1
         with:
