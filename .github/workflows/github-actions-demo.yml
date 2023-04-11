@@ -34,12 +34,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Convert markup to man format
         run: |
-          mkdir -p release 
+          mkdir -p release
           pandoc --standalone --to=man --fail-if-warnings --output=release/journalscript.1 manpage.md
       - name: Upload man page
         uses: actions/upload-artifact@v3
         with:
-          name: journalscript.1
+          name: man-page
           path: release/journalscript.1
           retention-days: 5
   deb_package:
@@ -54,8 +54,10 @@ jobs:
       - name: Download manpage
         uses: actions/download-artifact@v3
         with:
-          name: journalscript.1
+          name: man-page
           path: ${{ github.workspace }}
+      - name: Display structure of downloaded files
+        run: ls -R release/
       - name: Build deb archive
         run: bash cicd/make_deb_archive.sh
       - name: Lint deb archive
