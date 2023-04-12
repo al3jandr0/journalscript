@@ -103,7 +103,7 @@ jobs:
       - name: Display structure of downloaded files
         run: |
           ls -R ${{ github.workspace }}
-          cat release/RELEASE_LOG
+          cat release/RELEASE_LOG.md
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
