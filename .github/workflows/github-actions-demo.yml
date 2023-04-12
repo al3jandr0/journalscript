@@ -98,14 +98,16 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: release/
+      - name: Create Release Log
+        run: bash cicd/extract_latest_release.sh CHANGELOG.md > release/RELEASE_LOG.md
       - name: Display structure of downloaded files
         run: ls -R ${{ github.workspace }}
-      - name: Minor release
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
           name: Journalscript ${{ env.VERSION }}
           files: release/deb-package/journalscript*.deb
-          body_path: CHANGELOG.md
+          body_path: release/RELEASE_LOG.md
           tag_name: ${{ env.VERSION }}
           draft: true
           fail_on_unmatched_files: true
