@@ -101,7 +101,9 @@ jobs:
       - name: Create Release Log
         run: bash cicd/extract_latest_release.sh CHANGELOG.md > release/RELEASE_LOG.md
       - name: Display structure of downloaded files
-        run: ls -R ${{ github.workspace }}
+        run: |
+          ls -R ${{ github.workspace }}
+          cat release/RELEASE_LOG
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
