@@ -19,6 +19,7 @@ JOURNALSCRIP_DEFAULT_JOURNAL=${JOURNALSCRIP_DEFAULT_JOURNAL:-}
 # Functions                                                                    #
 ################################################################################
 # Checks argument is stdout or STDOUT
+# TODO: rewrite with actual flag when merged to journal
 is_stdout() {
     [[ "$1" == "--print" ]]
 }

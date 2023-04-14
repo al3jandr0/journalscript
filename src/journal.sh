@@ -297,6 +297,7 @@ _configure() {
     # default command
     local sub_command="show"
     # Accept only up to 1 argument. Error if more than 1 argument
+    # TODO: reivisit. The --print flag may have changed this
     if [[ "${#@}" -eq 1 ]]; then
         sub_command="$1"
     elif [[ "${#@}" -gt 1 ]]; then
@@ -318,11 +319,19 @@ _configure() {
 			JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
     elif [[ "$sub_command" == "init" ]]; then
-        . init_configuration.sh
-    # unknown command.
+        # Old
+        . init_configuration.sh.backup
+        # New
+        # TODO: figure out how to pass flags (--print)
+        _configure_init
     else
+        # unknown command.
         _fail "Unsupported argument '$sub_command' of command 'configure'."
     fi
+}
+
+_configure_init() {
+    exit 0
 }
 
 _help_write() {
