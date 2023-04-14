@@ -26,12 +26,12 @@ is_stdout() {
 ################################################################################
 # Read (prompt) configuration preferences from user                            #
 ################################################################################
-read -p "\$JOURNALSCRIPT_FILE_TYPE. Journal entry's file format [txt|md|etc] ($JOURNALSCRIPT_FILE_TYPE):" file_type
-read -p "\$JOURNALSCRIPT_EDITOR. Editor ($JOURNALSCRIPT_EDITOR):" editor
-read -p "\$JOURNALSCRIPT_JOURNAL_DIR. Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" journal_dir
+read -p "Journal entry's file format [txt|md|etc] ($JOURNALSCRIPT_FILE_TYPE):" file_type
+read -p "Editor ($JOURNALSCRIPT_EDITOR):" editor
+read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" journal_dir
 JOURNALSCRIPT_JOURNAL_DIR=${journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"}
-read -p "\$JOURNALSCRIPT_TEMPLATE_DIR. Templates location [path/to/directory] ($JOURNALSCRIPT_TEMPLATE_DIR):" template_dir
+read -p "Templates location [path/to/directory] ($JOURNALSCRIPT_TEMPLATE_DIR):" template_dir
 read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" default_journal
 read -p "Where do you wish to store the configuration [path/to/directory] ($_JOURNALSCRIPT_CONF_DIR):" conf_dir
 
