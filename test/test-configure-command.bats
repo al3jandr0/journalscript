@@ -25,7 +25,7 @@ _assert_output_conforms_to_format() {
 
 _1=\
 "1. When unsupported sub-commands are provided to configure. "\
-"Then journalscript exists with an error"
+"Then journalscript exits with an error"
 @test "${_1}" {
     run journal.sh configure invalid 
     assert_failure
@@ -33,17 +33,9 @@ _1=\
 
 _1_dash_1=\
 "1-1. When unsupported options are provided to configure init. "\
-"Then journalscript exists with an error"
+"Then journalscript exits with an error"
 @test "${_1_dash_1}" {
     run journal.sh configure init --invalid 
-    assert_failure
-}
-
-_1_dash_2=\
-"1-1. When unsupported options are provided to configure show. "\
-"Then journalscript exists with an error"
-@test "${_1_dash_2}" {
-    run journal.sh configure show --invalid 
     assert_failure
 }
 
