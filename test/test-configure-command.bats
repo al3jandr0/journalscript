@@ -24,10 +24,26 @@ _assert_output_conforms_to_format() {
 # bats file_tags=configure
 
 _1=\
-"1. When unsupported su-commands are provided to configure. "\
+"1. When unsupported sub-commands are provided to configure. "\
 "Then journalscript exists with an error"
 @test "${_1}" {
     run journal.sh configure invalid 
+    assert_failure
+}
+
+_1_dash_1=\
+"1-1. When unsupported options are provided to configure init. "\
+"Then journalscript exists with an error"
+@test "${_1_dash_1}" {
+    run journal.sh configure init --invalid 
+    assert_failure
+}
+
+_1_dash_2=\
+"1-1. When unsupported options are provided to configure show. "\
+"Then journalscript exists with an error"
+@test "${_1_dash_2}" {
+    run journal.sh configure show --invalid 
     assert_failure
 }
 
@@ -54,7 +70,7 @@ _1_1_1=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -81,7 +97,7 @@ _1_1_1_dash_1=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/.config/journalscript/templates\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.config/journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -216,7 +232,7 @@ _1_1_6=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -260,9 +276,9 @@ _1_1_7=\
 _1_2_1=\
 "1.2.1 Given no configuration file. "\
 "And no env var overrides. "\
-"And no XDG 'dot' direcotory "\
-"When the command configure init is invoked. "\
-"And user inputs no values other than stdout for target file. "\
+"And no XDG 'dot' directory "\
+"When the command configure init is invoked with the --print option. "\
+"And user inputs no values. "\
 "And user accepts changes. "\
 "Then journalscript writes to stdout default configuration values."
 @test "${_1_2_1}" {
@@ -272,7 +288,7 @@ _1_2_1=\
     TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\nstdout\n$ACEPT_CHANGES") 
+    run journal.sh configure init --print < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -342,7 +358,7 @@ _1_2_3=\
     assert_success
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
-    assert_output --partial "$FILE will be overriden"
+    assert_output --partial "The following files will be overriden"
     # assert generated configuration file  
     assert_exists "$FILE"
     assert_file_not_executable "$FILE"
@@ -446,7 +462,6 @@ _1_2_6=\
     assert_not_exists "$HOME/.configure/journalscript/journalscript.env"
 }
 
-# TODO: test warnign and info messages. Im still workign out the language.
 # TODO: add test for default journal
 
 teardown() {

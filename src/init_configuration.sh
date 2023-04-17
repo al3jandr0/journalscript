@@ -3,7 +3,7 @@
 # Interative script / wizard to asssit on the creation of new configuration
 # file for journalscript
 #
-set -e
+#set -e
 ################################################################################
 # ENV                                                                          #
 #####################################"###########################################
@@ -15,13 +15,15 @@ JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-}
 _JOURNALSCRIPT_CONF_DIR=${_JOURNALSCRIPT_CONF_DIR:-}
 JOURNALSCRIP_DEFAULT_JOURNAL=${JOURNALSCRIP_DEFAULT_JOURNAL:-}
 
+_IS_STDOUT=${1:-"nop"}
+
 ################################################################################
 # Functions                                                                    #
 ################################################################################
 # Checks argument is stdout or STDOUT
 # TODO: rewrite with actual flag when merged to journal
 is_stdout() {
-    [[ "$1" == "--print" ]]
+    [[ "$_IS_STDOUT" == "--print" ]]
 }
 
 ################################################################################
@@ -49,7 +51,10 @@ unset file_type editor journal_dir template_dir conf_file
 ################################################################################
 # Validate                                                                     #
 ################################################################################
-if ! command -v "$JOURNALSCRIPT_EDITOR" >/dev/null 2>&1; then
+command_exists() {
+    command -v "$@" >/dev/null 2>&1
+}
+if ! command_exists "$JOURNALSCRIPT_EDITOR"; then
     echo "WARNING: could not find the editor '$JOURNALSCRIPT_EDITOR' in system"
 fi
 

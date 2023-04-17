@@ -106,22 +106,7 @@ JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
-
-# Template directory default is set to whichever exists in this order
-# 1. JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates
-# 2. _JOURNALSCRIPT_CONF_DIR/.journalscript/templates
-# 3. Empty value
-JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-""}
-if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]]; then
-    JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"
-    if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
-        JOURNALSCRIPT_TEMPLATE_DIR="$_JOURNALSCRIPT_CONF_DIR/templates"
-    fi
-    if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
-        # set no directory
-        JOURNALSCRIPT_TEMPLATE_DIR=""
-    fi
-fi
+JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"}
 _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 
 ################################################################################
@@ -300,8 +285,8 @@ _configure() {
     # TODO: reivisit. The --print flag may have changed this
     if [[ "${#@}" -eq 1 ]]; then
         sub_command="$1"
-    elif [[ "${#@}" -gt 1 ]]; then
-        _fail "'configure' command supports up to 1 argument only."
+    elif [[ "${#@}" -gt 2 ]]; then
+        _fail "'configure' command supports up to 2 argument only."
     fi
     # if no arguments, then default to show sub_command
 
@@ -319,19 +304,106 @@ _configure() {
 			JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
     elif [[ "$sub_command" == "init" ]]; then
+        local option=${2:-""}
         # Old
-        . init_configuration.sh.backup
+        #. init_configuration.sh.backup
+        . init_configuration.sh "$option"
+        exit 0
         # New
-        # TODO: figure out how to pass flags (--print)
-        _configure_init
+        if [[ -n "$option" ]] && [[ "$option" != "--print" ]]; then
+            _fail "Unsupported argument '$2' of command 'configure init'."
+        fi
+        _configure_init "$2"
     else
         # unknown command.
         _fail "Unsupported argument '$sub_command' of command 'configure'."
     fi
 }
 
+###############################################################################
+# Interative script / wizard to asssit on the creation of new configuration   #
+# file for journalscript                                                      #
+###############################################################################
 _configure_init() {
-    exit 0
+    # Read (prompt) configuration preferences from user
+    # TODO: how to make local
+    local file_type journal_dir editor template_dir default_journal conf_dir
+    read -p "Journal entry's file format [txt|md|etc] ($JOURNALSCRIPT_FILE_TYPE):" file_type
+    read -p "Editor ($JOURNALSCRIPT_EDITOR):" editor
+    read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" journal_dir
+    JOURNALSCRIPT_JOURNAL_DIR=${journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
+    JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"}
+    read -p "Templates location [path/to/directory] ($JOURNALSCRIPT_TEMPLATE_DIR):" template_dir
+    read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" default_journal
+    read -p "Where do you wish to store the configuration [path/to/directory] ($_JOURNALSCRIPT_CONF_DIR):" conf_dir
+
+    # Default values if no user input
+    _JOURNALSCRIPT_CONF_DIR=${conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
+    _JOURNALSCRIPT_CONF_FILE="${_JOURNALSCRIPT_CONF_DIR}/journalscript.env"
+    JOURNALSCRIPT_FILE_TYPE=${file_type:-$JOURNALSCRIPT_FILE_TYPE}
+    JOURNALSCRIPT_EDITOR=${editor:-$JOURNALSCRIPT_EDITOR}
+    JOURNALSCRIPT_TEMPLATE_DIR=${template_dir:-$JOURNALSCRIPT_TEMPLATE_DIR}
+    JOURNALSCRIPT_DEFAULT_JOURNAL=${default_journal:-$JOURNALSCRIPT_DEFAULT_JOURNAL}
+
+    # Validate
+    if ! command -v "$JOURNALSCRIPT_EDITOR" >/dev/null 2>&1; then
+        echo "WARNING: could not find the editor '$JOURNALSCRIPT_EDITOR' in system"
+    fi
+
+    _contents=$(
+        cat <<-EOF
+			JOURNALSCRIPT_FILE_TYPE="$JOURNALSCRIPT_FILE_TYPE"
+			JOURNALSCRIPT_EDITOR="$JOURNALSCRIPT_EDITOR"
+			JOURNALSCRIPT_JOURNAL_DIR="$JOURNALSCRIPT_JOURNAL_DIR"
+			JOURNALSCRIPT_TEMPLATE_DIR="$JOURNALSCRIPT_TEMPLATE_DIR"
+			JOURNALSCRIPT_DEFAULT_JOURNAL="$JOURNALSCRIPT_DEFAULT_JOURNAL"
+		EOF
+    )
+
+    # If print then write contents to stdout and exit early
+    # No need for feedback because there are no side effects
+    if [[ "$1" == "--print" ]]; then
+        printf "%s" "$_contents"
+        return 0
+    fi
+
+    # User feedback
+    local new_dirs=()
+    if ! test -d "$JOURNALSCRIPT_JOURNAL_DIR"; then
+        new_dirs+=("$JOURNALSCRIPT_JOURNAL_DIR")
+    fi
+    if ! test -d "$JOURNALSCRIPT_TEMPLATE_DIR"; then
+        new_dirs+=("$JOURNALSCRIPT_TEMPLATE_DIR")
+    fi
+    if ! test -d "$_JOURNALSCRIPT_CONF_DIR"; then
+        new_dirs+=("$_JOURNALSCRIPT_CONF_DIR")
+    fi
+    if [[ "${#new_dirs[@]}" -eq 0 ]]; then
+        printf "The following direcotries will be created:\n"
+        for dir in "${new_dirs[@]}"; do
+            printf "  %s\n" "$dir"
+        done
+    fi
+    if ! test -f "$_JOURNALSCRIPT_CONF_FILE"; then
+        printf "The following files will be created:\n"
+        printf "  %s\n" "$_JOURNALSCRIPT_CONF_FILE"
+    else
+        # TODO: make a WARNING
+        printf "The following files will be overriden:\n"
+        printf "  %s\n" "$_JOURNALSCRIPT_CONF_FILE"
+    fi
+
+    local confirm
+    read -p "Do you wish to continue? [y/n]:" confirm
+    [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || return 0
+
+    # Execute: Write config directory and file
+    mkdir -p "$JOURNALSCRIPT_JOURNAL_DIR"
+    mkdir -p "$JOURNALSCRIPT_TEMPLATE_DIR"
+    mkdir -p "$_JOURNALSCRIPT_CONF_DIR"
+
+    printf "%s" "$_contents" >"${_JOURNALSCRIPT_CONF_FILE}"
+    printf "Done\n"
 }
 
 _help_write() {
