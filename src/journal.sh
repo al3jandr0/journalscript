@@ -323,18 +323,24 @@ _configure_init() {
     read -p "Editor ($JOURNALSCRIPT_EDITOR):" prompt_editor
     read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" prompt_journal_dir
     journal_dir=${prompt_journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
-    template_dir=${JOURNALSCRIPT_TEMPLATE_DIR:-"$journal_dir/.journalscript/templates"}
+    template_dir="$journal_dir/.journalscript/templates"
     read -p "Templates location [path/to/directory] ($template_dir):" prompt_template_dir
-    read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" prompt_default_journal
+    template_dir=${prompt_template_dir:-$template_dir}
     read -p "Where do you wish to store the configuration [path/to/directory] ($_JOURNALSCRIPT_CONF_DIR):" prompt_conf_dir
+    read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" prompt_default_journal
 
     # Default values if no user input
-    local conf_dir=${prompt_conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
-    local conf_file="${_JOURNALSCRIPT_CONF_DIR}/journalscript.env"
     local file_type=${prompt_file_type:-$JOURNALSCRIPT_FILE_TYPE}
     local editor=${prompt_editor:-$JOURNALSCRIPT_EDITOR}
-    local template_dir=${prompt_template_dir:-$JOURNALSCRIPT_TEMPLATE_DIR}
     local default_journal=${prompt_default_journal:-$JOURNALSCRIPT_DEFAULT_JOURNAL}
+    local conf_dir=${prompt_conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
+    local conf_file="${conf_dir}/journalscript.env"
+    local template_dir=${prompt_template_dir:-$JOURNALSCRIPT_TEMPLATE_DIR}
+    # expand ~
+    journal_dir="${journal_dir/#\~/$HOME}"
+    conf_dir="${conf_dir/#\~/$HOME}"
+    conf_file="${conf_file/#\~/$HOME}"
+    template_dir="${template_dir/#\~/$HOME}"
 
     # Validate
     if ! command -v "$editor" >/dev/null 2>&1; then
@@ -375,12 +381,12 @@ _configure_init() {
             printf "  %s\n" "$dir"
         done
     fi
-    if ! test -f "$conf_file"; then
-        printf "The following files will be created:\n"
-        printf "  %s\n" "$conf_file"
-    else
+    if test -f "$conf_file"; then
         # TODO: make a WARNING
         printf "The following files will be overriden:\n"
+        printf "  %s\n" "$conf_file"
+    else
+        printf "The following files will be created:\n"
         printf "  %s\n" "$conf_file"
     fi
 
