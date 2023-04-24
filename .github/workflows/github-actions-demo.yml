@@ -118,7 +118,7 @@ jobs:
     needs: [version_check, release]
     if: success()
     env:
-      VERSION: ${{steps.version_check.outputs.source_version}}
+      VERSION: ${{needs.version_check.outputs.source_version}}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
