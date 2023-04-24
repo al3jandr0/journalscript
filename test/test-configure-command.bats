@@ -252,7 +252,7 @@ _1_1_7=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     refute_output --partial "Comments are ignored"
     # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vi) should be provided
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
