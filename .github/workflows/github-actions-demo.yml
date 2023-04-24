@@ -127,10 +127,11 @@ jobs:
         run: |
           gh release list
           gh release download ${{ env.VERSION }} --archive tar.gz --output release/archive.tar.gz
+
       - name: Create Homebrew formula
         run: |
           SHA256=$(sha256sum release/archive.ta.gz | cut -d ' ' -f 1)
-          echo ${{ needs.release.outputs.assets }}
+          echo "${{ needs.release.outputs.assets }}"
           #bash cicd/make_formula.sh ${{ fromJSON(needs.release.outputs.assets)[2].browser_download_url }} "$SHA256"
       - name: Upload Homebrew Formula to Release
         uses: actions/upload-release-asset@v1
