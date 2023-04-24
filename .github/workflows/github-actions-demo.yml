@@ -121,6 +121,7 @@ jobs:
       VERSION: ${{needs.version_check.outputs.source_version}}
       GH_TOKEN: ${{ github.token }}
     steps:
+      # TODO: download man page
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Compute SHA256
