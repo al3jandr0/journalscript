@@ -111,6 +111,7 @@ jobs:
           files: release/deb-package/journalscript*.deb
           body_path: release/RELEASE_LOG.md
           tag_name: ${{ env.VERSION }}
+          draft: true
           prerelease: true
           fail_on_unmatched_files: true
   homebrew_formula:
