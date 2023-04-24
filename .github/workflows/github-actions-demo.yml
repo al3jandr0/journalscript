@@ -128,7 +128,8 @@ jobs:
           gh release list
           gh release download "${VERSION}" --archive tar.gz --output release/archive.tar.gz
           env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #      - name: Create Homebrew formula
       #        run: |
       #          SHA256=$(sha256sum release/archive.ta.gz | cut -d ' ' -f 1)
