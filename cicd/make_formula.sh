@@ -8,7 +8,7 @@ README=${3:"README.md"}
 LICENSE=${4:"LICENSE"}
 
 cat >"release/journalscript.rb" <<-EOF
-	class Journalscrtip < Formula
+	class Journalscript < Formula
 	  desc "Interactive command-line journaling tool"
 	  homepage "https://github.com/al3jandr0/journalscript"
 	  url "${TAR_BALL_URL}"
