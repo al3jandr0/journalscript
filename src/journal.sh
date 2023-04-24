@@ -67,7 +67,7 @@ done
 HOME=${HOME:?"\$HOME is not defined"}
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_DOCUMENTS_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
-EDITOR="${EDITOR:-vi}"
+EDITOR="${EDITOR:-vim}"
 
 # Journalsscript env
 
