@@ -124,7 +124,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Compute SHA256
-        run: gh release download ${{ VERSION }} --archive tar.gz --output release/archive.tar.gz
+        run: gh release download ${{ env.VERSION }} --archive tar.gz --output release/archive.tar.gz
       - name: Create Homebrew formula
         run: |
           SHA256=$(sha256sum release/archive.ta.gz | cut -d ' ' -f 1)
