@@ -60,7 +60,7 @@ _1_1_1=\
     _assert_output_conforms_to_format
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -87,7 +87,7 @@ _1_1_1_dash_1=\
     _assert_output_conforms_to_format
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
@@ -114,7 +114,7 @@ _1_1_1_dash_2=\
     _assert_output_conforms_to_format
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -222,7 +222,7 @@ _1_1_6=\
     _assert_output_conforms_to_format
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -251,8 +251,8 @@ _1_1_7=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     refute_output --partial "Comments are ignored"
-    # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vi) should be provided
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\vim\""
+    # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vim) should be provided
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -287,7 +287,7 @@ _1_2_1=\
     assert_equal "$stderr" ""
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     # TODO: update init behavior to create a tempalte directory in default location
     assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
@@ -320,7 +320,7 @@ _1_2_2=\
     assert_file_not_executable "$FILE"
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
@@ -390,7 +390,7 @@ _1_2_4=\
     assert_file_not_executable "$FILE"
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vi\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
