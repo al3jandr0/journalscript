@@ -127,21 +127,25 @@ jobs:
       # TODO: download man page
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Compute SHA256
+      - name: Download manpage
+        uses: actions/download-artifact@v3
+        with:
+          name: man-page
+          path: ${{ github.workspace }}/release
+      - name: Download archive release source
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          #gh release list
-          gh release download "${VERSION}" --archive tar.gz --output release/archive.tar.gz
+          gh release download "${VERSION}" --archive tar.gz --dir release/
       - name: Create Homebrew formula
         run: |
-          SHA256=$(sha256sum release/archive.tar.gz | cut -d ' ' -f 1)
-          echo "$SHA256"
-          echo "${{ needs.release.outputs.assets }}"
-          #bash cicd/make_formula.sh ${{ fromJSON(needs.release.outputs.assets)[2].browser_download_url }} "$SHA256"
-      #      - name: Upload Homebrew Formula to Release
-      #        uses: actions/upload-release-asset@v1
-      #        with:
-      #          upload_url: ${{ needs.release.outputs.upload_url }}
-      #          asset_path: release/journalscript.rb
-      #          asset_name: journalscript.rb
+          SHA256=$(sha256sum release/*.tar.gz | cut -d ' ' -f 1)
+          # TODO: replace hardcoded with EVN
+          FORMULA_URL="https://github.com/al3jandr0/journalscript/archive/refs/tags/${VERSION}.tar.gz"
+          bash cicd/make_formula.sh "$FORMULA_URL" "$SHA256"
+      - name: Upload Homebrew Formula to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: release/journalscript.rb
+          asset_name: journalscript.rb
