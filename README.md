@@ -1,3 +1,11 @@
+Github actions are absolutelly nonesene
+No way to test
+slow feedback cycle
+losts of glitches
+slow
+how in their sane mind would sing up for this madness
+90% of the commits on this repo are solely to test actions
+
 # journalscript
 
 A handy script to manage journals
@@ -69,7 +77,3 @@ Clone the repo, cd into its root, and run the installation scrip
 
 - 1. Nothing else beside the output of the command is allowed to be printed to stout
 - 2. No file in the FS is modified except for those in the DATA directory - could make stricter by permitting only 1 file (the most recent one) in DATA to be modified
-
-TODO:
-
-- Add to pakcage description that the pacge includes the script, but also changelog, license, and autocomplete for bash
