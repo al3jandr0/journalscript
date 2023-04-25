@@ -1,15 +1,16 @@
 name: Homebrew Tap publisher
 #run-name: Publishing release ${{ inputs.deploy_target }} by @${{ github.actor }}
-on: release
-#types: [published, released]
-
-env:
-  GITHUB_TOKEN: ${{ secrets.pat }}
+on:
+  release:
+    types: [published]
 
 jobs:
   publish:
     name: Publish to Hombrew tap
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TITLE: ${{github.event.release.name}}
+      VERSION: ${{github.event.release.tag_name}}
     steps:
       - name: Check out tap repository
         uses: actions/checkout@v3
@@ -21,3 +22,12 @@ jobs:
           gh release download --pattern '*.rb' --clobber --repo al3jandr0/journalscript
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit formula
+        run: |
+          mkdir -p Formula
+          cp -f release/journalscript.rb Formula/journalscript.rb
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add Formula/journalscript.rb
+          git commit -m "New release: ${RELEASE_TITLE}"
+          git push -u origin journalscript-${VERSION}
