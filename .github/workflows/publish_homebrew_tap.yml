@@ -30,7 +30,7 @@ jobs:
       #  echo "${{ github.event.release.assets }}"
       #echo "${{ fromJSON(github.event.release.assets) }}"
       - name: Commit formula
-        uses: actions/checkout@v3
+        #uses: actions/checkout@v3
         run: |
           mkdir -p Formula
           cp -f release/journalscript.rb Formula/journalscript.rb
