@@ -120,8 +120,7 @@ jobs:
           prerelease: true
           draft: true
       - name: Download archive of released source
-        run: |
-          gh release download "${VERSION}" --archive tar.gz --dir release/
+        run: gh release download "${VERSION}" --archive tar.gz --dir release/
       - name: Create Homebrew formula
         # TODO: figure out how to release the manual with the sources
         run: |
