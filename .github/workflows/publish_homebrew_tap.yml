@@ -1,7 +1,6 @@
 name: Homebrew Tap publisher
-on:
-  release:
-    types: [published, created]
+on: release
+#    types: [published, created]
 
 jobs:
   publish:
