@@ -4,9 +4,11 @@
 
 TAR_BALL_URL=${1:?"Source tar ball url is required"}
 SHA256=${2:?"Source tar ball sha256 is required"}
-MANUAL=${3:"journalscript.1"}
-README=${3:"README.md"}
-LICENSE=${4:"LICENSE"}
+VERSION=${3:-$VERSION}
+VERSION=${VERSION/#v/}
+MANUAL=${4:-"journalscript.1"}
+README=${5:-"README.md"}
+LICENSE=${6:-"LICENSE"}
 
 cat >"release/journalscript.rb" <<-EOF
 	class Journalscript < Formula
@@ -30,7 +32,7 @@ cat >"release/journalscript.rb" <<-EOF
 	  end
 
 	  test do
-	    assert_equal "journalscript 0.0.2", shell_output("#{bin}/journal -v").strip
-	  end
+	    assert_equal "journalscript ${VERSION}", shell_output(" #{bin}/journal -v").strip
+	end
 	end
 EOF
