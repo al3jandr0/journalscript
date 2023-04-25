@@ -26,7 +26,7 @@ SOURCE_FILE=${1:-"src/journal.sh"}
 #  Outputs
 ###############################################################################
 LATEST_TAG=""      # vX.Y.Z
-SOURCE_VERSION=-"" # vX.Y.Z
+SOURCE_VERSION=""  # vX.Y.Z
 IS_RELEASE="false" # "true" | "false"
 
 ###############################################################################
@@ -39,7 +39,6 @@ latest_tagged_commit=$(git rev-list --tags --max-count=1)
 LATEST_TAG=$(git tag --list --points-at "$latest_tagged_commit" | sort -rV | head -1)
 # If no tag (no releases have been done) default to version v0.0.0
 LATEST_TAG=${LATEST_TAG:-"v0.0.0"}
-#echo "latest_tag=$latest_tag"
 
 ###############################################################################
 #  Gets SOURCE_VERSION from the source code                                   #
@@ -47,7 +46,6 @@ LATEST_TAG=${LATEST_TAG:-"v0.0.0"}
 # Get version and split the program name from the version number
 SOURCE_VERSION=($(bash $SOURCE_FILE -v))
 SOURCE_VERSION="${SOURCE_VERSION[1]}"
-#echo "current version=${v[1]}"
 
 ###############################################################################
 #  Checks version numbers are valid and compute wether it is a relasse or not #
