@@ -23,8 +23,8 @@ jobs:
           path: homebrew-tap
       - name: Download released formula
         run: |
-          echo "${{ github.event.release.assets }}"
-          echo "${{ fromJSON(github.event.release.assets) }}"
+          #echo "${{ github.event.release.assets }}"
+          echo "${{ fromJson(github.event.release.assets) }}"
   # download release asset (formula)
   # replace downloaded formula in the repo
   # commit
