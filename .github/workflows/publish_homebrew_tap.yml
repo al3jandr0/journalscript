@@ -1,6 +1,6 @@
 name: Homebrew Tap publisher
 on: release
-#    types: [published, created]
+#    types: [published]
 
 jobs:
   publish:
@@ -12,6 +12,6 @@ jobs:
         with:
           repository: al3jandr0/hombrew-tap
       - name: Download latest release assets
-        run: gh release download --pattern '*.rb' --clobber
+        run: gh release download --pattern '*.rb' --clobber --repo al3jandr0/journalscript
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
