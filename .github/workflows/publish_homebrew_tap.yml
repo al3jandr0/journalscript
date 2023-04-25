@@ -21,10 +21,10 @@ jobs:
         with:
           repository: al3jandr0/hombrew-tap
           path: homebrew-tap
-      - name: Download released formula
-        run: |
-          echo "${{ github.event.release.assets }}"
-          #echo "${{ fromJSON(github.event.release.assets) }}"
+      #- name: Download released formula
+      #  run: |
+      #  echo "${{ github.event.release.assets }}"
+      #echo "${{ fromJSON(github.event.release.assets) }}"
   # download release asset (formula)
   # replace downloaded formula in the repo
   # commit
