@@ -21,11 +21,24 @@ jobs:
         with:
           repository: al3jandr0/hombrew-tap
           path: homebrew-tap
+      - name: Download latest release assets
+        run: gh release download -D release/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #- name: Download released formula
       #  run: |
       #  echo "${{ github.event.release.assets }}"
       #echo "${{ fromJSON(github.event.release.assets) }}"
-  # download release asset (formula)
+      - name: Commit formula
+        uses: actions/checkout@v3
+        run: |
+          mkdir -p Formula
+          cp -f release/journalscript.rb Formula/journalscript.rb
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add Formula/journalscript.rb
+          git commit -m "Updates journalscript formula to version XYZ"
+          git push -u origin journalscript-XYZ
   # replace downloaded formula in the repo
   # commit
   # push to new remote branch
