@@ -50,7 +50,11 @@ jobs:
       source_version: ${{ steps.check.outputs.source_version }}
       is_release: ${{ steps.check.outputs.is_release }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+      - name: Fetch tags
+        # I've noticed sometimes checkout doesnt fetch tags
+        run: git fetch --tags
       - name: Check Versions
         id: check
         run: |
