@@ -63,7 +63,7 @@ jobs:
           echo "latest_tag=${v[0]}" >> "$GITHUB_OUTPUT"
           echo "source_version=${v[1]}" >> "$GITHUB_OUTPUT"
           echo "is_release=${v[2]}" >> "$GITHUB_OUTPUT"
-  hombrew_formula:
+  homebrew_formula:
     runs-on: ubuntu-latest
     needs: [version_check]
     if: success()
@@ -91,9 +91,6 @@ jobs:
     env:
       VERSION: ${{needs.version_check.outputs.source_version}}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      assets: ${{ steps.release.outputs.assets }}
-      upload_url: ${{ steps.release.outputs.upload_url }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
