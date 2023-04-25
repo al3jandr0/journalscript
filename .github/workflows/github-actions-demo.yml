@@ -26,7 +26,6 @@ jobs:
         run: bats ./test
   deb_package:
     name: Build debian package (artifact)
-    needs: [build_man_page]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
