@@ -1,12 +1,6 @@
 name: Homebrew Tap publisher
-on:
-  release:
-# action types
-# release
-# prereleased
-# published
-# unpublished
-# created
+on: release
+
 defaults:
   run:
     shell: bash
@@ -33,7 +27,5 @@ jobs:
           git add Formula/journalscript.rb
           git commit -m "Updates journalscript formula to version XYZ"
           git push -u origin journalscript-XYZ
-  # replace downloaded formula in the repo
-  # commit
-  # push to new remote branch
+
   # create PR
