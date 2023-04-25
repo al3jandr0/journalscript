@@ -10,3 +10,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: al3jandr0/hombrew-tap
+      - name: Download latest release assets
+        run: gh release download -D release/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
