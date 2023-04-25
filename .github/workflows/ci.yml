@@ -93,7 +93,7 @@ jobs:
     if: success() && github.ref_name == 'main' && needs.version_check.outputs.is_release == 'true'
     env:
       VERSION: ${{needs.version_check.outputs.source_version}}
-      GH_TOKEN: ${{ secrets.journalscript-workflow-trigger-pat }}
+      GH_TOKEN: ${{ secrets.JOURNALSCRIPT_WORKFLOW_TRIGGER_PAT }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
