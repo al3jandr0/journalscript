@@ -92,7 +92,7 @@ jobs:
           gh release create ${VERSION} \
           --notes-file release/RELEASE_LOG.md \
           --title "Journalscript ${VERSION}" \
-          release/deb-package/journalscript*.deb
+          --draft release/deb-package/journalscript*.deb
         #uses: softprops/action-gh-release@v1
         #        with:
         #          name: Journalscript ${{ env.VERSION }}
