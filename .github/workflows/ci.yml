@@ -92,7 +92,7 @@ jobs:
           gh release create ${VERSION} \
           --notes-file release/RELEASE_LOG.md \
           --title "Journalscript ${VERSION}" \
-          --draft release/deb-package/journalscript*.deb
+          release/deb-package/journalscript*.deb
       - name: Download archive of released source
         run: gh release download "${VERSION}" --archive tar.gz --dir release/
       - name: Create Homebrew formula
