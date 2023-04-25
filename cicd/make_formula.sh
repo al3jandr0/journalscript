@@ -4,7 +4,7 @@
 
 TAR_BALL_URL=${1:?"Source tar ball url is required"}
 SHA256=${2:?"Source tar ball sha256 is required"}
-MANUAL=${3:"release/journalscript.1"}
+MANUAL=${3:"journalscript.1"}
 README=${3:"README.md"}
 LICENSE=${4:"LICENSE"}
 
@@ -25,9 +25,8 @@ cat >"release/journalscript.rb" <<-EOF
 	    bin.install "src/journal.sh" => "journal"
 	    prefix.install "${README}"
 	    prefix.install "${LICENSE}"
-	    # TODO: source doenst have manpage so Im ignoring for now
 	    man.mkpath
-	    man1.install "release/journalscrip.1" => "journalscript.1"
+	    man1.install "${MANUAL}" => "journalscript.1"
 	  end
 
 	  test do

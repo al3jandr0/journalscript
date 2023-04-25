@@ -24,24 +24,6 @@ jobs:
         run: bats -v
       - name: Run unit tests
         run: bats ./test
-  build_man_page:
-    name: Build man page
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install dependencies (pandoc)
-        run: sudo apt-get install --yes pandoc
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Convert markup to man format
-        run: |
-          mkdir -p release
-          pandoc --standalone --to=man --fail-if-warnings --output=release/journalscript.1 manpage.md
-      - name: Upload man page
-        uses: actions/upload-artifact@v3
-        with:
-          name: man-page
-          path: release/journalscript.1
-          retention-days: 5
   deb_package:
     name: Build debian package (artifact)
     needs: [build_man_page]
@@ -51,13 +33,6 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt-get install --yes --no-install-recommends lintian dpkg gzip
-      - name: Download manpage
-        uses: actions/download-artifact@v3
-        with:
-          name: man-page
-          path: ${{ github.workspace }}
-      - name: Display structure of downloaded files
-        run: ls -R release/
       - name: Build deb archive
         run: bash cicd/make_deb_archive.sh
       - name: Lint deb archive
@@ -122,7 +97,6 @@ jobs:
       - name: Download archive of released source
         run: gh release download "${VERSION}" --archive tar.gz --dir release/
       - name: Create Homebrew formula
-        # TODO: figure out how to release the manual with the sources
         run: |
           SHA256=$(sha256sum release/*.tar.gz | cut -d ' ' -f 1)
           FORMULA_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
