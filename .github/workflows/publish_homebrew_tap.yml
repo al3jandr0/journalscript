@@ -1,6 +1,10 @@
 name: Homebrew Tap publisher
+#run-name: Publishing release ${{ inputs.deploy_target }} by @${{ github.actor }}
 on: release
 #types: [published, released]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.pat }}
 
 jobs:
   publish:
