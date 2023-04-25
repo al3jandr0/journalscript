@@ -91,6 +91,7 @@ jobs:
     if: success() && github.ref_name == 'main' && needs.version_check.outputs.is_release == 'true'
     env:
       VERSION: ${{needs.version_check.outputs.source_version}}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       assets: ${{ steps.release.outputs.assets }}
       upload_url: ${{ steps.release.outputs.upload_url }}
@@ -115,40 +116,19 @@ jobs:
           files: release/deb-package/journalscript*.deb
           body_path: release/RELEASE_LOG.md
           tag_name: ${{ env.VERSION }}
-          prerelease: true
           fail_on_unmatched_files: true
-  homebrew_formula:
-    runs-on: ubuntu-latest
-    needs: [version_check, release]
-    if: success()
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      VERSION: ${{needs.version_check.outputs.source_version}}
-    steps:
-      # TODO: download man page
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Download manpage
-        uses: actions/download-artifact@v3
-        with:
-          name: man-page
-          path: ${{ github.workspace }}/release
-      - name: Download archive release source
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          draft: true
+      - name: Download archive of released source
         run: |
           gh release download "${VERSION}" --archive tar.gz --dir release/
       - name: Create Homebrew formula
+        # TODO: figure out how to release the manual with the sources
         run: |
           SHA256=$(sha256sum release/*.tar.gz | cut -d ' ' -f 1)
-          # TODO: replace hardcoded with EVN
-          echo "https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
-          FORMULA_URL="https://github.com/al3jandr0/journalscript/archive/refs/tags/${VERSION}.tar.gz"
+          FORMULA_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
           bash cicd/make_formula.sh "$FORMULA_URL" "$SHA256"
       - name: Upload Homebrew Formula to Release
         run: gh release upload "${VERSION}" release/journalscript.rb
-        #uses: actions/upload-release-asset@v1
-        #with:
-        #  upload_url: ${{ needs.release.outputs.upload_url }}
-        #  asset_path: release/journalscript.rb
-        #  asset_name: journalscript.rb
+      - name: Set release as not draft
+        run: gh release edit "${VERSION}" --draft=false
