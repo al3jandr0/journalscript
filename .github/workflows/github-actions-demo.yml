@@ -1,4 +1,4 @@
-name: Journalscritp CICD pipeline
+name: CI
 on:
   push:
     branches:
