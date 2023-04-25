@@ -118,7 +118,7 @@ jobs:
           tag_name: ${{ env.VERSION }}
           fail_on_unmatched_files: true
           prerelease: true
-          draft: true
+          #draft: true
       - name: Download archive of released source
         run: gh release download "${VERSION}" --archive tar.gz --dir release/
       - name: Create Homebrew formula
