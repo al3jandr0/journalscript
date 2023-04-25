@@ -12,6 +12,8 @@ jobs:
         with:
           repository: al3jandr0/hombrew-tap
       - name: Download latest release assets
-        run: gh release download --pattern '*.rb' --clobber --repo al3jandr0/journalscript
+        run: |
+          gh release list --repo al3jandr0/journalscript
+          gh release download --pattern '*.rb' --clobber --repo al3jandr0/journalscript
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
