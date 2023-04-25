@@ -43,7 +43,7 @@ cp "$SCRIPT" "${ARCHIVE}${INSTALATION_DIR}/$executable_without_extension"
 # Write changelog                                                             #
 ###############################################################################
 mkdir -p "$DOCUMENTS_DIR"
-bash cicd/make_gnu_changelog.sh "$CHANGELOG" "$SCRIPT" |
+bash ci/make_gnu_changelog.sh "$CHANGELOG" "$SCRIPT" |
     gzip -9 -cn >"$DOCUMENTS_DIR/changelog.gz"
 
 ###############################################################################

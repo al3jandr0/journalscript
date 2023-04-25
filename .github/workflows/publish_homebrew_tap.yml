@@ -13,7 +13,7 @@ defaults:
 
 jobs:
   name: Publish to Hombrew tap
-  runs-on: Ubuntu-latest
+  runs-on: ubuntu-latest
   steps:
     - name: Check out tap repository
       uses: actions/checkout@v3
