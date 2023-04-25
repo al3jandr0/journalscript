@@ -4,6 +4,7 @@
 
 TAR_BALL_URL=${1:?"Source tar ball url is required"}
 SHA256=${2:?"Source tar ball sha256 is required"}
+MANUAL=${3:"release/journalscript.1"}
 README=${3:"README.md"}
 LICENSE=${4:"LICENSE"}
 
