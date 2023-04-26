@@ -33,15 +33,17 @@ jobs:
           git config user.email github-actions@github.com
           git add Formula/journalscript.rb
           git commit -m "Update formula: ${RELEASE_TITLE}"
-          git push origin main:journalscript-${VERSION}
-          # sleep to mitigate race condition between push and creating a new PR
-          sleep 30
-      - name: Create pr
-        run: |
-          gh pr create -d \
-          --title "Update formula: ${RELEASE_TITLE}" \
-          --body "Update formula: ${RELEASE_TITLE}" \
-          --repo "al3jandr0/hombrew-tap" \
-          --base "upstream/main" \
-          --head "hombrew-tap:origin/journalscript-${VERSION}" \
-          --label 'pr-pull'
+          git push origin main
+      # Not creating a PR because of a bug in gh pr create
+      # Refs:
+      # - https://github.com/cli/cli/issues/575#issuecomment-1163143215
+      # - https://github.com/cli/cli/issues/2691
+      #- name: Create pr
+      #  run: |
+      #    gh pr create -d \
+      #    --title "Update formula: ${RELEASE_TITLE}" \
+      #    --body "Update formula: ${RELEASE_TITLE}" \
+      #    --repo "al3jandr0/hombrew-tap" \
+      #    --base "upstream/main" \
+      #    --head "hombrew-tap:origin/journalscript-${VERSION}" \
+      #    --label 'pr-pull'
