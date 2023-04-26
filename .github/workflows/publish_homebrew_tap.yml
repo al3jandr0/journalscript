@@ -37,10 +37,4 @@ jobs:
           # sleep to mitigate race condition between push and creating a new PR
           sleep 30
       - name: Create pr
-        run: |
-          gh pr create --title "Update formula: ${RELEASE_TITLE}" \
-          --body "Update formula: ${RELEASE_TITLE}" \
-          --repo al3jandr0/hombrew-tap \
-          --base upstream/main \
-          --head origin/journalscript-${VERSION} \
-          --label 'pr-pull'
+        run: gh pr create -d --title "Update formula: ${RELEASE_TITLE}" --body "Update formula: ${RELEASE_TITLE}" --repo "al3jandr0/hombrew-tap" --base "upstream/main" --head "origin/journalscript-${VERSION}" --label 'pr-pull'
