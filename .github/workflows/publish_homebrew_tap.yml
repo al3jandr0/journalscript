@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 permissions:
-  contents: write
+  contents: write-all
 
 jobs:
   publish:
