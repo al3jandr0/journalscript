@@ -10,9 +10,6 @@ defaults:
   run:
     shell: bash
 
-#env:
-#  GITHUB_TOKEN: ${{ secrets.pat }}
-
 jobs:
   unit_test:
     name: Unit test
