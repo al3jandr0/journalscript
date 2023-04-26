@@ -31,7 +31,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: sudo apt install --yes lintian dpkg gzip
+        run: sudo apt install --yes --no-install-recommends lintian dpkg gzip
       - name: Print dependecies info
         run: |
           dpkg-deb --version
