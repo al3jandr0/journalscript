@@ -30,4 +30,4 @@ jobs:
           git config user.email github-actions@github.com
           git add Formula/journalscript.rb
           git commit -m "New release: ${RELEASE_TITLE}"
-          git push -u origin journalscript-${VERSION}
+          git push -u origin main:journalscript-${VERSION}
