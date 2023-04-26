@@ -17,12 +17,9 @@ cat >"release/journalscript.rb" <<-EOF
 	  url "${TAR_BALL_URL}"
 	  sha256 "${SHA256}"
 	  license "MIT"
-	  # TODO: this is to run test only, you could run test if youd liek but you must make your tets
-	  # environment independet.  That is to reset Env var --- Actually. to laucn test with emptu Env
-	  #depends_on "bats" => [:test]
 	  depends_on "bash"
 	  depends_on "coreutils"
-	 
+
 	  def install
 	    bin.install "src/journal.sh" => "journal"
 	    prefix.install "${README}"
@@ -33,6 +30,6 @@ cat >"release/journalscript.rb" <<-EOF
 
 	  test do
 	    assert_equal "journalscript ${VERSION}", shell_output(" #{bin}/journal -v").strip
-	end
+	  end
 	end
 EOF
