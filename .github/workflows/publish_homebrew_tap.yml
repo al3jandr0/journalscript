@@ -4,6 +4,7 @@ on:
     types: [published]
 permissions:
   contents: write
+
 jobs:
   publish:
     name: Publish to Hombrew tap
