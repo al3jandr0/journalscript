@@ -150,7 +150,7 @@ _2_2_2=\
     local template_dir="$HOME/Documents/journals/.journalscript/templates"
     mkdir -p "$template_dir"
     mkdir -p "$HOME/Documents/journals/life"
-    printf "default template" > "$template_dir/template"
+    printf "default template\n" > "$template_dir/template"
     local todays_date=$(date +%Y-%m-%d)
     local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
 
@@ -179,8 +179,8 @@ _2_2_3=\
     mkdir -p "$template_dir"
     mkdir -p "$template_dir/template.d"
     mkdir -p "$HOME/Documents/journals/life"
-    printf "default template" > "$template_dir/template"
-    printf "custom template" > "$template_dir/template.d/life"
+    printf "default template\n" > "$template_dir/template"
+    printf "custom template\n" > "$template_dir/template.d/life"
     local todays_date=$(date +%Y-%m-%d)
     local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
 
