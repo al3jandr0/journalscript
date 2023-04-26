@@ -33,10 +33,12 @@ jobs:
           git add Formula/journalscript.rb
           git commit -m "Update formula: ${RELEASE_TITLE}"
           git push -u origin main:journalscript-${VERSION}
+          # sleep to mitigate race condition between push and creating a new PR
+          sleep 10
       - name: Create pr
         run: |
           gh pr create --title "Update formula: ${RELEASE_TITLE}" \
           --body "Update formula: ${RELEASE_TITLE}" \
           --repo al3jandr0/hombrew-tap \
-          --head journalscript-${VERSION} --base main \
+          --head origin/journalscript-${VERSION} --base upstream/main \
           #--label 'pr-pull'
