@@ -19,7 +19,7 @@ jobs:
       - name: Check out tap repository
         uses: actions/checkout@v3
         with:
-          repository: al3jandr0/hombrew-tap
+          repository: al3jandr0/homebrew-tap
           token: ${{ secrets.INTER_REPO_TOKEN }}
       - name: Download latest release assets
         run: |
