@@ -31,3 +31,5 @@ jobs:
           git add Formula/journalscript.rb
           git commit -m "New release: ${RELEASE_TITLE}"
           git push -u origin main:journalscript-${VERSION}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
