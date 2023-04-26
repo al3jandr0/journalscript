@@ -31,5 +31,9 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add Formula/journalscript.rb
-          git commit -m "New release: ${RELEASE_TITLE}"
+          git commit -m "Update formula: ${RELEASE_TITLE}"
           git push -u origin main:journalscript-${VERSION}
+      - name: Create pr
+        run: |
+          gh pr create --title "Update formula: ${RELEASE_TITLE}" \
+          --repo al3jandr0/homebrew-tap --label 'pr-pull'
