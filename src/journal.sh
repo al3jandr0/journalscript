@@ -20,7 +20,7 @@ set -o nounset
 set -o errtrace
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.0.2"
+_VERSION="0.1.0"
 _COMMADN_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -173,14 +173,26 @@ _write_template() {
     # 1. JOURNALSCRIPT_TEMPLATE_DIR/template.d/<journal_name>
     # 2. JOURNALSCRIPT_TEMPLATE_DIR/template
     elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name"; then
-        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name" $journal_entry
+        _copy_template "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name" "$journal_entry"
     elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template"; then
-        cp "$JOURNALSCRIPT_TEMPLATE_DIR/template" $journal_entry
+        _copy_template "$JOURNALSCRIPT_TEMPLATE_DIR/template" "$journal_entry"
     # Lastly, if template directory is specified but it has no contents
     # fallback to writing date
     else
         printf "%s\n" "$timestamp" >"$journal_entry"
     fi
+}
+
+# Evaluates each line of the templates
+#
+# Allows for "dynamic" templates, templates with subshells or env vars
+# that are evaluated when a new file is created
+_copy_template() {
+    local template=$1
+    local destination_file=$2
+    while read -r line; do
+        eval "printf \"${line}\n\"" >>"$destination_file"
+    done <"$template"
 }
 
 # 1. findis open or backup hook
