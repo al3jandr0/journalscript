@@ -2,13 +2,13 @@ name: Homebrew Tap publisher
 on:
   release:
     types: [published]
-permissions:
-  contents: write
-  pull-requests: write
 jobs:
   publish:
     name: Publish to Hombrew tap
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       RELEASE_TITLE: ${{github.event.release.name}}
       VERSION: ${{github.event.release.tag_name}}
@@ -37,8 +37,10 @@ jobs:
           sleep 10
       - name: Create pr
         run: |
-          gh pr create --title "Update formula: ${RELEASE_TITLE}" \
+          gh pr create \
+          --title "Update formula: ${RELEASE_TITLE}" \
           --body "Update formula: ${RELEASE_TITLE}" \
           --repo al3jandr0/hombrew-tap \
-          --head origin/journalscript-${VERSION} --base upstream/main \
+          --base upstream/main \
+          --head origin/journalscript-${VERSION} \
           --label 'pr-pull'
