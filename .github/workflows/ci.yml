@@ -32,10 +32,15 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt-get install --yes --no-install-recommends lintian dpkg gzip
+      - name: Print dependecies info
+        run: |
+          dpkg-deb --version
+          gzip --verison
+          lintian --version
       - name: Build deb archive
         run: bash ci/make_deb_archive.sh
       - name: Lint deb archive
-        run: lintian --fail-on error --fail-on warning --no-tag-display-limit release/*.deb
+        run: lintian --fail-on warning --no-tag-display-limit release/*.deb
       - name: Upload deb package artifact
         uses: actions/upload-artifact@v3
         with:

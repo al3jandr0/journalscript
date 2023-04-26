@@ -13,7 +13,6 @@ jobs:
       RELEASE_TITLE: ${{github.event.release.name}}
       VERSION: ${{github.event.release.tag_name}}
       GITHUB_TOKEN: ${{ secrets.INTER_REPO_TOKEN }}
-      #GITHUB_TOKEN: ${{ secrets.JOURNALSCRIPT_TOKEN }}
       GH_TOKEN: ${{ secrets.INTER_REPO_TOKEN }}
     steps:
       - name: Check out tap repository
