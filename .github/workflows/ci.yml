@@ -31,11 +31,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: sudo apt-get install --yes --no-install-recommends lintian dpkg gzip
+        run: sudo aptitude install --yes lintian dpkg gzip
       - name: Print dependecies info
         run: |
           dpkg-deb --version
-          gzip --verison
+          gzip --version
           lintian --version
       - name: Build deb archive
         run: bash ci/make_deb_archive.sh
