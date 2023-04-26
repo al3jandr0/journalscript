@@ -84,4 +84,4 @@ cat >"${ARCHIVE}/DEBIAN/control" <<-EOF
 EOF
 
 # Build archive
-dpkg-deb --build --root-owner-group "$ARCHIVE"
+dpkg-deb -Z gzip -z 9 --build --root-owner-group "$ARCHIVE"
