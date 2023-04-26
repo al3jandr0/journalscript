@@ -37,4 +37,4 @@ jobs:
         run: |
           gh pr create --title "Update formula: ${RELEASE_TITLE}" \
           --body "Update formula: ${RELEASE_TITLE}" \
-          --repo al3jandr0/homebrew-tap --label 'pr-pull'
+          --repo al3jandr0/hombrew-tap --label 'pr-pull'
