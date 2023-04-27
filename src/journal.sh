@@ -16,8 +16,9 @@
 ################################################################################
 # Globals                                                                      #
 ################################################################################
+set -e
 set -o nounset
-set -o errtrace
+#set -o errtrace
 set -o pipefail
 _ME="journalscript"
 _VERSION="0.1.0"
@@ -107,6 +108,7 @@ JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
 JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"}
+JOURNALSCRIPT_SYNC_BACKUP=${JOURNALSCRIPT_SYNC_BACKUP:-}
 _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 # Expand ~
 JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR/#\~/$HOME}"
@@ -205,8 +207,8 @@ _copy_template() {
 # /hooks/open for open hook, and /hooks/backup for backup hook
 # The fallbacks are used if no specific hook is found
 _find_hook() {
-    local action="$1" # open or backup
-    local tool="$2"   # Editor or backup tool
+    local action="$1"   # open or backup
+    local tool="${2:-}" # Editor or backup tool
 
     if test -f "$_JOURNALSCRIPT_HOOKS_DIR/$action.d/$tool"; then
         echo "$_JOURNALSCRIPT_HOOKS_DIR/$action.d/$tool"
@@ -234,12 +236,11 @@ _open_journal_entry() {
     fi
 }
 
-# Runs backup hook (backup journal entry)
+# Runs backup hook (backup journal)
 #
 # It attempts to run a user defined hook, if none is found then it does nothign
-_backup_journal_entry() {
-    local journal_entry="${1:-}"
-    local backup_hook=$(_find_hook "backup" "git")
+_backup_journal() {
+    local backup_hook=$(_find_hook "backup" "$JOURNALSCRIPT_SYNC_BACKUP")
 
     # if there is no backup hook, do nothing
     if [[ -n "$backup_hook" ]]; then
@@ -247,21 +248,14 @@ _backup_journal_entry() {
     fi
 }
 
-# keeping here for when I do dynamic templates
-#write_template() {
-#    local journalName="$1"
-#    local journalEntryFile="$2"
-#    local template="$JS_CONF_TEMPLATE_DIR/$journalName"
-#
-#    if test -f "$template"; then
-#        while read line; do
-#            echo "echo \"$line\"" | bash >> "$journalEntryFile"
-#        done < "$template"
-#    else
-#        # default template is a date stamp
-#        echo "$(date)" > "$journalEntryFile"
-#    fi
-#}
+_sync_journal() {
+    local sync_hook=$(_find_hook "sync" "$JOURNALSCRIPT_SYNC_BACKUP")
+
+    # if there is no backup hook, do nothing
+    if [[ -n "$sync_hook" ]]; then
+        . "$sync_hook"
+    fi
+}
 
 ################################################################################
 # Commands                                                                     #
@@ -310,6 +304,7 @@ _configure() {
 			XDG_CONFIG_HOME="${XDG_CONFIG_HOME}"
 			_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
 			_JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR}"
+			JOURNALSCRIPT_SYNC_BACKUP="${JOURNALSCRIPT_SYNC_BACKUP}"
 			JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
 			JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 			JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"
@@ -363,7 +358,7 @@ _configure_init() {
         echo "WARNING: could not find the editor '$editor' in system"
     fi
 
-    _contents=$(
+    local contents=$(
         cat <<-EOF
 			JOURNALSCRIPT_FILE_TYPE="$file_type"
 			JOURNALSCRIPT_EDITOR="$editor"
@@ -376,8 +371,8 @@ _configure_init() {
     # If print then write contents to stdout and exit early
     # No need for feedback because there are no side effects
     if [[ "$1" == "--print" ]]; then
-        printf "%s" "$_contents"
-        return 0
+        printf "%s" "$contents"
+        exit 0
     fi
 
     # User feedback
@@ -406,16 +401,22 @@ _configure_init() {
         printf "  %s\n" "$conf_file"
     fi
 
+    echo "confirmo"
     local confirm
     read -p "Do you wish to continue? [y/n]:" confirm
-    [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || return 0
+    echo "confirmi"
+    [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
 
+    echo "confirmo?"
     # Execute: Write config directory and file
-    mkdir -p "$journal_dir"
-    mkdir -p "$template_dir"
-    mkdir -p "$conf_dir"
+    [[ -n "$journal_dir" ]] && mkdir -p "$journal_dir"
+    echo "confirmo1"
+    [[ -n "$template_dir" ]] && mkdir -p "$template_dir"
+    echo "confirmo2"
+    [[ -n "$conf_dir" ]] && mkdir -p "$conf_dir"
+    echo "confirmo3"
 
-    printf "%s" "$_contents" >"${conf_file}"
+    printf "%s" "$contents" >"${conf_file}"
     printf "Done\n"
 }
 
@@ -476,23 +477,22 @@ _write() {
         [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
         mkdir -p "$journal_dir"
     fi
-
     # Write template into new entries
     local is_new_file=0
     if ! test -f "$todays_entry"; then
         is_new_file=1
-        _write_template "$journal_name" "$todays_entry"
     fi
-
     # Make special vars avaiable to hooks
-    JOURNALSCRIPT_JOURNAL_NAME=$journal_name            # name of the journal
-    JOURNALSCRIPT_JOURNAL_DIRECTORY=$journal_dir        # full path to journal dir
-    JOURNALSCRIPT_JOURNAL_ENTRY=$todays_entry           # full path to journal entry file
+    JOURNALSCRIPT_JOURNAL_NAME="$journal_name"          # name of the journal
+    JOURNALSCRIPT_JOURNAL_DIRECTORY="$journal_dir"      # full path to journal dir
+    JOURNALSCRIPT_JOURNAL_ENTRY="$todays_entry"         # full path to journal entry file
     JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME="$entry_name" # entry file name
-    JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY=$is_new_file     # whether the file is new
+    JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY="$is_new_file"   # whether the file is new
 
-    # runs open hook, and runs backup hook upon open success
-    _open_journal_entry "$todays_entry" && _backup_journal_entry
+    _sync_journal
+    [[ $is_new_file -eq 1 ]] && _write_template "$journal_name" "$todays_entry"
+    _open_journal_entry "$todays_entry"
+    _backup_journal
 }
 
 _main() {
