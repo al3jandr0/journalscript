@@ -308,9 +308,10 @@ _1_2_2=\
     DATA_DIR=""
     TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
+    CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -340,11 +341,12 @@ _1_2_3=\
     DATA_DIR=""
     TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
+    CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
     mkdir -p "$HOME/.journalscript"
     cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$FILE"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
 
     # assert command finishes sucessfully
     assert_success
@@ -377,10 +379,11 @@ _1_2_4=\
     DATA_DIR=""
     TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
+    CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.config/journalscript/journalscript.env"
     mkdir -p "$HOME/.config/journalscript"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -410,9 +413,10 @@ _1_2_5=\
     DATA_DIR="$HOME"
     TEMPLATE_DIR="$HOME"
     DEFAULT_JOURNAL=""
+    CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -440,10 +444,11 @@ _1_2_6=\
     EDITOR=""
     DATA_DIR=""
     DEFAULT_JOURNAL=""
+    CONFIG_LOCATION=""
     TEMPLATE_DIR=""
     ACEPT_CHANGES="no"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
