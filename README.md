@@ -5,7 +5,7 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
-[![CI](https://github.com/al3jandr0/journalscript/actions/workflows/ci.yml/badge.svg)](https://github.com/al3jandr0/journalscript/actions/workflows/ci.yml)
+[![Tests](https://github.com/al3jandr0/journalscript/actions/workflows/ci.yml/badge.svg)](https://github.com/al3jandr0/journalscript/actions/workflows/ci.yml)
 
 </div>
 
@@ -13,7 +13,7 @@
 
 Journalscript allows you to journal without leaving your terminal.  It removes the friction that exists when writing a (digital) journal which is to launch a separate journaling app.
 
-Journalscript is ideal for those who 1) work primarily in the terminal and 2) whish to journal more or alrady journal routinely. 
+Journalscript is ideal for those who 1) work primarily in the terminal and 2) wish to journal more or already journal routinely. 
 
 ## Features
 - Use within the terminal
@@ -28,47 +28,75 @@ Journalscript is ideal for those who 1) work primarily in the terminal and 2) wh
 
 #### Linux: debian, debian-based, ubuntu
 1. Download the debian pacakge (i.e. `journalscript_0.2.0_all.deb`) from the [release page](https://github.com/al3jandr0/journalscript/releases)
-2. Then run `sudo apt install journalscript_*_all.deb`
-3. Verify the installation by running `journal -v`. It should print the version number. Like this `journalscript 0.2.0`
+2. Run 
+   ```shell
+   sudo apt install journalscript_*_all.deb
+   ```
+3. Verify the installation by running 
+   ```shell
+   journal -v
+   ```
+   It should print the version number. Like this `journalscript 0.2.0`
 
-#### Other Linux distibutions - from source
+#### Other Linux distibutions - Install from source
 
-For outher distros download the source.
+For outher distros download the source or clone the repo.
 
-1. Move journal.sh somewhere in your path such that it gets picked it up and make it executable, and (optionaly) remove the extension `.sh`
-Example:
-```install -T -m 755 ./journal.sh $HOME/.local/bin/journal```
-
-2. Copy the manual `journalscript.1` to a location that it will be found by the `man` command
-For Example:
-```cp journalscript.1 /usr/share/man/man1/journalscript.1```
-
-3. If you are running bash shell, copy the autocomplete script to an appropiate locaition
-For example:
-```cp src/autocomplete.sh /usr/share/bash-completion/completions/journal```
-OR ```cp src/autocomplete.sh .local/share/bash-completion/completions/journal```
-
-
+1. Move journal.sh somewhere in your path such that it gets picked it up and make it executable, and (optionaly) remove the extension `.sh`. For example:
+    ```shell
+    install -T -m 755 ./journal.sh $HOME/.local/bin/journal
+    ```
+2. Copy the manual `journalscript.1` to a location that it will be found by the `man` command. For example:
+    ```shell
+    cp journalscript.1 /usr/share/man/man1/journalscript.1
+    ```
+3. If you are running bash shell, copy the autocomplete script to an appropiate locaition. For example:
+   ```shell
+   cp src/autocomplete.sh /usr/share/bash-completion/completions/journal
+   ```
+   Or
+   ```shell
+   cp src/autocomplete.sh .local/share/bash-completion/completions/journal
+   ```
 #### MacOS - Homebrew
 
 You will need to make sure you have Homebrew installed on your system. The instructions to do that can be found [here](https://brew.sh/)
 
 ##### Option 1. Install the formula
 1. Download the formula `journalscript.rb` from the [release page](https://github.com/al3jandr0/journalscript/releases)
-2. Then run `brew instlal journalscript.rb`
-3. Verify the installation by running `journal -v`. It should print the version number. Like this `journalscript 0.2.0`
-4. Recomended. Install the bash autocomplete script (for bash terminal only)
+2. Then run
+   ```shell
+   brew instlal journalscript.rb
+   ```
+3. Verify the installation by running 
+   ```shell
+   journal -v
+   ```
+   It should print the version number. Like this `journalscript 0.2.0`
+3. If you are running bash shell, follow the steops to [enable completion for Homebrew](https://docs.brew.sh/Shell-Completion). Then copy the autocomplete script to an appropiate locaition. For example:
+   ```shell
+   cp src/autocomplete.sh "${HOMEBREW_PREFIX}/etc/bash_completion.d/journal"
+   ```
 
 #### Option 2. Install from [my tap](https://github.com/al3jandr0/homebrew-tap)
 
-1. Install tap `brew install tap al3jandr0/homebrew-tap`
-2. Then install the formula `brew install journalscript`
-3. Verify the installation by running `journal -v`. It should print the version number. Like this `journalscript 0.2.0`
-
+1. Install tap 
+   ```shell
+   brew install tap al3jandr0/homebrew-tap
+   ```
+2. Then install the formula 
+   ```shell
+   brew install journalscript
+   ```
+3. Verify the installation by running 
+   ```shell
+   journal -v
+   ```
+   It should print the version number. Like this `journalscript 0.2.0`
+   
 #### MacOS - from source
 
-Follow the steps Linux - from sournce
-
+Follow the steps to [install from sournce](#other-linux-distibutions---install-from-source)
 
 ### Using Journalscript
 Comming soon!
