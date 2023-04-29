@@ -78,7 +78,7 @@ You will need to make sure you have Homebrew installed on your system. The instr
    cp src/autocomplete.sh "${HOMEBREW_PREFIX}/etc/bash_completion.d/journal"
    ```
 
-#### Option 2. Install from [my tap](https://github.com/al3jandr0/homebrew-tap)
+##### Option 2. Install from [my tap](https://github.com/al3jandr0/homebrew-tap)
 
 1. Install tap 
    ```shell
@@ -99,7 +99,31 @@ You will need to make sure you have Homebrew installed on your system. The instr
 Follow the steps to [install from sournce](#other-linux-distibutions---install-from-source)
 
 ### Using Journalscript
-Comming soon!
+The command `journal` creates an entry to your "life" journal.  The journal is stored in the default location. See [the configure section](#configure) for information on how to costumize
+
+Run `journal`
+It creates an entry to your "life" journal in teh default locaiton. See [the configure section](#configure) for information on how to customize
+```shell
+❯ ls Documents/Journals/life/
+2023-04-25.txt
+```
+
+To write to a different journal run
+```shell
+journal my-journal
+```
+Or
+```shell
+journal write my-journal
+```
+```shell
+❯ ls Documents/Journals/my-journal/
+2023-04-25.txt
+```
+
+Journalscript creates an entry for the current date, if there is none. Otherwise, it opens the existing entry.
+
+For more information about journalscript commands, run `journal --help` or read the manual `man journalscript`
 
 ## Configure
 Comming soon!
