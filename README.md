@@ -100,26 +100,11 @@ Follow the steps to [install from sournce](#other-linux-distibutions---install-f
 
 ### Using Journalscript
 The command `journal` creates an entry to your "life" journal.  The journal is stored in the default location. See [the configure section](#configure) for information on how to costumize
+![](./docs/resources/intro-1.gif)
 
-Run `journal`
-It creates an entry to your "life" journal in teh default locaiton. See [the configure section](#configure) for information on how to customize
-```shell
-❯ ls Documents/Journals/life/
-2023-04-25.txt
-```
 
-To write to a different journal run
-```shell
-journal my-journal
-```
-Or
-```shell
-journal write my-journal
-```
-```shell
-❯ ls Documents/Journals/my-journal/
-2023-04-25.txt
-```
+Example of writing to a different journal
+![](./docs/resources/intro-2.gif)
 
 Journalscript creates an entry for the current date, if there is none. Otherwise, it opens the existing entry.
 
