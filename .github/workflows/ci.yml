@@ -94,7 +94,7 @@ jobs:
   #        retention-days: 5
   release:
     runs-on: ubuntu-latest
-    needs: [version_check, deb_package, unit_test, homebrew_formula]
+    needs: [version_check, deb_package, unit_test]
     if: success() && github.ref_name == 'main' && needs.version_check.outputs.is_release == 'true'
     env:
       VERSION: ${{needs.version_check.outputs.source_version}}

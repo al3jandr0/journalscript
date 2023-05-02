@@ -30,7 +30,6 @@ jobs:
           path: ./journalscript.rb
           if-no-files-found: error
           retention-days: 5
-  version_check:
   publish:
     name: Publish to Hombrew tap
     runs-on: ubuntu-latest
