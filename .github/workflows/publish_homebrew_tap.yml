@@ -33,6 +33,8 @@ jobs:
   publish:
     name: Publish to Hombrew tap
     runs-on: ubuntu-latest
+    needs: [formula]
+    if: success()
     permissions:
       contents: write
       pull-requests: write
