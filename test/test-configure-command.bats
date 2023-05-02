@@ -259,6 +259,33 @@ _1_1_7=\
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
 }
 
+# bats test_tags=configure:show
+_1_1_8=\
+"1.1.8 Given the configuration file .journalscript.env located in $HOME/. "\
+"And the configuration has ~ instead of $HOME. "\
+"And no env var overrides. "\
+"When command 'configure show' is invoked. "\
+"Then journalscript should write the file's configuration to stdout and expand ~."
+@test "${_1_1_8}" {
+    # setup
+    mkdir -p "$HOME/.journalscript"
+    cp "$BATS_TEST_DIRNAME/resources/config-file-with-tilde.env" "$HOME/.journalscript/journalscript.env"
+    run journal.sh configure show
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert output conforms to format
+    _assert_output_conforms_to_format
+    # assert configuration values are defaults
+    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor -D $HOME/Documents/\""
+    assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
+    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
+    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
+    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
+    assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
+}
 
 ###############################################################################
 # Command: configure init                                                     #
