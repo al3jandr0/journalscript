@@ -118,4 +118,4 @@ jobs:
           gh release create ${VERSION} \
           --notes-file release/RELEASE_LOG.md \
           --title "Journalscript ${VERSION}" \
-          release/deb-package/*.deb release/homebrew-formula/*.rb
+          release/deb-package/*.deb
