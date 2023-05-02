@@ -21,10 +21,9 @@ set -o nounset
 set -o pipefail
 _ME="journalscript"
 _VERSION="0.2.3"
-_COMMADN_LS="_ls"
+_COMMAND_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
-_DEFAULT_COMMAND="$_COMMAND_WRITE"
 
 ################################################################################
 # Parse Arguments                                                              #
@@ -376,44 +375,46 @@ _configure_init() {
 
     # User feedback
     local new_dirs=()
-    if ! test -d "$journal_dir"; then
-        new_dirs+=("$journal_dir")
-    fi
-    if ! test -d "$template_dir"; then
-        new_dirs+=("$template_dir")
-    fi
-    if ! test -d "$conf_dir"; then
-        new_dirs+=("$conf_dir")
-    fi
+    local new_files=()
+    local overriden_files=()
+    if ! test -d "$journal_dir"; then new_dirs+=("$journal_dir"); fi
+    if ! test -d "$template_dir"; then new_dirs+=("$template_dir"); fi
+    if ! test -d "$conf_dir"; then new_dirs+=("$conf_dir"); fi
+    if ! test -d "$conf_dir/hooks"; then new_dirs+=("$conf_dir/hooks"); fi
+    if ! test -d "$conf_dir/hooks/open.d"; then new_dirs+=("$conf_dir/open.d"); fi
+    if ! test -d "$conf_dir/hooks/backup.d"; then new_dirs+=("$conf_dir/backup.d"); fi
+    if ! test -d "$conf_dir/hooks/sync.d"; then new_dirs+=("$conf_dir/sync.d"); fi
+
+    if test -f "$conf_file"; then new_files+=("$conf_file"); else overriden_files+=("$conf_file"); fi
+
     if [[ "${#new_dirs[@]}" -eq 0 ]]; then
         printf "The following direcotries will be created:\n"
         for dir in "${new_dirs[@]}"; do
             printf "  %s\n" "$dir"
         done
     fi
-    if test -f "$conf_file"; then
-        # TODO: make a WARNING
-        printf "The following files will be overriden:\n"
-        printf "  %s\n" "$conf_file"
-    else
+    if [[ "${#new_files[@]}" -eq 0 ]]; then
         printf "The following files will be created:\n"
-        printf "  %s\n" "$conf_file"
+        for file in "${new_files[@]}"; do
+            printf "  %s\n" "$file"
+        done
+    fi
+    if [[ "${#overriden_files[@]}" -eq 0 ]]; then
+        printf "The following files will be overriden:\n"
+        for file in "${overriden_files[@]}"; do
+            printf "  %s\n" "$file"
+        done
     fi
 
-    echo "confirmo"
     local confirm
     read -p "Do you wish to continue? [y/n]:" confirm
-    echo "confirmi"
     [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
 
-    echo "confirmo?"
     # Execute: Write config directory and file
-    [[ -n "$journal_dir" ]] && mkdir -p "$journal_dir"
-    echo "confirmo1"
-    [[ -n "$template_dir" ]] && mkdir -p "$template_dir"
-    echo "confirmo2"
-    [[ -n "$conf_dir" ]] && mkdir -p "$conf_dir"
-    echo "confirmo3"
+    # TODO: do for loop
+    for dir in "${new_dirs[@]}"; do
+        [[ -n "$dir" ]] && mkdir -p "$dir"
+    done
 
     printf "%s" "$contents" >"${conf_file}"
     printf "Done\n"
