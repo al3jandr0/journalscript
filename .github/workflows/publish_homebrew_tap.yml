@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERSION: ${{github.event.release.tag_name}}
-      TARBALL_URL: ${{github.event.release.tarball_url}}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
@@ -20,7 +19,8 @@ jobs:
         run: |
           SHA256=$(shasum -a 256 ./*.tar.gz | cut -d ' ' -f 1)
           echo "sha256=$SHA256"
-          bash ci/make_formula.sh "$TARBALL_URL" "$SHA256" "$VERSION"
+          FORMULA_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
+          bash ci/make_formula.sh "$FORMULA_URL" "$SHA256" "$VERSION"
       - name: Upload formula to release
         run: gh release upload ${VERSION} journalscript.rb
       - name: Upload formula artifact to workflow
