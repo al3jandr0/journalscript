@@ -363,6 +363,7 @@ _configure_init() {
 			JOURNALSCRIPT_JOURNAL_DIR="$journal_dir"
 			JOURNALSCRIPT_TEMPLATE_DIR="$template_dir"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="$default_journal"
+			JOURNALSCRIPT_SYNC_BACKUP=""
 		EOF
     )
 
