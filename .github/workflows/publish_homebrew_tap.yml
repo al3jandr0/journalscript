@@ -3,6 +3,34 @@ on:
   release:
     types: [published]
 jobs:
+  formula:
+    name: Create Homebre formula
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{github.event.release.tag_name}}
+      TARBALL_URL: ${{github.event.release.tarball_url}}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Download release source tarball
+        run: gh release download ${VERSION} --archive=tar.gz --repo al3jandr0/journalscript
+      - name: Create formula
+        run: |
+          SHA256=$(shasum -a 256 ./*.tar.gz | cut -d ' ' -f 1)
+          echo "sha256=$SHA256"
+          bash ci/make_formula.sh "$TARBALL_URL" "$SHA256" "$VERSION"
+      - name: Upload formula to release
+        run: gh release upload ${VERSION} journalscript.rb
+      - name: Upload formula artifact to workflow
+        uses: actions/upload-artifact@v3
+        with:
+          name: homebrew-formula
+          path: ./journalscript.rb
+          if-no-files-found: error
+          retention-days: 5
+  version_check:
   publish:
     name: Publish to Hombrew tap
     runs-on: ubuntu-latest
@@ -20,10 +48,10 @@ jobs:
         with:
           repository: al3jandr0/homebrew-tap
           token: ${{ secrets.INTER_REPO_TOKEN }}
-      - name: Download latest release assets
-        run: |
-          gh release list --repo al3jandr0/journalscript
-          gh release download --pattern '*.rb' --clobber --repo al3jandr0/journalscript
+      - name: Download formula asset
+        uses: actions/download-artifact@v3
+        with:
+          name: homebrew-formula
       - name: Commit formula
         run: |
           mkdir -p Formula

@@ -68,28 +68,30 @@ jobs:
           echo "latest_tag=${v[0]}" >> "$GITHUB_OUTPUT"
           echo "source_version=${v[1]}" >> "$GITHUB_OUTPUT"
           echo "is_release=${v[2]}" >> "$GITHUB_OUTPUT"
-  homebrew_formula:
-    runs-on: ubuntu-latest
-    needs: [version_check]
-    if: success()
-    env:
-      VERSION: ${{needs.version_check.outputs.source_version}}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Create Homebrew formula
-        run: |
-          SHA256=$(git archive --format=tar.gz -v -6 HEAD | sha256sum | cut -d ' ' -f 1)
-          echo "$SHA256"
-          FORMULA_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
-          bash ci/make_formula.sh "$FORMULA_URL" "$SHA256" "$VERSION"
-      - name: Upload Homebrew formula artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: homebrew-formula
-          path: release/*.rb
-          if-no-files-found: error
-          retention-days: 5
+  # Released source archive has a different sha 256 from git archive
+  # Thus I cant pre-computed, and must generate homebrew formula post release
+  #homebrew_formula:
+  #  runs-on: ubuntu-latest
+  #  needs: [version_check]
+  #  if: success()
+  #  env:
+  #    VERSION: ${{needs.version_check.outputs.source_version}}
+  #  steps:
+  #    - name: Check out repository code
+  #      uses: actions/checkout@v3
+  #    - name: Create Homebrew formula
+  #      run: |
+  #        SHA256=$(git archive --format=tar.gz -v -6 HEAD | sha256sum | cut -d ' ' -f 1)
+  #        echo "$SHA256"
+  #        FORMULA_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
+  #        bash ci/make_formula.sh "$FORMULA_URL" "$SHA256" "$VERSION"
+  #    - name: Upload Homebrew formula artifact
+  #      uses: actions/upload-artifact@v3
+  #      with:
+  #        name: homebrew-formula
+  #        path: release/*.rb
+  #        if-no-files-found: error
+  #        retention-days: 5
   release:
     runs-on: ubuntu-latest
     needs: [version_check, deb_package, unit_test, homebrew_formula]

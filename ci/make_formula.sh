@@ -10,7 +10,7 @@ MANUAL=${4:-"journalscript.1"}
 README=${5:-"README.md"}
 LICENSE=${6:-"LICENSE"}
 
-cat >"release/journalscript.rb" <<-EOF
+cat >"journalscript.rb" <<-EOF
 	class Journalscript < Formula
 	  desc "Interactive command-line journaling tool"
 	  homepage "https://github.com/al3jandr0/journalscript"
