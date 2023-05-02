@@ -79,7 +79,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Create Homebrew formula
         run: |
-          SHA256=$(git archive --format=tar.gz HEAD | sha256sum | cut -d ' ' -f 1)
+          SHA256=$(git archive --format=tar.gz -v -6 HEAD | sha256sum | cut -d ' ' -f 1)
           echo "$SHA256"
           FORMULA_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
           bash ci/make_formula.sh "$FORMULA_URL" "$SHA256" "$VERSION"
