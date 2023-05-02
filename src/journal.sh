@@ -18,7 +18,6 @@
 ################################################################################
 set -e
 set -o nounset
-#set -o errtrace
 set -o pipefail
 _ME="journalscript"
 _VERSION="0.2.0"
@@ -89,7 +88,7 @@ fi
 # 1 & 2. Source configuration file, if it exists
 if test -f "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"; then
     # for each line in the configuration file
-    while read line; do
+    while read line || [ -n "$line" ]; do
         # ignore comments
         [[ "$line" =~ ^#.*$ ]] && continue
         # split each line into name and value. name=var[0], value=var[1]
@@ -111,6 +110,7 @@ JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_JOURNAL
 JOURNALSCRIPT_SYNC_BACKUP=${JOURNALSCRIPT_SYNC_BACKUP:-}
 _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 # Expand ~
+JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR/\~/$HOME}"
 JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR/#\~/$HOME}"
 JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR/#\~/$HOME}"
 _JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR/#\~/$HOME}"
@@ -192,7 +192,7 @@ _write_template() {
 _copy_template() {
     local template=$1
     local destination_file=$2
-    while read -r line; do
+    while read line || [ -n "$line" ]; do
         eval "printf \"${line}\n\"" >>"$destination_file"
     done <"$template"
 }
@@ -300,8 +300,6 @@ _configure() {
     # run sub commands:
     if [[ "$sub_command" == "show" ]]; then
         cat <<-EOF
-			HOME="${HOME}"
-			XDG_CONFIG_HOME="${XDG_CONFIG_HOME}"
 			_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
 			_JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR}"
 			JOURNALSCRIPT_SYNC_BACKUP="${JOURNALSCRIPT_SYNC_BACKUP}"
