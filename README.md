@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 [![Tests](https://github.com/al3jandr0/journalscript/actions/workflows/ci.yml/badge.svg)](https://github.com/al3jandr0/journalscript/actions/workflows/ci.yml)
-
+[![Homebrew](https://github.com/al3jandr0/journalscript/actions/workflows/publish_homebrew_tap.yml/badge.svg?event=release)](https://github.com/al3jandr0/journalscript/actions/workflows/publish_homebrew_tap.yml)
 </div>
 
 ## Why journalscript
@@ -66,7 +66,7 @@ You will need to make sure you have Homebrew installed on your system. The instr
 1. Download the formula `journalscript.rb` from the [release page](https://github.com/al3jandr0/journalscript/releases)
 2. Then run
    ```shell
-   brew instlal journalscript.rb
+   brew install journalscript.rb
    ```
 3. Verify the installation by running 
    ```shell
@@ -82,7 +82,7 @@ You will need to make sure you have Homebrew installed on your system. The instr
 
 1. Install tap 
    ```shell
-   brew install tap al3jandr0/homebrew-tap
+   brew tap al3jandr0/homebrew-tap
    ```
 2. Then install the formula 
    ```shell
@@ -111,51 +111,36 @@ Journalscript creates an entry for the current date, if there is none. Otherwise
 For more information about journalscript commands, run `journal --help` or read the manual `man journalscript`
 
 ## Configure
-The command `configure show` aliased `configure` displays thw current configuration.
-![](./docs/resources/confgure-show-vanialla.gif)
-
 Journalscript loks for the configuration file `journalscript.env` in these location in order
 1. `$HOME/.config/journalscript/journalscript.env`
 2. `$HOME/.journalscript/journalscript.env`
 
-You can use the command `configure init` to assit you setting up a new configuration
-![](./docs/resources/confgure-init-vanialla.gif)
+The command `configure show` aliased `configure` displays the configuration values.
+![](./docs/resources/confgure-show-vanialla.gif)
 
-In addition editing the configuration file `journalscript.env`, you can set variables in your environment to override specific settings of journalscript
-For example:
-```shell
-❯ journal show
-_JOURNALSCRIPT_CONF_DIR="/home/alej/.journalscript"
-_JOURNALSCRIPT_HOOKS_DIR="/home/alej/.journalscript/hooks"
-JOURNALSCRIPT_SYNC_BACKUP=""
-JOURNALSCRIPT_FILE_TYPE="txt"
-...
-❯ JOURNALSCRIPT_FILE_TYPE=md journal show
-_JOURNALSCRIPT_CONF_DIR="/home/alej/.journalscript"
-_JOURNALSCRIPT_HOOKS_DIR="/home/alej/.journalscript/hooks"
-JOURNALSCRIPT_SYNC_BACKUP=""
-JOURNALSCRIPT_FILE_TYPE="md"
-...
-```
+The command `configure init` assit you setting up a new configuration
+![](./docs/resources/confgure-init.gif)
+
+In addition to customizing the configuration file `journalscript.env`, you can use variables in your environment to override the configuration of journalscript
+![](./docs/resources/confgure-show-env.gif)
 
 You can combine this feature with tool such as [direnv](https://direnv.net/) to have directory-level specific journalscript configurations.
 In the exaple below uses direnv to store journals in the current directory isntead of the configured directory in `journalscript.env`
-GIF
 
 ### Customizing the editor
-Journalscript tries to use the editor the `EDITOR` variable set in your environment.  If it is absent, then it defaults to `vim`. However you can configure journalscript to use any editor of choice with the `JOURNALSCRIPT_EDITOR`. For example edit `journalscript.env` and replace the default `JOURNALSCRIPT_EDITOR="vim"` with `JOURNALSCRIPT_EDITOR="emac"`, `JOURNALSCRIPT_EDITOR="nvim"`, `JOURNALSCRIPT_EDITOR="code", etc.
+Journalscript tries to use the editor the `EDITOR` variable set in your environment.  If it is absent, then it defaults to `vim`. However you can configure journalscript to use any editor of choice with the `JOURNALSCRIPT_EDITOR`. For example edit `journalscript.env` and replace the default `JOURNALSCRIPT_EDITOR="vim"` with `JOURNALSCRIPT_EDITOR="emacs"`, `JOURNALSCRIPT_EDITOR="nvim"`, `JOURNALSCRIPT_EDITOR="code"`, etc.
 
-`JOURNALSCRIPT_EDITOR` supports flgas. for example: `JOURNALSCRIPT_EDITOR="code -w (directory)"` This command opens the directory that hosts all entires for the journal instead of opening today's entry only. 
+The `JOURNALSCRIPT_EDITOR` settign supports flgas. For example: `JOURNALSCRIPT_EDITOR="code -n $JOURNALSCRIPT_JOURNAL_DIRECTORY"` This command opens the directory that hosts all entires for the journal in a new window instead of opening today's entry only. 
 
 By default journalscript creates/open a entry of the current date for a journal (creates new if no entry for the today, otherwise opens existing)
 I you wish to add some logic to the opening of a file, for example, openening both today's entry and the previous entry, you could do so by writing a *Open Hook*
 
-*Open Hooks* are scripts that journalscript executes, if they are enabled, instead of using invoking JOURNALSCRIPT_EDITOR directly.
-
+*Open Hooks* are scripts that journalscript executes, if they are enabled, instead of using invoking `JOURNALSCRIPT_EDITOR directly`.
+<!---
 For example, 
 * TODO: Show open last and recent hook" This script tells vim to open both todays journal entry and the previous entry in the jourl direcotry
 * TODO: ADD GIF where to store the how. And demonstrate what happens
-
+--->
 
 ### Backing up journals
 Journalscript stores journals in the local file system (techinically your editor of choice does the saving).  However it allows you to integrate with the backup mecahnisms of yout choosing. And it does so via hooks:
@@ -163,11 +148,13 @@ Journalscript stores journals in the local file system (techinically your editor
 - *Backup*. Executes after quiting the editor. It sumits (backups) the updates to the journals. Either edits of exiting entry or a new entry. a la `git push`
 
 Many cloud storage services (like DropBox, Google Drive, or OneDrive) do not need the kind of interaction that *Sync* of *Backup* allows for.  For those kind of systems, simply saving the journal files to designated directories is sufficient, and they take care of synchronizationa and cloud storage automatically.  But other systems like git require more interaction. That's wehre sync and backup come in handy.  
+<!---
 For example -  Setting up a github repository to store your journals
 - Todo: add instructions to create a new repo in the journals directory
 - Todo: shre the sync script
 - todo: share the backup script
 - todo: Add Gif to demonstrate workflow
+--->
 
 ### Templates
-Comming soon!
+Documentation comming soon!
