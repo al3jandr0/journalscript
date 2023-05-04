@@ -228,6 +228,7 @@ _open_journal_entry() {
 
     # invoke configured editor directly and run backup hook
     if [[ -n "$open_hook" ]]; then
+        printf "==> Opening wih hook %s\n" "${open_hook##*/}"
         . "$open_hook"
     else
         # If there is no open hook, default to invokig the configured editor
@@ -243,6 +244,7 @@ _backup_journal() {
 
     # if there is no backup hook, do nothing
     if [[ -n "$backup_hook" ]]; then
+        printf "==> Backing up with hook %s\n" "${backup_hook##*/}"
         . "$backup_hook"
     fi
 }
@@ -252,8 +254,14 @@ _sync_journal() {
 
     # if there is no backup hook, do nothing
     if [[ -n "$sync_hook" ]]; then
+        printf "==> Synching with hook %s\n" "${sync_hook##*/}"
         . "$sync_hook"
     fi
+}
+
+_check_md5sum() {
+    local md5sum_hash=$1
+    md5sum --check --status < <(echo "$md5sum_hash") >/dev/null 2>&1
 }
 
 ################################################################################
@@ -411,7 +419,6 @@ _configure_init() {
     [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
 
     # Execute: Write config directory and file
-    # TODO: do for loop
     for dir in "${new_dirs[@]}"; do
         [[ -n "$dir" ]] && mkdir -p "$dir"
     done
@@ -490,8 +497,15 @@ _write() {
     JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY="$is_new_file"   # whether the file is new
 
     _sync_journal
-    [[ $is_new_file -eq 1 ]] && _write_template "$journal_name" "$todays_entry"
+    if [[ $is_new_file -eq 1 ]]; then
+        _write_template "$journal_name" "$todays_entry"
+        printf "==> Created new entry '$entry_name' of journal '$journal_name'"
+    fi
+    local hash=$(md5sum "$todays_entry")
     _open_journal_entry "$todays_entry"
+    if ! _check_md5sum "$hash"; then
+        printf "==> Edited entry '$entry_name' of journal '$journal_name'"
+    fi
     _backup_journal
 }
 
