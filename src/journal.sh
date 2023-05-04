@@ -393,7 +393,7 @@ _configure_init() {
     if ! test -d "$conf_dir/hooks/backup.d"; then new_dirs+=("$conf_dir/hooks/backup.d"); fi
     if ! test -d "$conf_dir/hooks/sync.d"; then new_dirs+=("$conf_dir/hooks/sync.d"); fi
 
-    if test -f "$conf_file"; then new_files+=("$conf_file"); else overriden_files+=("$conf_file"); fi
+    if test -f "$conf_file"; then overriden_files+=("$conf_file"); else new_files+=("$conf_file"); fi
 
     if [[ "${#new_dirs[@]}" -gt 0 ]]; then
         printf "The following direcotries will be created:\n"
