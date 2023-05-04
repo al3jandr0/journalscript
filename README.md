@@ -116,13 +116,13 @@ Journalscript loks for the configuration file `journalscript.env` in these locat
 2. `$HOME/.journalscript/journalscript.env`
 
 The command `configure show` aliased `configure` displays the configuration values.
-![](./docs/resources/confgure-show-vanialla.gif)
+![](./docs/resources/configure-show-vanilla.gif)
 
 The command `configure init` assit you setting up a new configuration
-![](./docs/resources/confgure-init.gif)
+![](./docs/resources/configure-init.gif)
 
 In addition to customizing the configuration file `journalscript.env`, you can use variables in your environment to override the configuration of journalscript
-![](./docs/resources/confgure-show-env.gif)
+![](./docs/resources/configure-show-env.gif)
 
 You can combine this feature with tool such as [direnv](https://direnv.net/) to have directory-level specific journalscript configurations.
 In the exaple below uses direnv to store journals in the current directory isntead of the configured directory in `journalscript.env`
