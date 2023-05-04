@@ -20,7 +20,7 @@ set -e
 set -o nounset
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.2.3"
+_VERSION="0.3.0"
 _COMMAND_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -389,25 +389,25 @@ _configure_init() {
     if ! test -d "$template_dir"; then new_dirs+=("$template_dir"); fi
     if ! test -d "$conf_dir"; then new_dirs+=("$conf_dir"); fi
     if ! test -d "$conf_dir/hooks"; then new_dirs+=("$conf_dir/hooks"); fi
-    if ! test -d "$conf_dir/hooks/open.d"; then new_dirs+=("$conf_dir/open.d"); fi
-    if ! test -d "$conf_dir/hooks/backup.d"; then new_dirs+=("$conf_dir/backup.d"); fi
-    if ! test -d "$conf_dir/hooks/sync.d"; then new_dirs+=("$conf_dir/sync.d"); fi
+    if ! test -d "$conf_dir/hooks/open.d"; then new_dirs+=("$conf_dir/hooks/open.d"); fi
+    if ! test -d "$conf_dir/hooks/backup.d"; then new_dirs+=("$conf_dir/hooks/backup.d"); fi
+    if ! test -d "$conf_dir/hooks/sync.d"; then new_dirs+=("$conf_dir/hooks/sync.d"); fi
 
     if test -f "$conf_file"; then new_files+=("$conf_file"); else overriden_files+=("$conf_file"); fi
 
-    if [[ "${#new_dirs[@]}" -eq 0 ]]; then
+    if [[ "${#new_dirs[@]}" -gt 0 ]]; then
         printf "The following direcotries will be created:\n"
         for dir in "${new_dirs[@]}"; do
             printf "  %s\n" "$dir"
         done
     fi
-    if [[ "${#new_files[@]}" -eq 0 ]]; then
+    if [[ "${#new_files[@]}" -gt 0 ]]; then
         printf "The following files will be created:\n"
         for file in "${new_files[@]}"; do
             printf "  %s\n" "$file"
         done
     fi
-    if [[ "${#overriden_files[@]}" -eq 0 ]]; then
+    if [[ "${#overriden_files[@]}" -gt 0 ]]; then
         printf "The following files will be overriden:\n"
         for file in "${overriden_files[@]}"; do
             printf "  %s\n" "$file"
