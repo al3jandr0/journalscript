@@ -496,7 +496,9 @@ _write() {
     JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME="$entry_name" # entry file name
     JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY="$is_new_file"   # whether the file is new
 
+    set +e
     _sync_journal
+    set -e
     if [[ $is_new_file -eq 1 ]]; then
         _write_template "$journal_name" "$todays_entry"
         printf "==> Created new entry '$entry_name' of journal '$journal_name'\n"
@@ -506,7 +508,9 @@ _write() {
     if ! _check_md5sum "$hash"; then
         printf "==> Edited entry '$entry_name' of journal '$journal_name'\n"
     fi
+    set +e
     _backup_journal
+    set -e
 }
 
 _main() {
