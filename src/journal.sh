@@ -396,7 +396,7 @@ _configure_init() {
     if test -f "$conf_file"; then overriden_files+=("$conf_file"); else new_files+=("$conf_file"); fi
 
     if [[ "${#new_dirs[@]}" -gt 0 ]]; then
-        printf "The following direcotries will be created:\n"
+        printf "The following directories will be created:\n"
         for dir in "${new_dirs[@]}"; do
             printf "  %s\n" "$dir"
         done
@@ -499,12 +499,12 @@ _write() {
     _sync_journal
     if [[ $is_new_file -eq 1 ]]; then
         _write_template "$journal_name" "$todays_entry"
-        printf "==> Created new entry '$entry_name' of journal '$journal_name'"
+        printf "==> Created new entry '$entry_name' of journal '$journal_name'\n"
     fi
     local hash=$(md5sum "$todays_entry")
     _open_journal_entry "$todays_entry"
     if ! _check_md5sum "$hash"; then
-        printf "==> Edited entry '$entry_name' of journal '$journal_name'"
+        printf "==> Edited entry '$entry_name' of journal '$journal_name'\n"
     fi
     _backup_journal
 }
