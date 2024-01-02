@@ -105,13 +105,11 @@ JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
-JOURNALSCRIPT_TEMPLATE_DIR=${JOURNALSCRIPT_TEMPLATE_DIR:-"$JOURNALSCRIPT_JOURNAL_DIR/.journalscript/templates"}
 JOURNALSCRIPT_SYNC_BACKUP=${JOURNALSCRIPT_SYNC_BACKUP:-}
 _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 # Expand ~
 JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR/\~/$HOME}"
 JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR/#\~/$HOME}"
-JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR/#\~/$HOME}"
 _JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR/#\~/$HOME}"
 
 ################################################################################
@@ -152,48 +150,12 @@ _help() {
     fi
 }
 
-# Writes a template into a new journal entry
-#
-# Templates' parent directory is specified with JOURNALSCRIPT_TEMPLATE_DIR.
-# Whithin that directory this function searches first for a journal-specific
-# template which determined by a template file stored under /template.d that
-# matching the name of the journal and if such file is not found, then the
-# function uses the fallback template /template.  In case there is no fallback
-# template, then today's date is written on teh first list of the journal entry
-# as a default behavior
-_write_template() {
+# Creates a new empty journal entry marked with a timepstamp
+_create_entry() {
     local journal_name="$1"  # Name of the journal
     local journal_entry="$2" # Full path to journal entry (file)
     local timestamp=$(date +'%a %b %d %I:%M %p %Z %Y')
-
-    # if no directory, then writes today's date as a fallback template
-    if [[ -z "$JOURNALSCRIPT_TEMPLATE_DIR" ]]; then
-        printf "%s\n" "$timestamp" >"$journal_entry"
-
-    # Templates are searched in these locations in this order
-    # 1. JOURNALSCRIPT_TEMPLATE_DIR/template.d/<journal_name>
-    # 2. JOURNALSCRIPT_TEMPLATE_DIR/template
-    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name"; then
-        _copy_template "$JOURNALSCRIPT_TEMPLATE_DIR/template.d/$journal_name" "$journal_entry"
-    elif test -f "$JOURNALSCRIPT_TEMPLATE_DIR/template"; then
-        _copy_template "$JOURNALSCRIPT_TEMPLATE_DIR/template" "$journal_entry"
-    # Lastly, if template directory is specified but it has no contents
-    # fallback to writing date
-    else
-        printf "%s\n" "$timestamp" >"$journal_entry"
-    fi
-}
-
-# Evaluates each line of the templates
-#
-# Allows for "dynamic" templates, templates with subshells or env vars
-# that are evaluated when a new file is created
-_copy_template() {
-    local template=$1
-    local destination_file=$2
-    while read line || [ -n "$line" ]; do
-        eval "printf \"${line}\n\"" >>"$destination_file"
-    done <"$template"
+    printf "%s\n" "$timestamp" >"$journal_entry"
 }
 
 # 1. findis open or backup hook
@@ -313,7 +275,6 @@ _configure() {
 			JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
 			JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 			JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"
-			JOURNALSCRIPT_TEMPLATE_DIR="${JOURNALSCRIPT_TEMPLATE_DIR}"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
     elif [[ "$sub_command" == "init" ]]; then
@@ -339,9 +300,6 @@ _configure_init() {
     read -p "Editor ($JOURNALSCRIPT_EDITOR):" prompt_editor
     read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" prompt_journal_dir
     journal_dir=${prompt_journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
-    template_dir="$journal_dir/.journalscript/templates"
-    read -p "Templates location [path/to/directory] ($template_dir):" prompt_template_dir
-    template_dir=${prompt_template_dir:-$template_dir}
     read -p "Where do you wish to store the configuration [path/to/directory] ($_JOURNALSCRIPT_CONF_DIR):" prompt_conf_dir
     read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" prompt_default_journal
 
@@ -351,12 +309,10 @@ _configure_init() {
     local default_journal=${prompt_default_journal:-$JOURNALSCRIPT_DEFAULT_JOURNAL}
     local conf_dir=${prompt_conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
     local conf_file="${conf_dir}/journalscript.env"
-    local template_dir=${prompt_template_dir:-$JOURNALSCRIPT_TEMPLATE_DIR}
     # expand ~
     journal_dir="${journal_dir/#\~/$HOME}"
     conf_dir="${conf_dir/#\~/$HOME}"
     conf_file="${conf_file/#\~/$HOME}"
-    template_dir="${template_dir/#\~/$HOME}"
 
     # Validate
     if ! command -v "$editor" >/dev/null 2>&1; then
@@ -368,7 +324,6 @@ _configure_init() {
 			JOURNALSCRIPT_FILE_TYPE="$file_type"
 			JOURNALSCRIPT_EDITOR="$editor"
 			JOURNALSCRIPT_JOURNAL_DIR="$journal_dir"
-			JOURNALSCRIPT_TEMPLATE_DIR="$template_dir"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="$default_journal"
 			JOURNALSCRIPT_SYNC_BACKUP=""
 		EOF
@@ -386,7 +341,6 @@ _configure_init() {
     local new_files=()
     local overriden_files=()
     if ! test -d "$journal_dir"; then new_dirs+=("$journal_dir"); fi
-    if ! test -d "$template_dir"; then new_dirs+=("$template_dir"); fi
     if ! test -d "$conf_dir"; then new_dirs+=("$conf_dir"); fi
     if ! test -d "$conf_dir/hooks"; then new_dirs+=("$conf_dir/hooks"); fi
     if ! test -d "$conf_dir/hooks/open.d"; then new_dirs+=("$conf_dir/hooks/open.d"); fi
@@ -436,11 +390,11 @@ _help_write() {
 		the default journal. Journals are stored as directories and each journal 
 		entry is a file in the journal directory.  Each journal entry corresponds to
 		a day, and their name is formated: YYYY-mm-dd.
-		The command creates new files if they don't exists, and it copies a template
-		into them if template is configured.  Then it executes an open hook in order
-		edit the the new journal entry (or an existing one). If no open hook exists, 
-		it defaults to use the launching the configured editor.  Once the user closes 
-		the editor, journalscript invokes a backup hook if any exists.
+		The command creates new files if they don't exists. Then it executes an open'
+		    hook' in order to edit the the new journal entry (or an existing one). If no 
+		    open hook exists, it defaults to use the launching the configured editor.  
+		    Once the user closes the editor, journalscript invokes a backup hook if any 
+		    exists.
 
 		Options:
 		  --help        Prints this message and quits
@@ -456,7 +410,7 @@ _help_write() {
 #
 # In case of new entires cretes the a new journal entry. And in case of
 # existing entres it opens the existng entry.
-# It populates new etries with templates and it invokes open and backup hooks
+# It populates new etries with a timestamp and it invokes open and backup hooks
 # for editing and saving journal entries.
 # _write accepts up to one argument which is the journal name
 # Or no arguments, in such case the journal name become _DEFAILT_JOURNAL_NAME
@@ -500,7 +454,7 @@ _write() {
     _sync_journal
     set -e
     if [[ $is_new_file -eq 1 ]]; then
-        _write_template "$journal_name" "$todays_entry"
+        _create_entry "$journal_name" "$todays_entry"
         printf "==> Created new entry '$entry_name' of journal '$journal_name'\n"
     fi
     local hash=$(md5sum "$todays_entry")

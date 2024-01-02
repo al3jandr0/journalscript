@@ -62,7 +62,6 @@ _1_1_1=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -89,7 +88,6 @@ _1_1_1_dash_1=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.config/journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -116,7 +114,6 @@ _1_1_1_dash_2=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -143,7 +140,6 @@ _1_1_2=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
@@ -170,7 +166,6 @@ _1_1_3=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.config/journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
@@ -201,7 +196,6 @@ _1_1_5=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"$JOURNALSCRIPT_FILE_TYPE\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"$JOURNALSCRIPT_EDITOR\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$JOURNALSCRIPT_JOURNAL_DIR\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$JOURNALSCRIPT_TEMPLATE_DIR\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"$JOURNALSCRIPT_DEFAULT_JOURNAL\""
 }
 
@@ -224,7 +218,6 @@ _1_1_6=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
@@ -254,7 +247,6 @@ _1_1_7=\
     # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vim) should be provided
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
 }
@@ -281,7 +273,6 @@ _1_1_8=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor -D $HOME/Documents/\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
     assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
@@ -304,7 +295,6 @@ _1_2_1=\
     FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
-    TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
     run journal.sh configure init --print < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
@@ -316,8 +306,6 @@ _1_2_1=\
     assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    # TODO: update init behavior to create a tempalte directory in default location
-    assert_output --partial "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 # bats test_tags=configure:init
@@ -333,12 +321,11 @@ _1_2_2=\
     FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
-    TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -350,7 +337,6 @@ _1_2_2=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 # bats test_tags=configure:init
@@ -366,14 +352,13 @@ _1_2_3=\
     FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
-    TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
     mkdir -p "$HOME/.journalscript"
     cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$FILE"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
 
     # assert command finishes sucessfully
     assert_success
@@ -388,7 +373,6 @@ _1_2_3=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 # bats test_tags=configure:init
@@ -404,13 +388,12 @@ _1_2_4=\
     FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
-    TEMPLATE_DIR=""
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.config/journalscript/journalscript.env"
     mkdir -p "$HOME/.config/journalscript"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -422,7 +405,6 @@ _1_2_4=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$HOME/Documents/journals/.journalscript/templates\""
 }
 
 # bats test_tags=configure:init
@@ -438,12 +420,11 @@ _1_2_5=\
     FILE_TYPE="banana"
     EDITOR="mango"
     DATA_DIR="$HOME"
-    TEMPLATE_DIR="$HOME"
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -455,7 +436,6 @@ _1_2_5=\
     assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"$FILE_TYPE\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"$EDITOR\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$DATA_DIR\""
-    assert_file_contains "$FILE" "JOURNALSCRIPT_TEMPLATE_DIR=\"$TEMPLATE_DIR\""
 }
 
 # bats test_tags=configure:init
@@ -472,10 +452,9 @@ _1_2_6=\
     DATA_DIR=""
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
-    TEMPLATE_DIR=""
     ACEPT_CHANGES="no"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
