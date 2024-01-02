@@ -61,8 +61,6 @@ _1_1_1=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
@@ -86,8 +84,6 @@ _1_1_1_dash_1=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.config/journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
@@ -111,8 +107,6 @@ _1_1_1_dash_2=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
@@ -136,8 +130,6 @@ _1_1_2=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
 }
 
@@ -161,8 +153,6 @@ _1_1_3=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.config/journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
 }
 
@@ -210,8 +200,6 @@ _1_1_6=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"life\""
 }
 
@@ -238,8 +226,6 @@ _1_1_7=\
     # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vim) should be provided
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
 }
 
 # bats test_tags=configure:show
@@ -263,8 +249,6 @@ _1_1_8=\
     # assert configuration values are defaults
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor -D $HOME/Documents/\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
-    assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
-    assert_output --partial "_JOURNALSCRIPT_HOOKS_DIR=\"$HOME/.journalscript/hooks\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
 }
 
