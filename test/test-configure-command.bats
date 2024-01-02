@@ -59,7 +59,6 @@ _1_1_1=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -85,7 +84,6 @@ _1_1_1_dash_1=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
@@ -111,7 +109,6 @@ _1_1_1_dash_2=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -137,7 +134,6 @@ _1_1_2=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -163,7 +159,6 @@ _1_1_3=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.config/journalscript\""
@@ -179,7 +174,6 @@ _1_1_5=\
 "Then journalscript should write the overriden configuration to stdout."
 @test "${_1_1_5}" {
     # setup
-    export JOURNALSCRIPT_FILE_TYPE="madeupTestType"
     export JOURNALSCRIPT_EDITOR="madeupTestEditor"
     export JOURNALSCRIPT_JOURNAL_DIR="$HOME/Documents/somewhere/journals"
     export JOURNALSCRIPT_TEMPLATE_DIR="$HOME/Documents/somewherelse/templates"
@@ -193,7 +187,6 @@ _1_1_5=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"$JOURNALSCRIPT_FILE_TYPE\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"$JOURNALSCRIPT_EDITOR\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$JOURNALSCRIPT_JOURNAL_DIR\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"$JOURNALSCRIPT_DEFAULT_JOURNAL\""
@@ -215,7 +208,6 @@ _1_1_6=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -242,7 +234,6 @@ _1_1_7=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     refute_output --partial "Comments are ignored"
     # JOURNALSCRIPT_EDITOR is commented out from the file so the default (vim) should be provided
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
@@ -270,7 +261,6 @@ _1_1_8=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor -D $HOME/Documents/\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "_JOURNALSCRIPT_CONF_DIR=\"$HOME/.journalscript\""
@@ -292,18 +282,16 @@ _1_2_1=\
 "And user accepts changes. "\
 "Then journalscript writes to stdout default configuration values."
 @test "${_1_2_1}" {
-    FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
     DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
-    run journal.sh configure init --print < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init --print < <(printf "$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_output --partial "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
 }
@@ -318,14 +306,13 @@ _1_2_2=\
 "And user accepts changes. "\
 "Then journalscript writes default configuration values to config file in default location."
 @test "${_1_2_2}" {
-    FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -334,7 +321,6 @@ _1_2_2=\
     assert_exists "$FILE"
     assert_file_not_executable "$FILE"
     assert_file_owner "$USER" "$FILE"
-    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
 }
@@ -349,7 +335,6 @@ _1_2_3=\
 "And user accepts changes. "\
 "Then journalscript writes to configuration values to config file in default location."
 @test "${_1_2_3}" {
-    FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
     DEFAULT_JOURNAL=""
@@ -358,7 +343,7 @@ _1_2_3=\
     FILE="$HOME/.journalscript/journalscript.env"
     mkdir -p "$HOME/.journalscript"
     cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$FILE"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
 
     # assert command finishes sucessfully
     assert_success
@@ -370,7 +355,6 @@ _1_2_3=\
     assert_file_not_executable "$FILE"
     assert_file_owner "$USER" "$FILE"
     # contents are defaulted to original configuration file if user specifies none
-    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"testType\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
 }
@@ -385,7 +369,6 @@ _1_2_4=\
 "And user accepts changes. "\
 "Then journalscript writes to default configuration values to config file in xdg directory."
 @test "${_1_2_4}" {
-    FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
     DEFAULT_JOURNAL=""
@@ -393,7 +376,7 @@ _1_2_4=\
     ACEPT_CHANGES="yes"
     FILE="$HOME/.config/journalscript/journalscript.env"
     mkdir -p "$HOME/.config/journalscript"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -402,7 +385,6 @@ _1_2_4=\
     assert_exists "$FILE"
     assert_file_not_executable "$FILE"
     assert_file_owner "$USER" "$FILE"
-    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"txt\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
 }
@@ -417,14 +399,13 @@ _1_2_5=\
 "And user accepts changes. "\
 "Then journalscript writes a configuration file respecting the user choices."
 @test "${_1_2_5}" {
-    FILE_TYPE="banana"
     EDITOR="mango"
     DATA_DIR="$HOME"
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -433,7 +414,6 @@ _1_2_5=\
     assert_exists "$FILE"
     assert_file_not_executable "$FILE"
     assert_file_owner "$USER" "$FILE"
-    assert_file_contains "$FILE" "JOURNALSCRIPT_FILE_TYPE=\"$FILE_TYPE\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"$EDITOR\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$DATA_DIR\""
 }
@@ -447,14 +427,13 @@ _1_2_6=\
 "And user rejects changes. "\
 "Then journalscript writes no configuration file."
 @test "${_1_2_6}" {
-    FILE_TYPE=""
     EDITOR=""
     DATA_DIR=""
     DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
     ACEPT_CHANGES="no"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$FILE_TYPE\n$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr

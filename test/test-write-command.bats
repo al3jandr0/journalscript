@@ -81,7 +81,7 @@ _2_1_3=\
     assert_equal "$stderr" ""
     # assert generated journal entry 
     local todays_date=$(date +%Y-%m-%d)
-    assert_file_exists "$HOME/Documents/journals/life/$todays_date.txt"
+    assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
 }
 
 # 2.1.4 Test command doesn't create a new file if target file exits 
@@ -94,7 +94,7 @@ _2_1_4=\
 @test "${_2_1_4}" {
     mkdir -p "$HOME/Documents/journals/life"
     local todays_date=$(date +%Y-%m-%d)
-    local file="$HOME/Documents/journals/life/$todays_date.txt"
+    local file="$HOME/Documents/journals/life/$todays_date.md"
     printf "Existing entry" > "$file"
 
     run journal.sh 
@@ -124,7 +124,7 @@ _2_3_1=\
 @test "${_2_3_1}" {
     mkdir -p "$HOME/Documents/journals/life"
     local todays_date=$(date +%Y-%m-%d)
-    local todays_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    local todays_entry="$HOME/Documents/journals/life/$todays_date.md"
     # A little hack to test whether fallback happens:
     # I cant set the EDITOR to a real editor because they are interactive
     # thus the test will hang
@@ -156,7 +156,7 @@ _2_3_2=\
     mkdir -p "$HOME/Documents/journals/life"
     mkdir -p "$HOME/.journalscript/hooks"
     local todays_date=$(date +%Y-%m-%d)
-    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.md"
     printf 'echo "default open hook" > $JOURNALSCRIPT_JOURNAL_ENTRY'\
     > "$HOME/.journalscript/hooks/open"
 
@@ -184,8 +184,8 @@ _2_3_3=\
     local journal_dir="$HOME/Documents/journals/life"
     mkdir -p "$journal_dir"
     local todays_date=$(date +%Y-%m-%d)
-    local file_name="$todays_date.txt"
-    local todays_entry="$journal_dir/$todays_date.txt"
+    local file_name="$todays_date.md"
+    local todays_entry="$journal_dir/$todays_date.md"
     # A little hack to test whether fallback happens:
     # I cant set the EDITOR to a real editor because they are interactive
     # thus the test will hang
@@ -228,7 +228,7 @@ _2_3_4=\
     mkdir -p "$HOME/.journalscript/hooks"
     mkdir -p "$HOME/.journalscript/hooks/open.d"
     local todays_date=$(date +%Y-%m-%d)
-    local journal_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    local journal_entry="$HOME/Documents/journals/life/$todays_date.md"
     printf 'echo "default open hook" > $JOURNALSCRIPT_JOURNAL_ENTRY'\
     > "$HOME/.journalscript/hooks/open"
     printf 'echo "specific hook" > $JOURNALSCRIPT_JOURNAL_ENTRY'\
@@ -260,7 +260,7 @@ _2_3_5=\
     mkdir -p "$HOME/Documents/journals/life"
     mkdir -p "$HOME/.journalscript/hooks"
     local todays_date=$(date +%Y-%m-%d)
-    local todays_entry="$HOME/Documents/journals/life/$todays_date.txt"
+    local todays_entry="$HOME/Documents/journals/life/$todays_date.md"
     printf 'echo "default backup hook"' > "$HOME/.journalscript/hooks/backup"
     # A little hack to test whether fallback happens:
     # I cant set the EDITOR to a real editor because they are interactive

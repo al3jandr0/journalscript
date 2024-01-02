@@ -102,7 +102,6 @@ fi
 
 # 3. Set default values only if var has no value
 JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
-JOURNALSCRIPT_FILE_TYPE=${JOURNALSCRIPT_FILE_TYPE:-"txt"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
 JOURNALSCRIPT_SYNC_BACKUP=${JOURNALSCRIPT_SYNC_BACKUP:-}
@@ -272,7 +271,6 @@ _configure() {
 			_JOURNALSCRIPT_CONF_DIR="${_JOURNALSCRIPT_CONF_DIR}"
 			_JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR}"
 			JOURNALSCRIPT_SYNC_BACKUP="${JOURNALSCRIPT_SYNC_BACKUP}"
-			JOURNALSCRIPT_FILE_TYPE="${JOURNALSCRIPT_FILE_TYPE}"
 			JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 			JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
@@ -296,7 +294,6 @@ _configure() {
 _configure_init() {
     # Read (prompt) configuration preferences from user
     # TODO: how to make local
-    read -p "Journal entry's file format [txt|md|etc] ($JOURNALSCRIPT_FILE_TYPE):" prompt_file_type
     read -p "Editor ($JOURNALSCRIPT_EDITOR):" prompt_editor
     read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" prompt_journal_dir
     journal_dir=${prompt_journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
@@ -304,7 +301,6 @@ _configure_init() {
     read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" prompt_default_journal
 
     # Default values if no user input
-    local file_type=${prompt_file_type:-$JOURNALSCRIPT_FILE_TYPE}
     local editor=${prompt_editor:-$JOURNALSCRIPT_EDITOR}
     local default_journal=${prompt_default_journal:-$JOURNALSCRIPT_DEFAULT_JOURNAL}
     local conf_dir=${prompt_conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
@@ -321,7 +317,6 @@ _configure_init() {
 
     local contents=$(
         cat <<-EOF
-			JOURNALSCRIPT_FILE_TYPE="$file_type"
 			JOURNALSCRIPT_EDITOR="$editor"
 			JOURNALSCRIPT_JOURNAL_DIR="$journal_dir"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="$default_journal"
@@ -429,7 +424,7 @@ _write() {
     local journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
     # full path the journal entry file to crete/edit
     local todays_date=$(date +%Y-%m-%d) # date format: YYY-mm-dd
-    local entry_name="$todays_date.$JOURNALSCRIPT_FILE_TYPE"
+    local entry_name="$todays_date.md"
     local todays_entry="$journal_dir/$entry_name"
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
