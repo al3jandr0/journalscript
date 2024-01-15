@@ -161,14 +161,11 @@ Many cloud storage services (like DropBox, Google Drive, or OneDrive) do not nee
 
 <!---
 For example -  Setting up a github repository to store your journals
+- Todo: add verbose mode to configure show --verbose
 - Todo: README: add instructions to create a new repo in the journals directory
-- Todo: Delete templates
-- Todo: decide whether to continue to suport open hook.  Seems redundant with EDITOR variable
+- Todo: decide whether to continue to support open hook.  Seems redundant with EDITOR variable
+    Decision: to remove the open hook once cadence is implemented
 - Todo: simplify default behavior of backup and sync
   - Todo: embed git backup and sync scripts
 - todo: Add Gif to demonstrate workflow
 --->
-
-### Templates
-
-Documentation comming soon!

@@ -103,6 +103,7 @@ fi
 # 3. Set default values only if var has no value
 JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
+JOURNALSCRIPT_GROUP_BY=${JOURNALSCRIPT_GROUP_BY:-"DAY"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
 JOURNALSCRIPT_SYNC_BACKUP=${JOURNALSCRIPT_SYNC_BACKUP:-}
 _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
@@ -273,6 +274,9 @@ _configure() {
 			JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
+    # if verbose, Then
+    # display whether a configuration file was found and Where
+    # Also display journalscript configuration directory
     elif [[ "$sub_command" == "init" ]]; then
         local option=${2:-""}
         if [[ -n "$option" ]] && [[ "$option" != "--print" ]]; then
@@ -293,9 +297,11 @@ _configure_init() {
     # Read (prompt) configuration preferences from user
     # TODO: how to make local
     read -p "Editor ($JOURNALSCRIPT_EDITOR):" prompt_editor
+    # Language improvement. Where do you want to save your journals
     read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" prompt_journal_dir
     journal_dir=${prompt_journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
     read -p "Where do you wish to store the configuration [path/to/directory] ($_JOURNALSCRIPT_CONF_DIR):" prompt_conf_dir
+    # When invoking 'journal' this would be the journal that gets openned
     read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" prompt_default_journal
 
     # Default values if no user input
@@ -399,6 +405,45 @@ _help_write() {
 	EOF
 }
 
+# File name is the creation name by date based on CADENCE
+file_name() {
+    case "$JOURNALSCRIPT_GROUP_BY" in
+    DAY)
+        date +%Y-%m-%d
+        ;;
+    MONTH)
+        date +%Y-%m
+        ;;
+    YEAR)
+        date +%Y
+        ;;
+    esac
+}
+
+# tests file whether it is outdated and a new file should be created, or whether
+# the file is current, and contents shoudl be appended to it. This is based on the
+# configured CADENCE
+is_outdated_file() {
+    echo "$JOURNALSCRIPT_GROUP_BY"
+    local file_date="${1%.*}" # removes file extension from name
+
+    local file_year="${file_date::4}"
+    local year=$(date +%Y)
+    [[ $year -gt $file_year ]] && return 0
+
+    local file_month="${file_date:5:2}"
+    local month=$(date +%m)
+    [[ "$JOURNALSCRIPT_GROUP_BY" != "YEAR" ]] && [[ -n $file_month ]] &&
+        [[ $month -gt $file_month ]] && return 0
+
+    local file_day="${file_date:8:2}"
+    local day="$(date +%d)"
+    [[ "$JOURNALSCRIPT_GROUP_BY" != "MONTH" ]] && [[ -n $file_day ]] &&
+        [[ $day -gt $file_day ]] && return 0
+
+    return 1
+}
+
 # Writes journal entries.
 #
 # In case of new entires cretes the a new journal entry. And in case of
@@ -420,9 +465,9 @@ _write() {
     local journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
     # directory that hosts all the entries of the journal
     local journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
+
+    local entry_name="$(file_name).md"
     # full path the journal entry file to crete/edit
-    local todays_date=$(date +%Y-%m-%d) # date format: YYY-mm-dd
-    local entry_name="$todays_date.md"
     local todays_entry="$journal_dir/$entry_name"
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
@@ -431,11 +476,20 @@ _write() {
         [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 0
         mkdir -p "$journal_dir"
     fi
-    # Write template into new entries
-    local is_new_file=0
-    if ! test -f "$todays_entry"; then
-        is_new_file=1
+
+    local is_new_file=1
+    local latest_entry=$(ls -Art1 "${journal_dir}" | tail -n 1)
+    if test -f "$journal_dir/$latest_entry" && ! is_outdated_file "$latest_entry"; then
+        is_new_file=0
     fi
+    echo "$latest_entry"
+    if is_outdated_file "$latest_entry"; then
+        echo "is outdated"
+    else
+        echo "is not outdated"
+    fi
+    echo "$is_new_file"
+
     # Make special vars avaiable to hooks
     JOURNALSCRIPT_JOURNAL_NAME="$journal_name"          # name of the journal
     JOURNALSCRIPT_JOURNAL_DIRECTORY="$journal_dir"      # full path to journal dir
