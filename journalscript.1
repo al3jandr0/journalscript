@@ -41,10 +41,10 @@ However it requires no configuration upfront; its default behavior is
 sufficient and functional.
 .SH OPTIONS
 .TP
-\f[V]-v\f[R], \f[V]--version\f[R]\ 
+\f[V]-v\f[R], \f[V]--version\f[R]\[rs]
 Prints version information and quits.
 .TP
-\f[V]--help\f[R]\ 
+\f[V]--help\f[R]\[rs]
 Prints usage statement and quits.
 .SH COMMANDS
 .SS write [journal]
@@ -58,10 +58,8 @@ YYYY-mm-dd.
 .PP
 The command creates new files if they don\[cq]t exists, and it copies a
 template into them if template is configured.
-Then it executes an open hook in order edit the the new journal entry
-(or an existing one).
-If no open hook exists, it defaults to use the launching the configured
-editor.
+Then it launches the configured editor to open the new journal entry (or
+an existing one).
 Once the user closes the editor, journalscript invokes a backup hook if
 any exists.
 .SS configure [show|init]
@@ -69,12 +67,18 @@ any exists.
 Assists with the configuration of journalscript.
 When configure is invoked with no arguments it defaults to show.
 .PP
-\f[B]show\f[R]\ 
+\f[B]show\f[R]
+.PD 0
+.P
+.PD
 .PP
 Displays the configuration parameters (also referred as environment
 variables) along with its assigned values, and quits.
 .PP
-\f[B]init\f[R]\ 
+\f[B]init\f[R]
+.PD 0
+.P
+.PD
 .PP
 Launches an interactive wizard that helps the user setting up a
 journalscript configuration.
@@ -84,20 +88,20 @@ Returns 1 in case of error.
 Otherwise returns 0.
 .SH ENVIRONMENT
 .TP
-JOURNALSCRIPT_FILE_TYPE\ 
+JOURNALSCRIPT_FILE_TYPE\[rs]
 Sets the file name extension.
 Defaults \f[V]txt\f[R]
 .TP
-JOURNALSCRIPT_EDITOR\ 
+JOURNALSCRIPT_EDITOR\[rs]
 Sets the editor journalscript uses to open files.
 .TP
-JOURNALSCRIPT_JOURNAL_DIR\ 
+JOURNALSCRIPT_JOURNAL_DIR\[rs]
 The directory where journals will be located.
 .TP
-JOURNALSCRIPT_TEMPLATE_DIR\ 
+JOURNALSCRIPT_TEMPLATE_DIR\[rs]
 The directory where journalscript sources templates.
 .TP
-JOURNALSCRIPT_DEFAULT_JOURNAL\ 
+JOURNALSCRIPT_DEFAULT_JOURNAL\[rs]
 When journalscript wire is invoked without arguments, it writes to the
 default journal.
 Its default value is \f[V]life\f[R]
@@ -123,16 +127,14 @@ This makes journalscript.env a suitable place to declare additional
 variables used by hooks.
 .SS Hooks
 .PP
-Hooks are bash scripts that Journalscript runs in order to open and
+Hooks are bash scripts that Journalscript runs in order to sync and
 backup journal entries, and they allow users to customize these two
 actions.
-There are two types of hooks: open and backup.
+There are two types of hooks: sync and backup.
 .PP
-By default, journalscript opens a journal entry using the configured
-editor (JOURNALSCRIPT_EDITOR), and this behavior is overridden by open
-hooks.
-Open hook scripts must open the assigned journal entry by invoking an
-editor, and exit when the editor is closed.
+Sync hook scripts, as the name suggests, synchronizes journal entries
+with an externally backedup version of the journal.
+It is invoked before editing a journal.
 .PP
 Backup hook scripts are routines to back up journal entries.
 A backup hook is runs after an open hook and once the user closes the
@@ -144,96 +146,35 @@ Hooks directory structure
 .nf
 \f[C]
 <config root>/hooks/
-             |----- open.d/     # stores editor specific hooks
-             |----- open        # default open hook
+             |----- sync.d/     # stores editor specific hooks
+             |----- sync        # default sync hook
              |----- backup.d/   # stores backup tool specific hooks
              |----- backup      # default backup hook
 \f[R]
 .fi
 .PP
-Journalscript runs only 1 open hook, and it searches for it in these
-locations in order:\ 
+Journalscript runs only 1 sync hook, and it searches for it in these
+locations in order:
+.PD 0
+.P
+.PD
 .IP "1." 3
-A hook specific to the configured editor.
-Any file under \f[V]<configuration/dir>/hooks/open.d/\f[R].
-These hooks name must match the name of the editor.
-For example, the hook \f[V]<configuration/dir>/hooks/open.d/vim\f[R] is
-executed when the editor is \f[V]vim\f[R], or \f[V]/usr/bin/vim\f[R].\ 
-.IP "2." 3
-The default hook \f[V]<configuration/dir>/hooks/open\f[R].
-This hook executes when no editor specific hooks is found.
-.PP
-Journalscript runs only 1 backup hook, and it searches for it in these
-locations in order:\ 
-.IP "1." 3
-A hook specific to the configured editor.
-Any file under \f[V]<configuration/dir>/hooks/backup.d/\f[R]\ 
+A hook specified by JOURNALSCRIPT_SYNC_BACKUP env var.
+.PD 0
+.P
+.PD
 .IP "2." 3
 The default hook \f[V]<configuration/dir>/hooks/backup\f[R]
 .PP
-All journalscript\[cq]s environment variables are available to hooks
-(see ENVIRONMENT).
-Additionally the following are also available to hooks:
-.TP
-JOURNALSCRIPT_JOURNAL_NAME\ 
-The name of the journal.
-For example: life, my-journal, workout-logs, etc.
-.TP
-JOURNALSCRIPT_JOURNAL_DIRECTORY\ 
-The parent directory to the journal directory.
-For example, for the journal
-\f[V]/path/to/parent/directory/my-journal\f[R] the parent directory
-would be \f[V]/path/to/parent/directory/\f[R]
-.TP
-JOURNALSCRIPT_JOURNAL_ENTRY\ 
-The full path to the file corresponding to the day\[cq]s entry.
-The file to edit.
-.TP
-JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME\ 
-The name of the file to edit.
-It excludes the path to the file.
-.TP
-JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY\ 
-1 if the file is new.
-0 otherwise.
-.SS Templates
-.PP
-Journalscript support templates for journal entries.
-Templates are written into new entires, and they templates can be
-specific to a journal, apply to all journals (default), or they can be
-disabled.
-.PP
-Journal specific templates are to be stored in
-\f[V]$JOURNALSCRIPT_TEMPLATE_DIR/templates/tempate.d/\f[R], and their
-name must match the journal name.
-For example, the template
-\f[V]$JOURNALSCRIPT_TEMPLATE_DIR/templates.d/banana\f[R] is picked up
-when the journal name is \f[V]banana\f[R].
-.PP
-The default template is
-\f[V]$JOURNALSCRIPT_TEMPLATE_DIR/templates/tempalte\f[R].
-It is optional, and it is picked up when it exists, and when no
-journal-specific template exists.
-.PP
-When no template exists, then journalscript writes the date into the
-first line of the journal entry.
-This behavior can be disabled by having a blank default template.
-.SH EXAMPLES
-.TP
-journal\ 
-Writes to default journal
-.TP
-journal write\ 
-Writes to default journal
-.TP
-journal write my-journal\ 
-Writes to the journal named my-journal
-.TP
-journal configure\ 
-Runs configure show
-.TP
-journal configure show\ 
-Displays journalscript\[cq]s configuration
-.TP
-journal configure init\ 
-Launches wizzard that assist users to creating a configuration
+Journalscript runs only 1 backup hook, and it searches for it in these
+locations in order:
+.PD 0
+.P
+.PD
+.IP "1." 3
+A hook specified by JOURNALSCRIPT_SYNC_BACKUP env var.
+.PD 0
+.P
+.PD
+.IP "2." 3
+The default hook \f[V]<configuration/dir>/hooks/backup\f[R]
