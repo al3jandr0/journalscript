@@ -11,17 +11,14 @@
 
 ## Why journalscript
 
-Journalscript allows you to journal without leaving your terminal. It removes the friction that exists when writing a (digital) journal which is to launch a separate journaling app.
-
-Journalscript is ideal for those who 1) work primarily in the terminal and 2) wish to journal more or already journal routinely.
+Journalscript allows you to journal without leaving your terminal. It aims to reduce the friction of writing a journal for those who work primarily in the termianl.
 
 ## Features
 
 - Use within the terminal
 - Ready to use out of the box
-- Support writing multiple journals
-- It is Highly configurable
-- Support templates for journal entries
+- Supports multiple journals
+- Customizable
 
 ## Getting started
 
@@ -114,9 +111,9 @@ Journalscript creates an entry for the current date, if there is none. Otherwise
 
 For more information about journalscript commands, run `journal --help` or read the manual `man journalscript`
 
-## Configure
+## Customizong journalscript
 
-Journalscript loks for the configuration file `journalscript.env` in these location in order
+Journalscript looks for the configuration file `journalscript.env` in these location in order
 
 1. `$HOME/.config/journalscript/journalscript.env`
 2. `$HOME/.journalscript/journalscript.env`
@@ -133,24 +130,22 @@ In addition to customizing the configuration file `journalscript.env`, you can u
 You can combine this feature with tool such as [direnv](https://direnv.net/) to have directory-level specific journalscript configurations.
 In the exaple below uses direnv to store journals in the current directory isntead of the configured directory in `journalscript.env`
 
+### Organizing journal entries
+
+Journalscript crates an entry per day. However, these can be stored in a separate file per per day, month, or year. You can select how you want to group your journal entries with the variable
+JOURNALSCRIP_GROUP_BY. Set JOURNALSCRIP_GROUP_BY to YEAR, to group entires by year; meaning only one file will be crated per year and all daily entries for that year will be stored in that file. Set to
+MONTH, and only one file will be created per month and all a given month's entries will be stored in its corresponding file. Lastly, set to DAY, and a new file will be created per day containing only that day's entry.
+
 ### Customizing the editor
 
 Journalscript tries to use the editor the `EDITOR` variable set in your environment. If it is absent, then it defaults to `vim`. However you can configure journalscript to use any editor of choice with the `JOURNALSCRIPT_EDITOR`. For example edit `journalscript.env` and replace the default `JOURNALSCRIPT_EDITOR="vim"` with `JOURNALSCRIPT_EDITOR="emacs"`, `JOURNALSCRIPT_EDITOR="nvim"`, `JOURNALSCRIPT_EDITOR="code"`, etc.
 
-The `JOURNALSCRIPT_EDITOR` settign supports flgas. For example: `JOURNALSCRIPT_EDITOR="code -n $JOURNALSCRIPT_JOURNAL_DIRECTORY"` This command opens the directory that hosts all entires for the journal in a new window instead of opening today's entry only.
+The `JOURNALSCRIPT_EDITOR` settign supports flags. For example: `JOURNALSCRIPT_EDITOR="code -n $JOURNALSCRIPT_JOURNAL_DIRECTORY"` This command opens the directory that hosts all entires for the journal in a new window instead of opening today's entry only.
 
-By default journalscript creates/open a entry of the current date for a journal (creates new if no entry for the today, otherwise opens existing)
+By default journalscript creates/open a entry of the current date for a journal (creates new if no entry for the today, otherwise opens an existing one)
 I you wish to add some logic to the opening of a file, for example, openening both today's entry and the previous entry, you could do so by writing a _Open Hook_
 
-_Open Hooks_ are scripts that journalscript executes, if they are enabled, instead of using invoking `JOURNALSCRIPT_EDITOR directly`.
-
-<!---
-For example,
-* TODO: Show open last and recent hook" This script tells vim to open both todays journal entry and the previous entry in the jourl direcotry
-* TODO: ADD GIF where to store the how. And demonstrate what happens
---->
-
-### Backing up journals
+## Advanced options: Backing up and synching journals
 
 Journalscript stores journals in the local file system (techinically your editor of choice does the saving). However it allows you to integrate with the backup mecahnisms of yout choosing. And it does so via hooks:
 
