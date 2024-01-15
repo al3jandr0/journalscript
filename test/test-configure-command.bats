@@ -268,9 +268,11 @@ _1_2_1=\
 @test "${_1_2_1}" {
     EDITOR=""
     DATA_DIR=""
+    CONFIG_LOCATION=""
+    GROUP_BY=""
     DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
-    run journal.sh configure init --print < <(printf "$EDITOR\n$DATA_DIR\n$TEMPLATE_DIR\n$DEFAULT_JOURNAL\n\n$ACEPT_CHANGES") 
+    run journal.sh configure init --print < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$GROUP_BY\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -292,11 +294,12 @@ _1_2_2=\
 @test "${_1_2_2}" {
     EDITOR=""
     DATA_DIR=""
-    DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
+    GROUP_BY=""
+    DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$GROUP_BY\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -307,6 +310,7 @@ _1_2_2=\
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_GROUP_BY=\"YEAR\""
 }
 
 # bats test_tags=configure:init
@@ -321,13 +325,14 @@ _1_2_3=\
 @test "${_1_2_3}" {
     EDITOR=""
     DATA_DIR=""
-    DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
+    GROUP_BY=""
+    DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
     mkdir -p "$HOME/.journalscript"
     cp "$BATS_TEST_DIRNAME/resources/config-file.env" "$FILE"
-    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$GROUP_BY\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
 
     # assert command finishes sucessfully
     assert_success
@@ -341,6 +346,7 @@ _1_2_3=\
     # contents are defaulted to original configuration file if user specifies none
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"testEditor\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_GROUP_BY=\"YEAR\""
 }
 
 # bats test_tags=configure:init
@@ -355,12 +361,13 @@ _1_2_4=\
 @test "${_1_2_4}" {
     EDITOR=""
     DATA_DIR=""
-    DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
+    GROUP_BY=""
+    DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.config/journalscript/journalscript.env"
     mkdir -p "$HOME/.config/journalscript"
-    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$GROUP_BY\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -371,6 +378,7 @@ _1_2_4=\
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"vim\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_GROUP_BY=\"YEAR\""
 }
 
 # bats test_tags=configure:init
@@ -385,11 +393,12 @@ _1_2_5=\
 @test "${_1_2_5}" {
     EDITOR="mango"
     DATA_DIR="$HOME"
-    DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
+    GROUP_BY="DAY"
+    DEFAULT_JOURNAL=""
     ACEPT_CHANGES="yes"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$GROUP_BY\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
@@ -400,6 +409,7 @@ _1_2_5=\
     assert_file_owner "$USER" "$FILE"
     assert_file_contains "$FILE" "JOURNALSCRIPT_EDITOR=\"$EDITOR\""
     assert_file_contains "$FILE" "JOURNALSCRIPT_JOURNAL_DIR=\"$DATA_DIR\""
+    assert_file_contains "$FILE" "JOURNALSCRIPT_GROUP_BY=\"$GROUP_BY\""
 }
 
 # bats test_tags=configure:init
@@ -413,11 +423,12 @@ _1_2_6=\
 @test "${_1_2_6}" {
     EDITOR=""
     DATA_DIR=""
-    DEFAULT_JOURNAL=""
     CONFIG_LOCATION=""
+    GROUP_BY=""
+    DEFAULT_JOURNAL=""
     ACEPT_CHANGES="no"
     FILE="$HOME/.journalscript/journalscript.env"
-    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
+    run journal.sh configure init < <(printf "$EDITOR\n$DATA_DIR\n$CONFIG_LOCATION\n$GROUP_BY\n$DEFAULT_JOURNAL\n$ACEPT_CHANGES\n") 
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr

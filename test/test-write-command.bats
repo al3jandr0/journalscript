@@ -9,6 +9,7 @@ setup() {
     load 'test_helper/common-setup'
     _common_setup
     export JOURNALSCRIPT_EDITOR=":" # no-op editor
+    export JOURNALSCRIPT_GROUP_BY="DAY" # no-op editor
 }
 
 ###############################################################################

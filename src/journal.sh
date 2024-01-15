@@ -103,7 +103,7 @@ fi
 # 3. Set default values only if var has no value
 JOURNALSCRIPT_DEFAULT_JOURNAL=${JOURNALSCRIPT_DEFAULT_JOURNAL:-"life"}
 JOURNALSCRIPT_EDITOR=${JOURNALSCRIPT_EDITOR:-"$EDITOR"}
-JOURNALSCRIPT_GROUP_BY=${JOURNALSCRIPT_GROUP_BY:-"DAY"}
+JOURNALSCRIPT_GROUP_BY=${JOURNALSCRIPT_GROUP_BY:-"YEAR"}
 JOURNALSCRIPT_JOURNAL_DIR=${JOURNALSCRIPT_JOURNAL_DIR:-"$XDG_DOCUMENTS_DIR/journals"}
 JOURNALSCRIPT_SYNC_BACKUP=${JOURNALSCRIPT_SYNC_BACKUP:-}
 _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
@@ -246,6 +246,7 @@ _configure() {
 			JOURNALSCRIPT_SYNC_BACKUP="${JOURNALSCRIPT_SYNC_BACKUP}"
 			JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 			JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"
+			JOURNALSCRIPT_GROUP_BY="${JOURNALSCRIPT_GROUP_BY}"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="${JOURNALSCRIPT_DEFAULT_JOURNAL}"
 		EOF
     # if verbose, Then
@@ -269,12 +270,14 @@ _configure() {
 ###############################################################################
 _configure_init() {
     # Read (prompt) configuration preferences from user
+    #printf "Type your selections. press enter / leave black to choose the default value. Default values are in parthensiss '()'.\n"
     # TODO: how to make local
     read -p "Editor ($JOURNALSCRIPT_EDITOR):" prompt_editor
     # Language improvement. Where do you want to save your journals
-    read -p "Journal entry location [path/to/directory] ($JOURNALSCRIPT_JOURNAL_DIR):" prompt_journal_dir
+    read -p "Where do you wish to save your journals [path/to/directory] ? ($JOURNALSCRIPT_JOURNAL_DIR):" prompt_journal_dir
     journal_dir=${prompt_journal_dir:-$JOURNALSCRIPT_JOURNAL_DIR}
-    read -p "Where do you wish to store the configuration [path/to/directory] ($_JOURNALSCRIPT_CONF_DIR):" prompt_conf_dir
+    read -p "Where do you wish to store the configuration [path/to/directory] ? ($_JOURNALSCRIPT_CONF_DIR):" prompt_conf_dir
+    read -p "Would you like to group entires by DAY, MONTH, or YEAR. That is to create a journal file per DAY, MONTH, or YEAR [DAY|MONTH|YEAR] ? ($JOURNALSCRIPT_GROUP_BY):" prompt_group_by
     # When invoking 'journal' this would be the journal that gets openned
     read -p "Would you like to set a default journal [optional] ($JOURNALSCRIPT_DEFAULT_JOURNAL):" prompt_default_journal
 
@@ -282,6 +285,7 @@ _configure_init() {
     local editor=${prompt_editor:-$JOURNALSCRIPT_EDITOR}
     local default_journal=${prompt_default_journal:-$JOURNALSCRIPT_DEFAULT_JOURNAL}
     local conf_dir=${prompt_conf_dir:-$_JOURNALSCRIPT_CONF_DIR}
+    local group_by=${prompt_group_by:-$JOURNALSCRIPT_GROUP_BY}
     local conf_file="${conf_dir}/journalscript.env"
     # expand ~
     journal_dir="${journal_dir/#\~/$HOME}"
@@ -298,6 +302,7 @@ _configure_init() {
 			JOURNALSCRIPT_EDITOR="$editor"
 			JOURNALSCRIPT_JOURNAL_DIR="$journal_dir"
 			JOURNALSCRIPT_DEFAULT_JOURNAL="$default_journal"
+			JOURNALSCRIPT_GROUP_BY="$group_by"
 			JOURNALSCRIPT_SYNC_BACKUP=""
 		EOF
     )
