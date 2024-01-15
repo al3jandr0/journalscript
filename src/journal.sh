@@ -242,7 +242,13 @@ _configure() {
 
     # run sub commands:
     if [[ "$sub_command" == "show" ]]; then
+        local conf_file_msg="No configuration file found."
+        if test -f "$_JOURNALSCRIPT_CONF_DIR/journalscript.env"; then
+            conf_file_msg="Configuration found at: $_JOURNALSCRIPT_CONF_DIR/journalscript.env"
+        fi
         cat <<-EOF
+			${conf_file_msg}
+			Resolved configuration:
 			JOURNALSCRIPT_SYNC_BACKUP="${JOURNALSCRIPT_SYNC_BACKUP}"
 			JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR}"
 			JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR}"

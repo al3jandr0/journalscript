@@ -13,9 +13,14 @@ setup() {
 # Format: <var_name>=["]<value>["]
 # where var_name must be POSIX compliant(ish)
 _assert_output_conforms_to_format() {
-    for line in "${lines[@]}"; do
-        assert_regex "$line" '^[a-zA-Z0-9_]+="?.+"?$' 
-    done
+  # skip first 2 lines
+  local counter=0
+  for line in "${lines[@]}"; do
+    counter=$(( counter + 1 ))
+    if [[ $counter -gt 2 ]]; then
+      assert_regex "$line" '^[a-zA-Z0-9_]+="?.+"?$' 
+    fi
+  done
 }
 
 ###############################################################################
