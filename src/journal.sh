@@ -150,18 +150,18 @@ _help() {
     fi
 }
 
-# 1. findis open or backup hook
+# 1. finds hooks
 # Hooks are located under the parent directory JOURNALSCRIPT_CONF_DIR/hooks
 # each hook type is searchd following the same pattern.
 # journalscript searches for a hook specific for an editor (or backup-tool)
-# under /hooks/open.d/ (or /hooks/backup.d/). Hooks must match the name of the
-# editor (or backup-tool). i.e. /open.d/vim, open.d/git, etc.
+# under /hooks/sync.d/ (or /hooks/backup.d/). Hooks must match the name of the
+# editor (or backup-tool). i.e. /backup.d/git, etc.
 # There is a fallback hook for each type:
-# /hooks/open for open hook, and /hooks/backup for backup hook
+# For example: /hooks/backup for backup hook
 # The fallbacks are used if no specific hook is found
 _find_hook() {
-    local action="$1"   # open or backup
-    local tool="${2:-}" # Editor or backup tool
+    local action="$1" # sync, backup
+    local tool="${2:-}"
 
     if test -f "$_JOURNALSCRIPT_HOOKS_DIR/$action.d/$tool"; then
         echo "$_JOURNALSCRIPT_HOOKS_DIR/$action.d/$tool"
@@ -316,7 +316,6 @@ _configure_init() {
     if ! test -d "$journal_dir"; then new_dirs+=("$journal_dir"); fi
     if ! test -d "$conf_dir"; then new_dirs+=("$conf_dir"); fi
     if ! test -d "$conf_dir/hooks"; then new_dirs+=("$conf_dir/hooks"); fi
-    if ! test -d "$conf_dir/hooks/open.d"; then new_dirs+=("$conf_dir/hooks/open.d"); fi
     if ! test -d "$conf_dir/hooks/backup.d"; then new_dirs+=("$conf_dir/hooks/backup.d"); fi
     if ! test -d "$conf_dir/hooks/sync.d"; then new_dirs+=("$conf_dir/hooks/sync.d"); fi
 
@@ -359,15 +358,12 @@ _help_write() {
 
 		Usage: journal write [options] [journal] 
 
-		Writes a new entry to the journal.  If no journal is provided, it writes to
-		the default journal. Journals are stored as directories and each journal 
-		entry is a file in the journal directory.  Each journal entry corresponds to
-		a day, and their name is formated: YYYY-mm-dd.
-		The command creates new files if they don't exists. Then it executes an open'
-		    hook' in order to edit the the new journal entry (or an existing one). If no 
-		    open hook exists, it defaults to use the launching the configured editor.  
-		    Once the user closes the editor, journalscript invokes a backup hook if any 
-		    exists.
+		Writes a new entry to a journal.  If no journal is provided, it writes to
+		the default journal. Each journal entry corresponds to a day.
+
+		Journals are stored as directories and journal entries are stored in files
+		whithin those directories. Journal creates new files if they dont exist, and
+		it opens the file with today's entry with your editor of choice.
 
 		Options:
 		  --help        Prints this message and quits
