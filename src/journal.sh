@@ -150,14 +150,6 @@ _help() {
     fi
 }
 
-# Creates a new empty journal entry marked with a timepstamp
-_create_entry() {
-    local journal_name="$1"  # Name of the journal
-    local journal_entry="$2" # Full path to journal entry (file)
-    local timestamp=$(date +'%a %b %d %I:%M %p %Z %Y')
-    printf "%s\n" "$timestamp" >"$journal_entry"
-}
-
 # 1. findis open or backup hook
 # Hooks are located under the parent directory JOURNALSCRIPT_CONF_DIR/hooks
 # each hook type is searchd following the same pattern.
@@ -177,24 +169,6 @@ _find_hook() {
         echo "$_JOURNALSCRIPT_HOOKS_DIR/$action"
     else
         echo ""
-    fi
-}
-
-# Runs open hook (Opens a journal entry)
-#
-# It attempts to run an user defined hook to open the journal entry
-# If no hook is found, then it fallbacks to invokign the configured editor
-_open_journal_entry() {
-    local journal_entry="${1:-}"
-    local open_hook=$(_find_hook "open" "$JOURNALSCRIPT_EDITOR")
-
-    # invoke configured editor directly and run backup hook
-    if [[ -n "$open_hook" ]]; then
-        printf "==> Opening wih hook %s\n" "${open_hook##*/}"
-        . "$open_hook"
-    else
-        # If there is no open hook, default to invokig the configured editor
-        $JOURNALSCRIPT_EDITOR "$journal_entry"
     fi
 }
 
@@ -424,7 +398,6 @@ file_name() {
 # the file is current, and contents shoudl be appended to it. This is based on the
 # configured CADENCE
 is_outdated_file() {
-    echo "$JOURNALSCRIPT_GROUP_BY"
     local file_date="${1%.*}" # removes file extension from name
 
     local file_year="${file_date::4}"
@@ -466,9 +439,6 @@ _write() {
     # directory that hosts all the entries of the journal
     local journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
 
-    local entry_name="$(file_name).md"
-    # full path the journal entry file to crete/edit
-    local todays_entry="$journal_dir/$entry_name"
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
     if ! test -d "$journal_dir"; then
@@ -477,38 +447,38 @@ _write() {
         mkdir -p "$journal_dir"
     fi
 
-    local is_new_file=1
-    local latest_entry=$(ls -Art1 "${journal_dir}" | tail -n 1)
-    if test -f "$journal_dir/$latest_entry" && ! is_outdated_file "$latest_entry"; then
-        is_new_file=0
-    fi
-    echo "$latest_entry"
-    if is_outdated_file "$latest_entry"; then
-        echo "is outdated"
-    else
-        echo "is not outdated"
-    fi
-    echo "$is_new_file"
-
-    # Make special vars avaiable to hooks
-    JOURNALSCRIPT_JOURNAL_NAME="$journal_name"          # name of the journal
-    JOURNALSCRIPT_JOURNAL_DIRECTORY="$journal_dir"      # full path to journal dir
-    JOURNALSCRIPT_JOURNAL_ENTRY="$todays_entry"         # full path to journal entry file
-    JOURNALSCRIPT_JOURNAL_ENTRY_FILE_NAME="$entry_name" # entry file name
-    JOURNALSCRIPT_IS_NEW_JOURNAL_ENTRY="$is_new_file"   # whether the file is new
-
     set +e
     _sync_journal
     set -e
-    if [[ $is_new_file -eq 1 ]]; then
-        _create_entry "$journal_name" "$todays_entry"
-        printf "==> Created new entry '$entry_name' of journal '$journal_name'\n"
+
+    local create_new_file=1
+    local latest_file=$(ls -Art1 "${journal_dir}" | tail -n 1)
+    if test -f "$journal_dir/$latest_file" && ! is_outdated_file "$latest_file"; then
+        create_new_file=0
     fi
-    local hash=$(md5sum "$todays_entry")
-    _open_journal_entry "$todays_entry"
+
+    local file_fp="$journal_dir/$latest_file"
+    if [[ $create_new_file -eq 1 ]]; then
+        # creates new file
+        local file_name="$(file_name).md"
+        # full path the journal entry file to crete/edit
+        file_fp="$journal_dir/$file_name"
+        printf "##### %s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >"$file_fp"
+        printf "==> Created new file '$file_name' in the journal '$journal_name'\n"
+    elif ! grep -q "$(date +'%a %b %d %Y')," $file_fp; then
+        # Add new entry to existing file
+        local file_name="$latest_file"
+        file_fp="$journal_dir/$latest_file"
+        printf "\n\n#####%s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
+        printf "==> Created new entry in file '$file_name' in the journal '$journal_name'\n"
+    fi
+
+    local hash=$(md5sum "$file_fp")
+    $JOURNALSCRIPT_EDITOR "$file_fp"
     if ! _check_md5sum "$hash"; then
-        printf "==> Edited entry '$entry_name' of journal '$journal_name'\n"
+        printf "==> Edited entry in the file '$file_name' of the journal '$journal_name'\n"
     fi
+
     set +e
     _backup_journal
     set -e

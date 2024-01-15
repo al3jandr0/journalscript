@@ -104,6 +104,7 @@ _2_1_4=\
     assert_equal "$stderr" ""
     # assert generated journal entry 
     assert_file_exists "$file"
+    cat "$file"
     assert_file_contains "$file" "^Existing entry$"
 }
 
