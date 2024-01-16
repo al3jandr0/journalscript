@@ -172,6 +172,10 @@ _find_hook() {
     fi
 }
 
+is_git_repo() {
+    git -C "$1" rev-parse >/dev/null 2>&1
+}
+
 # Runs backup hook (backup journal)
 #
 # It attempts to run a user defined hook, if none is found then it does nothign
@@ -454,9 +458,14 @@ _write() {
         mkdir -p "$journal_dir"
     fi
 
-    set +e
-    _sync_journal
-    set -e
+    # embed git hook
+    if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
+        if is_git_repo "$journal_dir"; then
+            git -C "$journal_dir" pull --rebase
+        fi
+    else
+        _sync_journal
+    fi
 
     local create_new_file=1
     local latest_file=$(ls -Art1 "${journal_dir}" | tail -n 1)
@@ -465,30 +474,42 @@ _write() {
     fi
 
     local file_fp="$journal_dir/$latest_file"
+    local info_msg=""
     if [[ $create_new_file -eq 1 ]]; then
         # creates new file
         local file_name="$(file_name).md"
         # full path the journal entry file to crete/edit
         file_fp="$journal_dir/$file_name"
         printf "##### %s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >"$file_fp"
-        printf "==> Created new file '$file_name' in the journal '$journal_name'\n"
+        info_msg="Created new file '$file_name' in the journal '$journal_name'"
+        printf "==> %s\n" "$info_msg"
     elif ! grep -q "$(date +'%a %b %d %Y')," $file_fp; then
         # Add new entry to existing file
         local file_name="$latest_file"
         file_fp="$journal_dir/$latest_file"
         printf "\n\n#####%s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
-        printf "==> Created new entry in file '$file_name' in the journal '$journal_name'\n"
+        info_msg="Created new entry in file '$file_name' in the journal '$journal_name'"
+        printf "==> %s\n" "$info_msg"
     fi
 
     local hash=$(md5sum "$file_fp")
     $JOURNALSCRIPT_EDITOR "$file_fp"
     if ! _check_md5sum "$hash"; then
-        printf "==> Edited entry in the file '$file_name' of the journal '$journal_name'\n"
+        info_msg="Edited entry in the file '$file_name' of the journal '$journal_name'"
+        printf "==> $info_msg\n"
     fi
 
-    set +e
-    _backup_journal
-    set -e
+    # embed git backup
+    if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
+        # if no changes. do nothing
+        if is_git_repo "$journal_dir" && git diff --exit-code -s "$file_fp"; then
+            git -C "$journal_dir" add "$file_fp" &&
+                git -C "$journal_dir" commit -m "$info_msg" &&
+                git -C "$journal_dir" push
+        fi
+    else
+        _backup_journal
+    fi
 }
 
 _main() {
