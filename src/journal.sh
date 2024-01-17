@@ -20,7 +20,7 @@ set -e
 set -o nounset
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.5.1"
+_VERSION="0.5.2"
 _COMMAND_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -461,7 +461,7 @@ _write() {
     # embed git hook
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
-            git -C "$journal_dir" pull --rebase
+            git -q -C "$journal_dir" pull --rebase
         fi
     else
         _sync_journal
@@ -503,9 +503,9 @@ _write() {
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         # if no changes. do nothing
         if is_git_repo "$journal_dir" && git diff --exit-code -s "$file_fp"; then
-            git -C "$journal_dir" add "$file_fp" &&
-                git -C "$journal_dir" commit -m "$info_msg" &&
-                git -C "$journal_dir" push
+            git -q -C "$journal_dir" add "$file_fp" &&
+                git -q -C "$journal_dir" commit -m "$info_msg" &&
+                git -q -C "$journal_dir" push
         fi
     else
         _backup_journal
