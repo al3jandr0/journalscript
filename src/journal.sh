@@ -20,7 +20,7 @@ set -e
 set -o nounset
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.5.2"
+_VERSION="0.5.3"
 _COMMAND_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -174,6 +174,11 @@ _find_hook() {
 
 is_git_repo() {
     git -C "$1" rev-parse >/dev/null 2>&1
+}
+
+quiet_git() {
+    git "$@"
+    #git "$@" >/dev/null 2>&1
 }
 
 # Runs backup hook (backup journal)
@@ -461,7 +466,7 @@ _write() {
     # embed git hook
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
-            git -q -C "$journal_dir" pull --rebase
+            git -C "$journal_dir" pull --rebase --quiet
         fi
     else
         _sync_journal
@@ -473,11 +478,12 @@ _write() {
         create_new_file=0
     fi
 
+    local file_name="$latest_file"
     local file_fp="$journal_dir/$latest_file"
     local info_msg=""
     if [[ $create_new_file -eq 1 ]]; then
         # creates new file
-        local file_name="$(file_name).md"
+        file_name="$(file_name).md"
         # full path the journal entry file to crete/edit
         file_fp="$journal_dir/$file_name"
         printf "##### %s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >"$file_fp"
@@ -485,7 +491,7 @@ _write() {
         printf "==> %s\n" "$info_msg"
     elif ! grep -q "$(date +'%a %b %d %Y')," $file_fp; then
         # Add new entry to existing file
-        local file_name="$latest_file"
+        file_name="$latest_file"
         file_fp="$journal_dir/$latest_file"
         printf "\n\n#####%s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
         info_msg="Created new entry in file '$file_name' in the journal '$journal_name'"
@@ -502,10 +508,11 @@ _write() {
     # embed git backup
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         # if no changes. do nothing
-        if is_git_repo "$journal_dir" && git diff --exit-code -s "$file_fp"; then
-            git -q -C "$journal_dir" add "$file_fp" &&
-                git -q -C "$journal_dir" commit -m "$info_msg" &&
-                git -q -C "$journal_dir" push
+        if is_git_repo "$journal_dir" && ! quiet_git -C "$journal_dir" diff --exit-code -s "$file_fp"; then
+            echo "-C $journal_dir add $file_fp"
+            quiet_git -C "$journal_dir" add "$file_fp" &&
+                quiet_git -C "$journal_dir" commit -m "$info_msg" &&
+                quiet_git -C "$journal_dir" push
         fi
     else
         _backup_journal
