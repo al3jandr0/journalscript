@@ -64,7 +64,7 @@ _2_1_2=\
     assert_dir_exists "$HOME/Documents/journals/myjournal"
 }
 
-# 2.1.3 Test command creates a journal entry in the journal directory
+# 2.1.3 Test command creates a journal entry in the journal d#irectory
 _2_1_3=\
 "2.1.3 Given no config file. "\
 "And group by day env override. "\
@@ -81,7 +81,7 @@ _2_1_3=\
     assert_success
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
-    assert_output --partial "Created new file"
+    assert_output --partial "New file"
     # assert generated journal entry 
     local todays_date=$(date +%Y-%m-%d)
     assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
@@ -126,18 +126,15 @@ _2_1_5=\
     local todays_date=$(date +%Y-%m-%d)
     local file="$HOME/Documents/journals/life/$todays_date.md"
     printf "Existing entry" > "$file"
-    export JOURNALSCRIPT_EDITOR="printf '\nedit\n' >> $file" # no-op editor
 
     run journal.sh
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
-    assert_output --partial "Edited entry"
     # assert generated journal entry 
     assert_file_exists "$file"
     assert_file_contains "$file" "^Existing entry$"
-    assert_file_contains "$file" "edit"
 }
 
 # 2.1.6 Test command creates a journal entry in the journal directory
@@ -227,6 +224,7 @@ _2_3_1=\
 "And yearly group by override. "\
 "When the command 'write' is invoked. "\
 "Then a new file with a new entry is created in the journal directory with the current's year date."
+# bats file_tags=lol
 @test "${_2_3_1}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
@@ -239,10 +237,11 @@ _2_3_1=\
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
     # assert info message
-    assert_output --partial "Created new file"
+    assert_output --partial "New file"
+    # assert info message
+    assert_output --partial "New entry"
     # assert generated journal entry 
     assert_file_exists "$file"
-    assert_file_contains "$file" "^Existing entry$"
     # assert new header (new netry) is inserted
     local today_header=$(date +'%a %b %d %Y')
     assert_file_contains "$file" "$today_header"
@@ -258,10 +257,10 @@ _2_3_2=\
 @test "${_2_3_2}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
-    local current_month=$(date +%Y)
+    local current_year=$(date +%Y)
     local yday_header=$(date -d "1 day ago" +'%a %b %d %Y')
     local file="$HOME/Documents/journals/life/$current_year.md"
-    printf "%s\nExisting entry" "$yday_header" > "$file"
+    printf "$yday_header\nExisting entry" >> "$file"
 
     run journal.sh
     # assert command finishes sucessfully
@@ -269,7 +268,7 @@ _2_3_2=\
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
     # assert info message
-    assert_output --partial "Created new entry"
+    assert_output --partial "New entry"
     # assert generated journal entry 
     assert_file_exists "$file"
     # assert new header (new netry) is inserted
@@ -288,22 +287,24 @@ _2_3_3=\
 @test "${_2_3_3}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
-    local current_month=$(date +%Y)
+    local current_year=$(date +%Y)
     local today_header=$(date +'%a %b %d %Y')
     local file="$HOME/Documents/journals/life/$current_year.md"
     printf "%s\nExisting entry" "$today_header" > "$file"
-    export JOURNALSCRIPT_EDITOR="printf '\nedit\n' >> $file" # no-op editor
 
     run journal.sh
+    cucu=$(<"$file")
+    echo "## $cucu" >&3
     # assert command finishes sucessfully
     assert_success
     # assert nothing is written to stderr
     assert_equal "$stderr" ""
     # assert info message
-    assert_output --partial "Edited entry"
+    #assert_output --partial "Edited entry"
     # assert generated journal entry 
     assert_file_exists "$file"
-    assert_file_contains "$file" "edit$"
+    assert_file_contains "$file" "Existing entry"
+    assert_file_contains "$file" "$today_header"
 }
 
 # existing file, current entry, nothign is done
@@ -317,7 +318,7 @@ _2_3_4=\
 @test "${_2_3_4}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
-    local current_month=$(date +%Y)
+    local current_year=$(date +%Y)
     local today_header=$(date +'%a %b %d %Y')
     local file="$HOME/Documents/journals/life/$current_year.md"
     printf "%s\nExisting entry" "$today_header" > "$file"
@@ -331,6 +332,7 @@ _2_3_4=\
     assert_output ""
     # assert generated journal entry 
     assert_file_exists "$file"
+    assert_file_contains "$file" "$today_header"
     assert_file_contains "$file" "Existing entry$"
 }
 

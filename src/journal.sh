@@ -396,7 +396,7 @@ _help_write() {
 }
 
 # File name is the creation name by date based on CADENCE
-file_name() {
+_file_name() {
     case "$JOURNALSCRIPT_GROUP_BY" in
     DAY)
         date +%Y-%m-%d
@@ -463,6 +463,7 @@ _write() {
         mkdir -p "$journal_dir"
     fi
 
+    # TODO inform of sync [SUCCESS|FAILURE|NONE]
     # embed git hook
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
@@ -472,46 +473,57 @@ _write() {
         _sync_journal
     fi
 
-    local create_new_file=1
-    local latest_file=$(ls -Art1 "${journal_dir}" | tail -n 1)
-    if test -f "$journal_dir/$latest_file" && ! is_outdated_file "$latest_file"; then
-        create_new_file=0
-    fi
+    # /journal_dir/
 
-    local file_name="$latest_file"
-    local file_fp="$journal_dir/$latest_file"
+    # the most recent file in journal directory
+    local file=$(ls -Art1 "${journal_dir}" | tail -n 1)
+    local file_fp="${journal_dir}/$file"
     local info_msg=""
-    if [[ $create_new_file -eq 1 ]]; then
+    # test if file is current or outdated, if outdated a new one needs to be created
+    # TODO: change from is_outdated to is_current
+    #echo "file(poop) = $file"
+    #echo "file_fp(poop) = $file_fp"
+
+    if [ ! -f "$file_fp" ]; then
         # creates new file
-        file_name="$(file_name).md"
+        file="$(_file_name).md"
         # full path the journal entry file to crete/edit
-        file_fp="$journal_dir/$file_name"
-        printf "##### %s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >"$file_fp"
-        info_msg="Created new file '$file_name' in the journal '$journal_name'"
+        file_fp="${journal_dir}/$file"
+        touch "$file_fp"
+        info_msg="New file '$file' added to the journal '$journal_name'"
         printf "==> %s\n" "$info_msg"
-    elif ! grep -q "$(date +'%a %b %d %Y')," $file_fp; then
+    # because I dont know how to do basic boolean expressions
+    elif test -f "$file_fp" && is_outdated_file "$file"; then
+        # creates new file
+        file="$(_file_name).md"
+        # full path the journal entry file to crete/edit
+        file_fp="${journal_dir}/$file"
+        touch "$file_fp"
+        info_msg="New file '$file' added to the journal '$journal_name'"
+        printf "==> %s\n" "$info_msg"
+    fi
+    # if file does not have today's entry
+    if ! grep -q "$(date +'%a %b %d %Y')" "$file_fp"; then
         # Add new entry to existing file
-        file_name="$latest_file"
-        file_fp="$journal_dir/$latest_file"
         printf "\n\n#####%s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
-        info_msg="Created new entry in file '$file_name' in the journal '$journal_name'"
+        info_msg="New entry in file '$file' added to the journal '$journal_name'"
         printf "==> %s\n" "$info_msg"
     fi
 
-    local hash=$(md5sum "$file_fp")
+    #local hash=$(md5sum "$file_fp")
     $JOURNALSCRIPT_EDITOR "$file_fp"
-    if ! _check_md5sum "$hash"; then
-        info_msg="Edited entry in the file '$file_name' of the journal '$journal_name'"
-        printf "==> $info_msg\n"
-    fi
+    #if ! _check_md5sum "$hash"; then
+    #    info_msg="Edited entry in the file '$file_name' of the journal '$journal_name'"
+    #    printf "==> $info_msg\n"
+    #fi
 
     # embed git backup
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
-        # if no changes. do nothing
+        #  if it is a git repo and there are changes.
         if is_git_repo "$journal_dir" && ! quiet_git -C "$journal_dir" diff --exit-code -s "$file_fp"; then
             echo "-C $journal_dir add $file_fp"
             quiet_git -C "$journal_dir" add "$file_fp" &&
-                quiet_git -C "$journal_dir" commit -m "$info_msg" &&
+                quiet_git -C "$journal_dir" commit --allow-empty-message -m "$info_msg" &&
                 quiet_git -C "$journal_dir" push
         fi
     else
