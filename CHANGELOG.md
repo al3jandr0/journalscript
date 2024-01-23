@@ -3,6 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v.0.5.4 - 2024-01-22
+
+### Fixed
+
+- bugs in write command overriding exiting file
+- errors in git add, commit, push sequence
+
+### Added
+
+- Messaging when a file is created
+- Messaging when an entry is added
+- Messaging when a file is backed up
+- Messaging when the journal is synched
+
 ## v.0.5.3 - 2024-01-16
 
 ### Fixed
