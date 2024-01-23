@@ -473,27 +473,12 @@ _write() {
         _sync_journal
     fi
 
-    # /journal_dir/
-
     # the most recent file in journal directory
     local file=$(ls -Art1 "${journal_dir}" | tail -n 1)
     local file_fp="${journal_dir}/$file"
     local info_msg=""
     # test if file is current or outdated, if outdated a new one needs to be created
-    # TODO: change from is_outdated to is_current
-    #echo "file(poop) = $file"
-    #echo "file_fp(poop) = $file_fp"
-
-    if [ ! -f "$file_fp" ]; then
-        # creates new file
-        file="$(_file_name).md"
-        # full path the journal entry file to crete/edit
-        file_fp="${journal_dir}/$file"
-        touch "$file_fp"
-        info_msg="New file '$file' added to the journal '$journal_name'"
-        printf "==> %s\n" "$info_msg"
-    # because I dont know how to do basic boolean expressions
-    elif test -f "$file_fp" && is_outdated_file "$file"; then
+    if [ ! -f "$file_fp" ] || [ -f "$file_fp" ] && is_outdated_file "$file"; then
         # creates new file
         file="$(_file_name).md"
         # full path the journal entry file to crete/edit
@@ -510,12 +495,7 @@ _write() {
         printf "==> %s\n" "$info_msg"
     fi
 
-    #local hash=$(md5sum "$file_fp")
     $JOURNALSCRIPT_EDITOR "$file_fp"
-    #if ! _check_md5sum "$hash"; then
-    #    info_msg="Edited entry in the file '$file_name' of the journal '$journal_name'"
-    #    printf "==> $info_msg\n"
-    #fi
 
     # embed git backup
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
