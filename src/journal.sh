@@ -189,8 +189,10 @@ _backup_journal() {
 
     # if there is no backup hook, do nothing
     if [[ -n "$backup_hook" ]]; then
-        printf "==> Backing up with hook %s\n" "${backup_hook##*/}"
         . "$backup_hook"
+        local status="SUCCEEDED"
+        if [ $? -eq 1 ]; then status="FAILED"; fi
+        printf "==> Synched with %s %s\n" "${backup_hook##*/}" "$status"
     fi
 }
 
@@ -199,14 +201,11 @@ _sync_journal() {
 
     # if there is no backup hook, do nothing
     if [[ -n "$sync_hook" ]]; then
-        printf "==> Synching with hook %s\n" "${sync_hook##*/}"
         . "$sync_hook"
+        local status="SUCCEEDED"
+        if [ $? -eq 1 ]; then status="FAILED"; fi
+        printf "==> Synched with %s %s\n" "${sync_hook##*/}" "$status"
     fi
-}
-
-_check_md5sum() {
-    local md5sum_hash=$1
-    md5sum --check --status < <(echo "$md5sum_hash") >/dev/null 2>&1
 }
 
 ################################################################################
@@ -451,9 +450,9 @@ _write() {
         _fail "JOURNALSCRIPT_JOURNAL_DIR is not set"
     fi
     # if no argument (journal name), then default to the default journal
-    local journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
+    local -r journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
     # directory that hosts all the entries of the journal
-    local journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
+    local -r journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
 
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
@@ -468,6 +467,9 @@ _write() {
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
             git -C "$journal_dir" pull --rebase --quiet
+            local sync_status="SUCCEEDED"
+            if [ $? -eq 1 ]; then sync_status="FAILED"; fi
+            printf "==> Synched with git %s\n" "$sync_status"
         fi
     else
         _sync_journal
@@ -501,10 +503,12 @@ _write() {
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         #  if it is a git repo and there are changes.
         if is_git_repo "$journal_dir" && ! quiet_git -C "$journal_dir" diff --exit-code -s "$file_fp"; then
-            echo "-C $journal_dir add $file_fp"
             quiet_git -C "$journal_dir" add "$file_fp" &&
                 quiet_git -C "$journal_dir" commit --allow-empty-message -m "$info_msg" &&
                 quiet_git -C "$journal_dir" push
+            local backup_status="SUCCEEDED"
+            if [ $? -eq 1 ]; then backup_status="FAILED"; fi
+            printf "==> Backed up with git %s\n" "$backup_status"
         fi
     else
         _backup_journal
