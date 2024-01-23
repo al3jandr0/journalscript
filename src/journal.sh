@@ -462,8 +462,7 @@ _write() {
         mkdir -p "$journal_dir"
     fi
 
-    # TODO inform of sync [SUCCESS|FAILURE|NONE]
-    # embed git hook
+    # embeded git hook
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
             git -C "$journal_dir" pull --rebase --quiet
@@ -492,7 +491,7 @@ _write() {
     # if file does not have today's entry
     if ! grep -q "$(date +'%a %b %d %Y')" "$file_fp"; then
         # Add new entry to existing file
-        printf "\n\n#####%s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
+        printf "\n\n##### %s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
         info_msg="New entry in file '$file' added to the journal '$journal_name'"
         printf "==> %s\n" "$info_msg"
     fi
