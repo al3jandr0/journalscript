@@ -64,7 +64,7 @@ _2_1_2=\
     assert_dir_exists "$HOME/Documents/journals/myjournal"
 }
 
-# 2.1.3 Test command creates a journal entry in the journal d#irectory
+# 2.1.3 Test command creates a journal entry in the journal directory
 _2_1_3=\
 "2.1.3 Given no config file. "\
 "And group by day env override. "\
@@ -87,14 +87,40 @@ _2_1_3=\
     assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
 }
 
-# 2.1.4 Test command doesn't create a new file if target file exits
+# 2.1.4 Test command creates a journal entry with the correct format
 _2_1_4=\
+"2.1.4 Given no config file. "\
+"And group by day env override. "\
+"And no existing journal. "\
+"When the command 'write' is invoked. "\
+"Then journalscript should prompt the user to create a new journal dir with "\
+"named 'myjournal' at the default journal directory. "\
+"And a new entry is created in the journal directory with with the expected "\
+" name format. "
+"And that the file doesnt have leading new lines."\
+@test "${_2_1_4}" {
+    export JOURNALSCRIPT_GROUP_BY="DAY" # no-op editor
+    run journal.sh < <(printf "y\n")
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "New file"
+    # assert generated journal entry 
+    local todays_date=$(date +%Y-%m-%d)
+    local file="$HOME/Documents/journals/life/$todays_date.md"
+    assert_file_exists "$file"
+    assert_file_contains "$file" "^###*"
+}
+
+# 2.1.5 Test command doesn't create a new file if target file exits
+_2_1_5=\
 "2.1.4 Given no config file. "\
 "And no env overrides. "\
 "And a existing journal with an exiting entry for today. "\
 "When the command 'write' is invoked. "\
 "Then No new entry is created in the journal directory."
-@test "${_2_1_4}" {
+@test "${_2_1_5}" {
     mkdir -p "$HOME/Documents/journals/life"
     local todays_date=$(date +%Y-%m-%d)
     local file="$HOME/Documents/journals/life/$todays_date.md"
@@ -112,16 +138,16 @@ _2_1_4=\
     assert_file_contains "$file" "^Existing entry$"
 }
 
-# 2.1.5 Test command doesn't create a new file if target file exits
+# 2.1.6 Test command doesn't create a new file if target file exits
 # And that exiting file wasnt overrwrite, and that appropiate message
 # is displayed when the file is edited
-_2_1_5=\
+_2_1_6=\
 "2.1.5 Given no config file. "\
 "And no env overrides. "\
 "And a existing journal with an exiting entry for today. "\
 "When the command 'write' is invoked. "\
 "Then No new entry is created in the journal directory."
-@test "${_2_1_5}" {
+@test "${_2_1_6}" {
     mkdir -p "$HOME/Documents/journals/life"
     local todays_date=$(date +%Y-%m-%d)
     local file="$HOME/Documents/journals/life/$todays_date.md"
@@ -137,15 +163,15 @@ _2_1_5=\
     assert_file_contains "$file" "^Existing entry$"
 }
 
-# 2.1.6 Test command creates a journal entry in the journal directory
+# 2.1. Test command creates a journal entry in the journal directory
 #       When outdated file exists with DAY group by
-_2_1_6=\
-"2.1.6 Given no config file. "\
+_2_1_7=\
+"2.1.7 Given no config file. "\
 "And no env overrides. "\
 "And a existing journal with an existing entry for yesterday. "\
 "When the command 'write' is invoked. "\
 "A new entry is created in the journal directory with today's date."
-@test "${_2_1_6}" {
+@test "${_2_1_7}" {
     mkdir -p "$HOME/Documents/journals/life"
     local today_date=$(date +%Y-%m-%d)
     local yday_date=$(date -d "1 day ago" +"%Y-%m-%d")
@@ -335,6 +361,20 @@ _2_3_4=\
     assert_file_contains "$file" "$today_header"
     assert_file_contains "$file" "Existing entry$"
 }
+
+# New files should not have starting new line characters
+#
+# Most recent file should be grabbed by naming convention
+# Thus, test not-most recent file being the latest one edited 
+# Try this with correctly named files
+#
+# Test having files not matching the convention in the journal directory
+#
+# Test having (latest) file not matchign the pattern
+# Test file almost matching the patterm such as:
+# <pattern>garbage
+# gabage<pattern>
+
 
 teardown() {
     unset JOURNALSCRIPT_EDITOR
