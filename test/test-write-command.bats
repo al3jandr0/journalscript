@@ -87,18 +87,44 @@ _2_1_3=\
     assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
 }
 
-# 2.1.4 Test command creates a journal entry with the correct format
+# Test command creates a journal entry in an existing journal directory
 _2_1_4=\
 "2.1.4 Given no config file. "\
+"And group by day env override. "\
+"And existing journal. "\
+"When the command 'write' is invoked. "\
+"And a new entry is created in the journal directory with with the expected "\
+" name format."
+@test "${_2_1_4}" {
+    export JOURNALSCRIPT_GROUP_BY="DAY"
+    mkdir -p "$HOME/Documents/journals/life"
+    local todays_date=$(date +%Y-%m-%d)
+    local file="$HOME/Documents/journals/life/$todays_date.md"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "New file"
+    # assert generated journal entry 
+    local todays_date=$(date +%Y-%m-%d)
+    assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
+}
+
+
+# 2.1.4 Test command creates a journal entry with the correct format
+_2_1_5=\
+"2.1.5 Given no config file. "\
 "And group by day env override. "\
 "And no existing journal. "\
 "When the command 'write' is invoked. "\
 "Then journalscript should prompt the user to create a new journal dir with "\
 "named 'myjournal' at the default journal directory. "\
 "And a new entry is created in the journal directory with with the expected "\
-" name format. "
-"And that the file doesnt have leading new lines."\
-@test "${_2_1_4}" {
+" name format. "\
+"And that the file doesnt have leading new lines."
+@test "${_2_1_5}" {
     export JOURNALSCRIPT_GROUP_BY="DAY" # no-op editor
     run journal.sh < <(printf "y\n")
     # assert command finishes sucessfully
@@ -113,14 +139,14 @@ _2_1_4=\
     assert_file_contains "$file" "^###*"
 }
 
-# 2.1.5 Test command doesn't create a new file if target file exits
-_2_1_5=\
-"2.1.4 Given no config file. "\
+# Test command doesn't create a new file if target file exits
+_2_1_6=\
+"2.1.6 Given no config file. "\
 "And no env overrides. "\
 "And a existing journal with an exiting entry for today. "\
 "When the command 'write' is invoked. "\
 "Then No new entry is created in the journal directory."
-@test "${_2_1_5}" {
+@test "${_2_1_6}" {
     mkdir -p "$HOME/Documents/journals/life"
     local todays_date=$(date +%Y-%m-%d)
     local file="$HOME/Documents/journals/life/$todays_date.md"
@@ -138,16 +164,16 @@ _2_1_5=\
     assert_file_contains "$file" "^Existing entry$"
 }
 
-# 2.1.6 Test command doesn't create a new file if target file exits
+# Test command doesn't create a new file if target file exits
 # And that exiting file wasnt overrwrite, and that appropiate message
 # is displayed when the file is edited
-_2_1_6=\
-"2.1.5 Given no config file. "\
+_2_1_7=\
+"2.1.7 Given no config file. "\
 "And no env overrides. "\
 "And a existing journal with an exiting entry for today. "\
 "When the command 'write' is invoked. "\
 "Then No new entry is created in the journal directory."
-@test "${_2_1_6}" {
+@test "${_2_1_7}" {
     mkdir -p "$HOME/Documents/journals/life"
     local todays_date=$(date +%Y-%m-%d)
     local file="$HOME/Documents/journals/life/$todays_date.md"
@@ -163,15 +189,15 @@ _2_1_6=\
     assert_file_contains "$file" "^Existing entry$"
 }
 
-# 2.1. Test command creates a journal entry in the journal directory
-#       When outdated file exists with DAY group by
-_2_1_7=\
-"2.1.7 Given no config file. "\
+# Test command creates a journal entry in the journal directory
+# When outdated file exists with DAY group by
+_2_1_8=\
+"2.1.8 Given no config file. "\
 "And no env overrides. "\
 "And a existing journal with an existing entry for yesterday. "\
 "When the command 'write' is invoked. "\
 "A new entry is created in the journal directory with today's date."
-@test "${_2_1_7}" {
+@test "${_2_1_8}" {
     mkdir -p "$HOME/Documents/journals/life"
     local today_date=$(date +%Y-%m-%d)
     local yday_date=$(date -d "1 day ago" +"%Y-%m-%d")
@@ -250,7 +276,6 @@ _2_3_1=\
 "And yearly group by override. "\
 "When the command 'write' is invoked. "\
 "Then a new file with a new entry is created in the journal directory with the current's year date."
-# bats file_tags=lol
 @test "${_2_3_1}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
@@ -276,7 +301,7 @@ _2_3_1=\
 # existing file, new entry
 _2_3_2=\
 "2.3.2 Given no config file. "\
-"And monthly group by override. "\
+"And yearly group by override. "\
 "And a existing journal with an exiting entry for yesterday. "\
 "When the command 'write' is invoked. "\
 "Then no new file is created, and a new entry is created for the existing file in the journal directory."
@@ -302,15 +327,51 @@ _2_3_2=\
     assert_file_contains "$file" "$today_header"
 }
 
-# existing file, current entry edited 
+# existing file,
+# existin even older file but more recently touched
+# new entry
 _2_3_3=\
 "2.3.3 Given no config file. "\
+"And yearly group by override. "\
+"And an existing journal with an exiting entry for yesterday. "\
+"And an existing journal with an even older exiting entry but that is more recently touched. "\
+"When the command 'write' is invoked. "\
+"Then no new file is created, and a new entry is created for the correct file in the journal directory."
+@test "${_2_3_3}" {
+    export JOURNALSCRIPT_GROUP_BY="YEAR"
+    mkdir -p "$HOME/Documents/journals/life"
+    local current_year=$(date +%Y)
+    local last_year=$(date -d "1 year ago" +%Y)
+    local yday_header=$(date -d "1 day ago" +'%a %b %d %Y')
+    local file="$HOME/Documents/journals/life/$current_year.md"
+    local old_file="$HOME/Documents/journals/life/$last_year.md"
+    printf "$yday_header\nExisting entry" >> "$file"
+    printf "$yday_header\nExisting entry" >> "$old_file"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert info message
+    assert_output --partial "New entry"
+    # assert generated journal entry 
+    assert_file_exists "$file"
+    # assert new header (new netry) is inserted
+    local today_header=$(date +'%a %b %d %Y')
+    assert_file_contains "$file" "$today_header"
+    assert_file_not_contains "$old_file" "$today_header"
+}
+
+# existing file, current entry edited 
+_2_3_4=\
+"2.3.4 Given no config file. "\
 "And yearly group by override. "\
 "And a existing journal with an exiting entry for the current date. "\
 "When the command 'write' is invoked. "\
 "And the user makes an edit. "\
 "Then no new file is created, and journalscript informs the user that the file was edited."
-@test "${_2_3_3}" {
+@test "${_2_3_4}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
     local current_year=$(date +%Y)
@@ -334,14 +395,14 @@ _2_3_3=\
 }
 
 # existing file, current entry, nothign is done
-_2_3_4=\
-"2.3.4 Given no config file. "\
-"And monthly group by override. "\
+_2_3_5=\
+"2.3.5 Given no config file. "\
+"And yearly group by override. "\
 "And a existing journal with an exiting entry for the current date. "\
 "When the command 'write' is invoked. "\
 "Ands the user performs no edits. "\
 "Then no new file is created, and a no new entry is created, and journalscript outputs nothing."
-@test "${_2_3_4}" {
+@test "${_2_3_5}" {
     export JOURNALSCRIPT_GROUP_BY="YEAR"
     mkdir -p "$HOME/Documents/journals/life"
     local current_year=$(date +%Y)
@@ -362,19 +423,172 @@ _2_3_4=\
     assert_file_contains "$file" "Existing entry$"
 }
 
-# New files should not have starting new line characters
-#
-# Most recent file should be grabbed by naming convention
-# Thus, test not-most recent file being the latest one edited 
-# Try this with correctly named files
-#
-# Test having files not matching the convention in the journal directory
-#
-# Test having (latest) file not matchign the pattern
-# Test file almost matching the patterm such as:
-# <pattern>garbage
-# gabage<pattern>
+# existing file, current entry,
+# and existing file, old entry but edited more recently
+# nothign is done
+_2_3_6=\
+"2.3.6 Given no config file. "\
+"And yearly group by override. "\
+"And a existing journal with an existing entry for the current date. "\
+"And a existing journal with an existing old entry for an older date that has been recently touched. "\
+"When the command 'write' is invoked. "\
+"Ands the user performs no edits. "\
+"Then no new file is created, and a no new entry is created, and journalscript outputs nothing."
+@test "${_2_3_6}" {
+    export JOURNALSCRIPT_GROUP_BY="YEAR"
+    mkdir -p "$HOME/Documents/journals/life"
+    local current_year=$(date +%Y)
+    local last_year=$(date -d "1 year ago" +%Y)
+    local today_header=$(date +'%a %b %d %Y')
+    local file="$HOME/Documents/journals/life/$current_year.md"
+    local old_file="$HOME/Documents/journals/life/$last_year.md"
+    printf "%s\nExisting entry" "$today_header" > "$file"
+    printf "Too old" > "$old_file"
 
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert info message
+    assert_output ""
+    # assert generated journal entry 
+    assert_file_exists "$file"
+    assert_file_exists "$old_file"
+    assert_file_contains "$file" "$today_header"
+    assert_file_contains "$file" "Existing entry$"
+    assert_file_contains "$old_file" "Too old"
+    assert_file_not_contains "$old_file" "$today_header"
+}
+
+#########################################################################
+# File name pattern matching
+#########################################################################
+
+# existing unrelated file (bad name), new entry
+_2_4_1=\
+"2.3.1 Given no config file. "\
+"And daily group by override. "\
+"And trash files in the journal directory. "\
+"When the command 'write' is invoked. "\
+"Then a new file with a new entry is created in the journal directory with the current's year date."
+# bats file_tags=lol
+@test "${_2_4_1}" {
+    export JOURNALSCRIPT_GROUP_BY="DAY"
+    local journal_dir="$HOME/Documents/journals/life"
+    mkdir -p "$journal_dir"
+    local todays_date=$(date +%Y-%m-%d)
+    # bad files
+    touch "$journal_dir/trash"
+    touch "$journal_dir/meets_minimumsize"
+    touch "$journal_dir/.starts_with_dot"
+    local file="$journal_dir/$current_year.md"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    # assert info message
+    assert_output --partial "New file"
+    # assert info message
+    assert_output --partial "New entry"
+    # assert generated journal entry 
+    assert_file_exists "$file"
+    # assert new header (new netry) is inserted
+    local today_header=$(date +'%a %b %d %Y')
+    assert_file_contains "$file" "$today_header"
+}
+
+# Test write is able to detect a bad file name (daily format)
+_2_4_2=\
+"2.4.2 Given no config file. "\
+"And group by day env override. "\
+"And existing journal. "\
+"When the command 'write' is invoked. "\
+"And a new entry is created in the journal directory with with the expected "\
+" name format despite trash files being present."
+@test "${_2_4_2}" {
+    export JOURNALSCRIPT_GROUP_BY="DAY"
+    local journal_dir="$HOME/Documents/journals/life"
+    mkdir -p "$journal_dir"
+    local todays_date=$(date +%Y-%m-%d)
+    local today_header=$(date +'%a %b %d %Y')
+    touch "$journal_dir/.${todays_date}.md"
+    touch "$journal_dir/${todays_date}.md.tash"
+    local file="$journal_dir/$todays_date.md"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "New file"
+    # assert generated journal entry 
+    local todays_date=$(date +%Y-%m-%d)
+    assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
+    assert_file_contains "$file" "$today_header"
+}
+
+# Test write is able to detect a bad file name (monthly format)
+_2_4_3=\
+"2.4.3 Given no config file. "\
+"And group by month env override. "\
+"And existing journal. "\
+"When the command 'write' is invoked. "\
+"And a new entry is created in the journal directory with with the expected "\
+" name format despite trash files being present."
+@test "${_2_4_3}" {
+    export JOURNALSCRIPT_GROUP_BY="MONTH"
+    local journal_dir="$HOME/Documents/journals/life"
+    mkdir -p "$journal_dir"
+    local todays_date=$(date +%Y-%m)
+    local today_header=$(date +'%a %b %d %Y')
+    touch "$journal_dir/.${todays_date}.md"
+    touch "$journal_dir/${todays_date}.md.tash"
+    local file="$journal_dir/$todays_date.md"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "New file"
+    # assert generated journal entry 
+    local todays_date=$(date +%Y-%m-%d)
+    assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
+    assert_file_contains "$file" "$today_header"
+}
+
+# Test write is able to detect a bad file name (yearly format)
+_2_4_4=\
+"2.4.4 Given no config file. "\
+"And group by year env override. "\
+"And existing journal. "\
+"When the command 'write' is invoked. "\
+"And a new entry is created in the journal directory with with the expected "\
+" name format despite trash files being present."
+@test "${_2_4_4}" {
+    export JOURNALSCRIPT_GROUP_BY="YEAR"
+    local journal_dir="$HOME/Documents/journals/life"
+    mkdir -p "$journal_dir"
+    local todays_date=$(date +%Y)
+    local today_header=$(date +'%a %b %d %Y')
+    touch "$journal_dir/.${todays_date}.md"
+    touch "$journal_dir/${todays_date}.md.tash"
+    local file="$journal_dir/$todays_date.md"
+
+    run journal.sh
+    # assert command finishes sucessfully
+    assert_success
+    # assert nothing is written to stderr
+    assert_equal "$stderr" ""
+    assert_output --partial "New file"
+    # assert generated journal entry 
+    local todays_date=$(date +%Y-%m-%d)
+    assert_file_exists "$HOME/Documents/journals/life/$todays_date.md"
+    assert_file_contains "$file" "$today_header"
+}
 
 teardown() {
     unset JOURNALSCRIPT_EDITOR
