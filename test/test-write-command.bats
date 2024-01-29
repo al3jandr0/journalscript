@@ -360,8 +360,7 @@ _2_3_3=\
     # assert new header (new netry) is inserted
     local today_header=$(date +'%a %b %d %Y')
     assert_file_contains "$file" "$today_header"
-    # TODO: update module. missing function
-    #assert_file_not_contains "$old_file" "$today_header"
+    assert_file_not_contains "$old_file" "$today_header"
 }
 
 # existing file, current entry edited 
@@ -459,7 +458,7 @@ _2_3_6=\
     assert_file_contains "$file" "$today_header"
     assert_file_contains "$file" "Existing entry$"
     assert_file_contains "$old_file" "Too old"
-    #assert_file_not_contains "$old_file" "$today_header"
+    assert_file_not_contains "$old_file" "$today_header"
 }
 
 #########################################################################
