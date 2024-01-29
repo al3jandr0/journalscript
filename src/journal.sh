@@ -394,7 +394,7 @@ _help_write() {
 	EOF
 }
 
-# File name is the creation name by date based on CADENCE
+# File name is the creation name by date based on GROUP_BY
 _file_name() {
     case "$JOURNALSCRIPT_GROUP_BY" in
     DAY)
@@ -407,29 +407,6 @@ _file_name() {
         date +%Y
         ;;
     esac
-}
-
-# tests file whether it is outdated and a new file should be created, or whether
-# the file is current, and contents shoudl be appended to it. This is based on the
-# configured CADENCE
-is_outdated_file() {
-    local file_date="${1%.*}" # removes file extension from name
-
-    local file_year="${file_date::4}"
-    local year=$(date +%Y)
-    [[ $year -gt $file_year ]] && return 0
-
-    local file_month="${file_date:5:2}"
-    local month=$(date +%m)
-    [[ "$JOURNALSCRIPT_GROUP_BY" != "YEAR" ]] && [[ -n $file_month ]] &&
-        [[ $month -gt $file_month ]] && return 0
-
-    local file_day="${file_date:8:2}"
-    local day="$(date +%d)"
-    [[ "$JOURNALSCRIPT_GROUP_BY" != "MONTH" ]] && [[ -n $file_day ]] &&
-        [[ $day -gt $file_day ]] && return 0
-
-    return 1
 }
 
 # Writes journal entries.
@@ -474,26 +451,30 @@ _write() {
         _sync_journal
     fi
 
-    # the most recent file in journal directory
-    local file=$(ls -Art1 "${journal_dir}" | tail -n 1)
-    local file_fp="${journal_dir}/$file"
+    local file=""
+    file="$(_file_name).md"
+    local header=""
+    header="$(date +'%a %b %d %Y, %I:%M %p %Z')"
     local info_msg=""
-    # test if file is current or outdated, if outdated a new one needs to be created
-    if [ ! -f "$file_fp" ] || [ -f "$file_fp" ] && is_outdated_file "$file"; then
-        # creates new file
-        file="$(_file_name).md"
-        # full path the journal entry file to crete/edit
-        file_fp="${journal_dir}/$file"
-        touch "$file_fp"
+    local file_fp="${journal_dir}/$file"
+
+    if [ -f "$file_fp" ]; then
+        local search_header=""
+        search_header="$(date +'%a %b %d %Y')"
+        # test whether file does not have today's entry
+        if ! grep -q "$search_header" "$file_fp"; then
+            # Add new entry to existing file
+            printf "\n\n### %s\n" "$header" >>"$file_fp"
+            info_msg="New entry in file '$file' added to the journal '$journal_name'"
+            printf "==> %s\n" "$info_msg"
+        fi
+    else
+        # It is a new file
+        printf "### %s\n" "$header" >"$file_fp"
         info_msg="New file '$file' added to the journal '$journal_name'"
-        printf "==> %s\n" "$info_msg"
-    fi
-    # if file does not have today's entry
-    if ! grep -q "$(date +'%a %b %d %Y')" "$file_fp"; then
-        # Add new entry to existing file
-        printf "\n\n##### %s\n" "$(date +'%a %b %d %Y, %I:%M %p %Z')" >>"$file_fp"
-        info_msg="New entry in file '$file' added to the journal '$journal_name'"
-        printf "==> %s\n" "$info_msg"
+        printf "==> %s\n==> %s\n" \
+            "$info_msg" \
+            "New entry in file '$file' added to the journal '$journal_name'"
     fi
 
     $JOURNALSCRIPT_EDITOR "$file_fp"
