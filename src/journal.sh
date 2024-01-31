@@ -409,6 +409,7 @@ _file_name() {
     esac
 }
 
+# TODO: refactor git snc and backup to make use of _fail and better logging pattern
 # Writes journal entries.
 #
 # In case of new entires cretes the a new journal entry. And in case of
@@ -429,7 +430,7 @@ _write() {
     # if no argument (journal name), then default to the default journal
     local -r journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
     # directory that hosts all the entries of the journal
-    local -r journal_dir="$JOURNALSCRIPT_JOURNAL_DIR/$journal_name"
+    local -r journal_dir="${JOURNALSCRIPT_JOURNAL_DIR}$journal_name"
 
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees
@@ -440,16 +441,23 @@ _write() {
     fi
 
     # embeded git hook
+    set +e
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
             git -C "$journal_dir" pull --rebase --quiet
             local sync_status="SUCCEEDED"
             if [ $? -eq 1 ]; then sync_status="FAILED"; fi
             printf "==> Synched with git %s\n" "$sync_status"
+            # TODO: consider prompting the user when sync fails
+        else
+            # TODO: consider aiding the user in creating a new repo
+            printf "==> Warning: Not synched. JOURNALSCRIPT_SYNC_BACKUP=%s but %s is not a git repo\n" \
+                "$JOURNALSCRIPT_SYNC_BACKUP" "$journal_dir"
         fi
     else
         _sync_journal
     fi
+    set -e
 
     local file=""
     file="$(_file_name).md"
@@ -480,19 +488,26 @@ _write() {
     $JOURNALSCRIPT_EDITOR "$file_fp"
 
     # embed git backup
+    set +e
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         #  if it is a git repo and there are changes.
-        if is_git_repo "$journal_dir" && ! quiet_git -C "$journal_dir" diff --exit-code -s "$file_fp"; then
-            quiet_git -C "$journal_dir" add "$file_fp" &&
-                quiet_git -C "$journal_dir" commit --allow-empty-message -m "$info_msg" &&
-                quiet_git -C "$journal_dir" push
-            local backup_status="SUCCEEDED"
-            if [ $? -eq 1 ]; then backup_status="FAILED"; fi
-            printf "==> Backed up with git %s\n" "$backup_status"
+        if is_git_repo "$journal_dir"; then
+            if ! quiet_git -C "$journal_dir" diff --exit-code -s "$file_fp"; then
+                quiet_git -C "$journal_dir" add "$file_fp" &&
+                    quiet_git -C "$journal_dir" commit --allow-empty-message -m "$info_msg" &&
+                    quiet_git -C "$journal_dir" push
+                local backup_status="SUCCEEDED"
+                if [ $? -eq 1 ]; then backup_status="FAILED"; fi
+                printf "==> Backed up with git %s\n" "$backup_status"
+            fi
+        else
+            printf "==> Warning: Not backed up. JOURNALSCRIPT_SYNC_BACKUP=%s but %s is not a git repo\n" \
+                "$JOURNALSCRIPT_SYNC_BACKUP" "$journal_dir"
         fi
     else
         _backup_journal
     fi
+    set -e
 }
 
 _main() {
