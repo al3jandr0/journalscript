@@ -20,7 +20,7 @@ set -e
 set -o nounset
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.5.4"
+_VERSION="0.5.5"
 _COMMAND_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -111,6 +111,10 @@ _JOURNALSCRIPT_HOOKS_DIR="$_JOURNALSCRIPT_CONF_DIR/hooks"
 JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR/\~/$HOME}"
 JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR/#\~/$HOME}"
 _JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR/#\~/$HOME}"
+# remove tailing '/'
+JOURNALSCRIPT_EDITOR="${JOURNALSCRIPT_EDITOR%/}"
+JOURNALSCRIPT_JOURNAL_DIR="${JOURNALSCRIPT_JOURNAL_DIR%/}"
+_JOURNALSCRIPT_HOOKS_DIR="${_JOURNALSCRIPT_HOOKS_DIR%/}"
 
 ################################################################################
 # Functions                                                                    #
@@ -146,7 +150,7 @@ _help() {
 			Run journal COMMAND --help for more information on a command.
 		EOF
     elif [[ "$1" =~ write|configure ]]; then
-        _help$1
+        _help $1
     fi
 }
 
@@ -430,7 +434,7 @@ _write() {
     # if no argument (journal name), then default to the default journal
     local -r journal_name="${1:-$JOURNALSCRIPT_DEFAULT_JOURNAL}"
     # directory that hosts all the entries of the journal
-    local -r journal_dir="${JOURNALSCRIPT_JOURNAL_DIR}$journal_name"
+    local -r journal_dir="${JOURNALSCRIPT_JOURNAL_DIR}/$journal_name"
 
     # if the journal directory doesnt not exist, notify user and create it if
     # the user agrees

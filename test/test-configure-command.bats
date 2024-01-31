@@ -252,7 +252,7 @@ _1_1_8=\
     # assert output conforms to format
     _assert_output_conforms_to_format
     # assert configuration values are defaults
-    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor -D $HOME/Documents/\""
+    assert_output --partial "JOURNALSCRIPT_EDITOR=\"testEditor -D $HOME/Documents\""
     assert_output --partial "JOURNALSCRIPT_JOURNAL_DIR=\"$HOME/Documents/journals\""
     assert_output --partial "JOURNALSCRIPT_DEFAULT_JOURNAL=\"testJournal\""
 }

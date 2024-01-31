@@ -3,11 +3,24 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v.0.5.5 - 2024-01-31
+
+### Fixed
+
+- Sometimes paths would show with repeated '/'
+
+### Changes
+
+- File detection algorithm
+- Entry header is level 3 now
+- Removes trailing new lines form new files
+- Adds feedback when git sync and backup fails
+
 ## v.0.5.4 - 2024-01-22
 
 ### Fixed
 
-- bugs in write command overriding exiting file
+- bugs in write command overriding existing file
 - errors in git add, commit, push sequence
 
 ### Added
