@@ -1,5 +1,5 @@
 <h1 align="center">Journalscript</h1>
-<p align="center">A handy cli tool to write journals</p>
+<p align="center">Journal from the terminal</p>
 
 <div align="center">
 
@@ -9,36 +9,31 @@
 
 </div>
 
-## Why journalscript
+Journalscript is a cli that allows you to write journals from the terminal.  It aims to reduce friction when writing a journals.
 
-Journalscript allows you to journal without leaving your terminal. It aims to reduce the friction of writing a journal for those who work primarily in the terminal.
 
-## Getting started
+Just type `journal`, `Enter` and begin journaling.
 
-### Installation
+## 📗 Install
 
-#### Linux: debian, debian-based, ubuntu
+### Linux: debian, debian-based, ubuntu
 
-1. Download the debian pacakge (i.e. `journalscript_0.2.0_all.deb`) from the [release page](https://github.com/al3jandr0/journalscript/releases)
-2. Run
-   ```shell
-   sudo apt install journalscript_*_all.deb
-   ```
-3. Verify the installation by running
+1. Download the the latest deb pacakge from the [release page](https://github.com/al3jandr0/journalscript/releases)
+2. Verify the installation by running
    ```shell
    journal -v
    ```
    It should print the version number. Like this `journalscript 0.2.0`
 
-#### Other Linux distibutions - Install from source
+ Other Linux distributions - Install from source
 
-For outher distros download the source or clone the repo.
+For other distros, download the source or clone the repo.
 
-1. Move journal.sh somewhere in your path such that it gets picked it up and make it executable, and (optionaly) remove the extension `.sh`. For example:
+1. Move journal.sh somewhere to a directory included in your PATH, and (optionally) remove the `.sh.` Instal. For example:
    ```shell
    install -T -m 755 ./journal.sh $HOME/.local/bin/journal
    ```
-2. Copy the manual `journalscript.1` to a location that it will be found by the `man` command. For example:
+2. Copy `journalscript.1` to a location where it will be found by the `man` command. For example:
    ```shell
    cp journalscript.1 /usr/share/man/man1/journalscript.1
    ```
@@ -51,11 +46,11 @@ For outher distros download the source or clone the repo.
    cp src/autocomplete.sh .local/share/bash-completion/completions/journal
    ```
 
-#### MacOS - Homebrew
+### MacOS - Homebrew
 
-You will need to make sure you have Homebrew installed on your system. The instructions to do that can be found [here](https://brew.sh/)
+Requires homebrew to be installed.  You can find instructions [here](https://brew.sh/) 
 
-##### Option 1. Install the formula
+### Option 1. Install the formula
 
 1. Download the formula `journalscript.rb` from the [release page](https://github.com/al3jandr0/journalscript/releases)
 2. Then run
@@ -67,12 +62,12 @@ You will need to make sure you have Homebrew installed on your system. The instr
    journal -v
    ```
    It should print the version number. Like this `journalscript 0.2.0`
-4. If you are running bash shell, follow the steops to [enable completion for Homebrew](https://docs.brew.sh/Shell-Completion). Then, copy the autocomplete script to an appropriate location. For example:
+4. If you are running bash shell, follow the steps to [enable completion for Homebrew](https://docs.brew.sh/Shell-Completion). Then, copy the autocomplete script to an appropriate location. For example:
    ```shell
    cp src/autocomplete.sh "${HOMEBREW_PREFIX}/etc/bash_completion.d/journal"
    ```
 
-##### Option 2. Install from [my tap](https://github.com/al3jandr0/homebrew-tap)
+### Option 2. Use [my tap](https://github.com/al3jandr0/homebrew-tap)
 
 1. Install tap
    ```shell
@@ -88,44 +83,35 @@ You will need to make sure you have Homebrew installed on your system. The instr
    ```
    It should print the version number. Like this `journalscript 0.2.0`
 
-#### MacOS - from source
+### MacOS - from source
 
 Follow the steps to [install from sournce](#other-linux-distibutions---install-from-source)
 
-### Using Journalscript
+## 📗 Journal
 
-The command `journal` creates an entry to your "life" journal. The journal is stored in the default location.
-![](./docs/resources/intro-1.gif)
+Type `journal`, `Enter`, and begin journaling.  It creates a new journal and journal entry to the _life_ (default) journal (which can be customized)
+![](./docs/resources/journaling.gif)
 
-Example of writing to a different journal
-![](./docs/resources/intro-2.gif)
-
-Journalscript creates an entry for the current date if there is none. Otherwise, it opens the existing entry.
-
+You can choose to write to a specific journal.
+![](./docs/resources/journal_write_custom.gif)
 
 Run `journal --help` for more information or read the manual `man journalscript`
 
+## 📗 Customize
 
-## Customizong journalscript
-
-Journalscript looks for the configuration file `journalscript.env` in these locations in order
-
+You can drop a `journalscript.env` configuration file into any of these locations
 1. `$HOME/.config/journalscript/journalscript.env`
 2. `$HOME/.journalscript/journalscript.env`
 
-The command `configure show` (aliased `configure`) displays the configuration values.
-![](./docs/resources/configure-show-vanilla.gif)
+The command `journalscript configure init` assists you in setting up a new configuration. The command `configure show` (aliased just as `configure`) displays the resolved configuration.
+![](./docs/resources/configure_init.gif)
 
-The command `configure init` assist you setting up a new configuration
-![](./docs/resources/configure-init.gif)
+In addition to customizing the configuration file `journalscript.env`, you can load variables into your environment to override the configuration of journalscript
+![](./docs/resources/override_env_var.gif)
 
-In addition to customizing the configuration file `journalscript.env`, you can use variables in your environment to override the configuration of journalscript
-![](./docs/resources/configure-show-env.gif)
+You can combine this feature with tools such as [direnv](https://direnv.net/) to have directory-level specific journalscript configurations.
 
-You can combine this feature with tool such as [direnv](https://direnv.net/) to have directory-level specific journalscript configurations.
-In the example below uses direnv to store journals in the current directory instead of the configured directory in `journalscript.env`
-
-### Organizing journal entries
+## Organize
 
 Journalscript creates an entry per day. However, these can be stored in a separate file per day, month, or year. You can select how you want to group your journal entries with the variable
 `JOURNALSCRIP_GROUP_BY`. 
@@ -134,6 +120,7 @@ Journalscript creates an entry per day. However, these can be stored in a separa
 - Set to MONTH, and only one file will be created per month and all a given month's entries will be stored in its corresponding file.
 - Lastly, set to DAY and a new file will be created per day containing only that day's entry.
 
+<!-- Add a table to the configure section covering all of the options 
 ### Customizing the editor
 
 Journalscript tries to use the editor the `EDITOR` variable set in your environment. If it is absent, then it defaults to `vim`. However you can configure journalscript to use any editor of choice with the `JOURNALSCRIPT_EDITOR`. For example edit `journalscript.env` and replace the default `JOURNALSCRIPT_EDITOR="vim"` with `JOURNALSCRIPT_EDITOR="emacs"`, `JOURNALSCRIPT_EDITOR="nvim"`, `JOURNALSCRIPT_EDITOR="code"`, etc.
@@ -150,7 +137,7 @@ Journalscript stores journals in the local file system (technically your editor 
 - _Backup_. Executes after quitting the editor. It summarizes (backups) the updates to the journals. Either it edits  an existing entry or a new entry. a la `git push`
 
 Many cloud storage services (like DropBox, Google Drive, or OneDrive) do not need the kind of interaction that _Sync_ of _Backup_ allows for. For that kind of system, simply saving the journal files to designated directories is sufficient, and they take care of synchronization and cloud storage automatically. But other systems like git require more interaction. That's where sync and backup come in handy.
-
+-->
 <!---
 For example -  Setting up a github repository to store your journals
 - Todo: add verbose mode to configure show --verbose
