@@ -117,7 +117,7 @@ Supported configurations
 |JOURNALSCRIPT_EDITOR| vi,vim,nvim,emacs,code,etc.|`$EDITOR`| Command to launch an editor installed in your system |
 |JOURNALSCRIPT_JOURNAL_DIR| path/to/directory | `$HOME/Documents/journals/` | Directory where journals are stored |
 |JOURNALSCRIPT_GROUP_BY="YEAR" | DAY,MONTH,YEAR| YEAR | Specifies grouping of journal entries. One file per day, month, or year |
-|JOURNALSCRIPT_DEFAULT_JOURNAL| name of the default journal | Any valid directory name | life | The default journal is selected when you type journal |
+|JOURNALSCRIPT_DEFAULT_JOURNAL | Any valid directory name | life | Name of the journal that is selected when you run `journal` without the `write` command |
 |JOURNALSCRIPT_SYNC_BACKUP| name of _hook_ plugin | | Hook to invoke to synchronize and backup your journals.  `git` is built into journalscrip. Others need to be "dropped" into the config directory  |
 
 
