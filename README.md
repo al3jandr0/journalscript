@@ -111,6 +111,17 @@ In addition to customizing the configuration file `journalscript.env`, you can l
 
 You can combine this feature with tools such as [direnv](https://direnv.net/) to have directory-level specific journalscript configurations.
 
+Supported configurations
+| Name | Value | Default | Description |
+| --- | --- | --- | --- |
+|JOURNALSCRIPT_EDITOR| vi,vim,nvim,emacs,code,etc.|`$EDITOR`| Command to launch an editor installed in your system |
+|JOURNALSCRIPT_JOURNAL_DIR| path/to/directory | `$HOME/Documents/journals/` | Directory where journals are stored |
+|JOURNALSCRIPT_GROUP_BY="YEAR" | DAY,MONTH,YEAR| YEAR | Specifies grouping of journal entries. One file per day, month, or year |
+|JOURNALSCRIPT_DEFAULT_JOURNAL| name of the default journal | Any valid directory name | life | The default journal is selected when you type journal |
+|JOURNALSCRIPT_SYNC_BACKUP| name of _hook_ plugin | | Hook to invoke to synchronize and backup your journals.  `git` is built into journalscrip. Others need to be "dropped" into the config directory  |
+
+
+<!-- Add a table to the configure section covering all of the options 
 ## Organize
 
 Journalscript creates an entry per day. However, these can be stored in a separate file per day, month, or year. You can select how you want to group your journal entries with the variable
@@ -120,7 +131,7 @@ Journalscript creates an entry per day. However, these can be stored in a separa
 - Set to MONTH, and only one file will be created per month and all a given month's entries will be stored in its corresponding file.
 - Lastly, set to DAY and a new file will be created per day containing only that day's entry.
 
-<!-- Add a table to the configure section covering all of the options 
+
 ### Customizing the editor
 
 Journalscript tries to use the editor the `EDITOR` variable set in your environment. If it is absent, then it defaults to `vim`. However you can configure journalscript to use any editor of choice with the `JOURNALSCRIPT_EDITOR`. For example edit `journalscript.env` and replace the default `JOURNALSCRIPT_EDITOR="vim"` with `JOURNALSCRIPT_EDITOR="emacs"`, `JOURNALSCRIPT_EDITOR="nvim"`, `JOURNALSCRIPT_EDITOR="code"`, etc.
