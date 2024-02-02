@@ -20,7 +20,7 @@ set -e
 set -o nounset
 set -o pipefail
 _ME="journalscript"
-_VERSION="0.5.5"
+_VERSION="0.5.6"
 _COMMAND_LS="_ls"
 _COMMAND_WRITE="_write"
 _COMMAND_CONFIGURE="_configure"
@@ -448,8 +448,8 @@ _write() {
     set +e
     if [[ "git" == "$JOURNALSCRIPT_SYNC_BACKUP" ]]; then
         if is_git_repo "$journal_dir"; then
-            git -C "$journal_dir" pull --rebase --quiet
             local sync_status="SUCCEEDED"
+            git -C "$journal_dir" pull --rebase --quiet
             if [ $? -eq 1 ]; then sync_status="FAILED"; fi
             printf "==> Synched with git %s\n" "$sync_status"
             # TODO: consider prompting the user when sync fails
@@ -497,10 +497,10 @@ _write() {
         #  if it is a git repo and there are changes.
         if is_git_repo "$journal_dir"; then
             if ! quiet_git -C "$journal_dir" diff --exit-code -s "$file_fp"; then
+                local backup_status="SUCCEEDED"
                 quiet_git -C "$journal_dir" add "$file_fp" &&
                     quiet_git -C "$journal_dir" commit --allow-empty-message -m "$info_msg" &&
                     quiet_git -C "$journal_dir" push
-                local backup_status="SUCCEEDED"
                 if [ $? -eq 1 ]; then backup_status="FAILED"; fi
                 printf "==> Backed up with git %s\n" "$backup_status"
             fi
